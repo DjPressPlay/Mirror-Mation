@@ -1,34 +1,35 @@
-# Myth Ledger - League of Legends - Lore Quest 
+The page layout includes:
 
-An interactive web application that allows users to explore League of Legends summoner profiles with an immersive visual interface.
+Header
 
-🔗 **Live Site**: https://redditnreddit.netlify.app/
+Navigation
 
-## Features
+Product Name
 
-- **Summoner Profile Lookup**: Search for any League of Legends summoner by game name and tag
-- **Real-time Data**: Fetches live profile data including level, rank, LP, wins, and losses from League of Graphs
-- **Dynamic Backgrounds**: Displays random League of Legends champion splash art as animated backgrounds
-- **Interactive Home Room**: Navigate through an immersive interface with character spawns and visual effects
-- **Profile Management**: Save and confirm summoner profiles for personalized experience
+(Optional) Ad reference that led the user to the page
 
-## How It Works
+Product Description
 
-1. **Landing Page**: Start screen with animated bubbles showing top-ranked summoners
-2. **Profile Setup**: Enter your summoner name and tag to fetch your League stats
-3. **Home Room**: Interactive environment with visual effects and character interactions
+Sign-up Link
 
-## Tech Stack
+Price
 
-- Frontend: HTML, CSS, TypeScript
-- Build: esbuild for TypeScript compilation
-- Functions: Netlify serverless functions for API calls
-- External APIs: League of Legends Data Dragon API, League of Graphs web scraping
+Testimonials
 
-## Important Note
+Two Tutorial Video Containers
 
-The League of Graphs and League Wiki integrations are included to demonstrate advanced gameplay analytics and lore systems. These endpoints don't exist in the official Riot API, so lightweight demo scrapers were used purely for proof-of-concept. The production version would use authorized or self-generated data.
+Schedule a Call / Join TG
 
-## Getting Started
+Join Live Stream Event (Book Spot)
 
-The application is already live at https://redditnreddit.netlify.app/ and ready to use. No local setup is required.
+Sign-up (repeat CTA)
+
+Price (confirmation or bonus section)
+
+About
+
+Disclosure
+
+Footer
+
+Artworqq Kevin j Suber jr 
