@@ -41,6 +41,7 @@
       text-align: center;
       padding: 3rem 1rem 2rem;
       background: radial-gradient(circle at center, #1a1a1a, #000);
+      border-bottom: 2px solid #fff;
     }
 
     header h1 {
@@ -126,6 +127,7 @@
       max-width: 1100px;
       margin: 0 auto;
       text-align: center;
+      border-bottom: 2px solid #fff;
     }
 
     .feature {
@@ -155,10 +157,16 @@
 
     footer {
       text-align: center;
-      padding: 3rem 1rem;
-      font-size: .85rem;
+      padding: 1rem 1rem;
+      font-size: .75rem;
       color: #777;
-      border-top: 1px solid rgba(255,255,255,.08);
+      border-top: 2px solid #fff;
+    }
+
+    footer p {
+      margin: 0;
+      line-height: 1;
+      display: inline;
     }
 
     footer a {
@@ -168,6 +176,150 @@
 
     footer a:hover {
       text-decoration: underline;
+    }
+
+    .funnel-explainer {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+      text-align: center;
+      background: #0d0d0d;
+      border-top: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+    }
+
+    .funnel-explainer h2 {
+      font-size: 2.2rem;
+      color: #00ffe1;
+      margin-bottom: 1rem;
+      font-weight: 700;
+    }
+
+    .funnel-explainer > p {
+      font-size: 1.1rem;
+      color: #bbb;
+      max-width: 800px;
+      margin: 0 auto 3rem;
+      line-height: 1.7;
+    }
+
+    .funnel-visual {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      align-items: center;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .carousel-container {
+      position: relative;
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+
+    .carousel-track {
+      display: flex;
+      transition: transform 0.5s ease-in-out;
+    }
+
+    .carousel-slide {
+      min-width: 100%;
+      padding: 0 1rem;
+    }
+
+    .funnel-image-container {
+      width: 100%;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .funnel-image {
+      width: 100%;
+      max-width: 500px;
+      height: auto;
+      border-radius: 12px;
+      border: 3px solid #fff;
+      box-shadow: 0 8px 30px rgba(0, 255, 225, 0.3);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .funnel-image:hover {
+      transform: scale(1.02);
+      box-shadow: 0 12px 40px rgba(0, 255, 225, 0.5);
+    }
+
+    .funnel-caption {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background: rgba(0, 255, 225, 0.1);
+      border-radius: 8px;
+      border: 1px solid rgba(0, 255, 225, 0.3);
+    }
+
+    .funnel-caption h3 {
+      color: #00ffe1;
+      font-size: 1.3rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .funnel-caption p {
+      color: #bbb;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .carousel-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0, 255, 225, 0.2);
+      border: 2px solid #00ffe1;
+      color: #00ffe1;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.2rem;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      z-index: 10;
+    }
+
+    .carousel-btn:hover {
+      background: rgba(0, 255, 225, 0.4);
+      box-shadow: 0 0 15px rgba(0, 255, 225, 0.6);
+    }
+
+    .carousel-btn.prev {
+      left: -50px;
+    }
+
+    .carousel-btn.next {
+      right: -50px;
+    }
+
+    .carousel-indicators {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .indicator-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .indicator-dot.active {
+      background: #00ffe1;
+      box-shadow: 0 0 10px rgba(0, 255, 225, 0.8);
     }
 
     @media (max-width:600px) {
@@ -182,6 +334,12 @@
         width: 100%;
       }
       .topbar { justify-content: center; flex-wrap: wrap; gap: 1rem; font-size: .8rem; }
+      .funnel-explainer h2 { font-size: 1.6rem; }
+      .funnel-explainer > p { font-size: 1rem; }
+      .carousel-btn.prev { left: -20px; }
+      .carousel-btn.next { right: -20px; }
+      .funnel-caption h3 { font-size: 1.1rem; }
+      .funnel-caption p { font-size: 0.85rem; }
     }
   </style>
 </head>
@@ -195,7 +353,7 @@
   </div>
 
   <header>
-    <h1>Zetsu Infinity Access</h1>
+    <h1>Zetsu Quick Funnelz</h1>
     <p>Join the next evolution of creation. Unlock your portal, connect your nodes, and amplify your reach across every Zetsumetsu system.</p>
 
     <div class="hero-input-group">
@@ -205,6 +363,66 @@
 
     <div id="name-card" style="display:none;"></div>
   </header>
+
+  <section class="funnel-explainer">
+    <h2>What is a Funnel?</h2>
+    <p>A funnel is a strategic marketing system that guides visitors through a journey—from initial awareness to becoming customers. Like water flowing through a funnel, potential customers move through stages, with each step designed to build trust, engagement, and conversion.</p>
+    
+    <div class="funnel-visual">
+      <div class="carousel-container">
+        <button class="carousel-btn prev" onclick="moveCarousel(-1)">‹</button>
+        <button class="carousel-btn next" onclick="moveCarousel(1)">›</button>
+        
+        <div class="carousel-track" id="carousel-track">
+          <!-- Slide 1: Marketing Funnel -->
+          <div class="carousel-slide">
+            <div class="funnel-image-container">
+              <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80" alt="Marketing Funnel Diagram" class="funnel-image">
+              <div class="funnel-caption">
+                <h3>Classic Marketing Funnel</h3>
+                <p>The traditional 4-stage funnel: Awareness → Interest → Decision → Action. Guide prospects through each stage to maximize conversions.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide 2: Sales Funnel -->
+          <div class="carousel-slide">
+            <div class="funnel-image-container">
+              <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80" alt="Sales Funnel Chart" class="funnel-image">
+              <div class="funnel-caption">
+                <h3>Sales Conversion Funnel</h3>
+                <p>Track your sales pipeline from initial contact to closed deal. Optimize each stage to increase your conversion rate.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide 3: Lead Generation -->
+          <div class="carousel-slide">
+            <div class="funnel-image-container">
+              <img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&q=80" alt="Lead Generation Strategy" class="funnel-image">
+              <div class="funnel-caption">
+                <h3>Lead Generation Funnel</h3>
+                <p>Capture, nurture, and convert leads systematically. Build relationships through targeted email sequences and valuable content.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide 4: Customer Journey -->
+          <div class="carousel-slide">
+            <div class="funnel-image-container">
+              <img src="https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800&q=80" alt="Customer Journey Map" class="funnel-image">
+              <div class="funnel-caption">
+                <h3>Customer Journey Funnel</h3>
+                <p>Map the complete customer experience from discovery to loyalty. Create touchpoints that delight at every stage.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="carousel-indicators" id="carousel-indicators"></div>
+    </div>
+  </section>
 
   <section class="features" id="start">
     <div class="feature">
@@ -222,9 +440,7 @@
   </section>
 
   <footer>
-    © 2025 Zetsumetsu Corporation™ — Artworqq Kevin Suber. All Rights Reserved.
-    <br>
-    <a href="https://sporez.netlify.app/" target="_blank">Spore’z Network</a> | <a href="#">SignalZ</a> | <a href="#">Z-Auth</a>
+    <p>© 2025 Zetsumetsu Corporation™ | All systems, products, and materials are the property of Zetsumetsu Corporation. Unauthorized use or reproduction is prohibited. | Zetsumetsu EOe™ | Artworqq Kevin Suber | <a href="https://sporez.netlify.app/" target="_blank">Spore'z Network</a> | <a href="#">SignalZ</a> | <a href="#">Z-Auth</a></p>
   </footer>
 
   <script>
@@ -249,6 +465,53 @@
         window.location.href = '/info.html';
       }, 1500);
     });
+
+    // Carousel functionality
+    let currentSlide = 0;
+    const track = document.getElementById('carousel-track');
+    const slides = document.querySelectorAll('.carousel-slide');
+    const totalSlides = slides.length;
+    const indicatorsContainer = document.getElementById('carousel-indicators');
+
+    // Create indicator dots
+    for (let i = 0; i < totalSlides; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'indicator-dot' + (i === 0 ? ' active' : '');
+      dot.onclick = () => goToSlide(i);
+      indicatorsContainer.appendChild(dot);
+    }
+
+    function updateCarousel() {
+      track.style.transform = `translateX(-${currentSlide * 100}%)`;
+      
+      // Update indicators
+      const dots = document.querySelectorAll('.indicator-dot');
+      dots.forEach((dot, index) => {
+        dot.classList.toggle('active', index === currentSlide);
+      });
+    }
+
+    function moveCarousel(direction) {
+      currentSlide += direction;
+      
+      if (currentSlide < 0) {
+        currentSlide = totalSlides - 1;
+      } else if (currentSlide >= totalSlides) {
+        currentSlide = 0;
+      }
+      
+      updateCarousel();
+    }
+
+    function goToSlide(index) {
+      currentSlide = index;
+      updateCarousel();
+    }
+
+    // Auto-advance carousel every 5 seconds
+    setInterval(() => {
+      moveCarousel(1);
+    }, 5000);
   </script>
 </body>
 </html>
