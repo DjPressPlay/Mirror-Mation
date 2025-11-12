@@ -3,96 +3,131 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Info</title>
-  <link rel="stylesheet" href="styles.css" />
+  <title>Info / Example Page</title>
   <style>
     body {
       margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: radial-gradient(circle at center, #0c0c0c, #000);
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
+      font-family: Arial, sans-serif;
+      background: #111;
       color: #fff;
+      line-height: 1.5;
+    }
+
+    header {
+      background: linear-gradient(90deg, #0ff, #0aa);
+      padding: 20px;
+      text-align: center;
+      font-size: 28px;
+      font-weight: bold;
+      box-shadow: 0 2px 8px rgba(0,255,255,0.3);
+    }
+
+    nav {
+      background: #000;
       display: flex;
       justify-content: center;
-      align-items: center;
-      height: 100vh;
+      gap: 30px;
+      padding: 15px 0;
+      box-shadow: 0 2px 8px rgba(0,255,255,0.2);
     }
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.6);
-      z-index: -1;
-    }
-    #tutorial-screen {
-      text-align: center;
-      padding: 40px;
-      border: 3px solid #00ffff;
-      border-radius: 12px;
-      background: rgba(10,10,10,0.9);
-      box-shadow: 0 0 30px rgba(0,255,255,0.4);
-    }
-    button {
-      margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 16px;
-      background: #00ffff;
-      color: #000;
-      border: none;
-      border-radius: 8px;
+
+    nav a {
+      color: cyan;
+      text-decoration: none;
       font-weight: bold;
-      cursor: pointer;
-      transition: 0.2s;
+      font-size: 16px;
+      transition: color 0.3s;
     }
-    button:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 10px #00ffff;
+
+    nav a:hover {
+      color: #0ff;
+    }
+
+    section {
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    h2 {
+      border-left: 5px solid cyan;
+      padding-left: 10px;
+      font-size: 24px;
+      margin-bottom: 15px;
+    }
+
+    .example-card {
+      border: 3px solid cyan;
+      border-radius: 12px;
+      background: rgba(0,0,0,0.4);
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 0 15px cyan;
+    }
+
+    .video-demo {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .video-demo iframe {
+      width: 90%;
+      max-width: 800px;
+      height: 450px;
+      border-radius: 12px;
+      border: 3px solid cyan;
+      box-shadow: 0 0 15px cyan;
+    }
+
+    footer {
+      background: #000;
+      text-align: center;
+      padding: 20px;
+      margin-top: 60px;
+      border-top: 2px solid cyan;
+      font-size: 14px;
     }
   </style>
 </head>
 <body>
-  <div id="info-box-container"></div>
 
-  <div id="tutorial-screen">
-    <h1>📘 Info</h1>
-    <p><strong>Welcome to Myth Ledger: League of Legends Lore Quest!</strong></p>
-    <p>Step into the archive where stories awaken. Your journey begins here! Every quest completed reveals new lore, rare rewards, and deeper ties to your champions.</p>
-    <p><strong>🎯 Active Quest set:</strong> Complete quests to unlock Champion Lore Cards, earn items, and level up your Champion Records Rank!</p>
-    <p><strong>Quest 1:</strong> Press continue to Load your Summoner Profile → Sync your identity and open the first page of your myth.</p>
-    <button id="continue-btn">Continue to Summoner Selector</button>
-  </div>
+  <header>
+    Mini Funnel Builder - Info Page
+  </header>
 
-  <script type="module">
-    document.getElementById("continue-btn").addEventListener("click", () => {
-      window.location.href = "ZetsuFunnelZ.html";
-    });
-  </script>
+  <nav>
+    <a href="#about">About</a>
+    <a href="#example">Example</a>
+    <a href="#video">Demo</a>
+  </nav>
 
-  <script>
-    // Set random LoL champion splash as background
-    async function setRandomChampionBackground() {
-      try {
-        const championsResponse = await fetch('https://ddragon.leagueoflegends.com/cdn/14.1.1/data/en_US/champion.json');
-        const championsData = await championsResponse.json();
-        const championKeys = Object.keys(championsData.data);
-        const randomChampion = championKeys[Math.floor(Math.random() * championKeys.length)];
-        const championId = championsData.data[randomChampion].id;
-        const splashUrl = `https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${championId}_0.jpg`;
-        document.body.style.backgroundImage = `url('${splashUrl}')`;
-      } catch (err) {
-        console.error('Failed to load champion background:', err);
-      }
-    }
-    
-    // Set background on page load
-    window.addEventListener('DOMContentLoaded', setRandomChampionBackground);
-  </script>
+  <section id="about">
+    <h2>About</h2>
+    <p>
+      Welcome to the Mini Funnel Builder! This tool allows you to quickly generate professional landing pages and sales funnels. 
+      Enter your screen name on the previous page to start building your first template. Everything is saved locally for now.
+    </p>
+  </section>
 
-  <script type="module" src="src/gameController.js"></script>
+  <section id="example">
+    <h2>Example Funnel</h2>
+    <div class="example-card">
+      <h3>Product Name: Super Widget 3000</h3>
+      <p>Short description of the product goes here. Highlight benefits, features, and why users should care.</p>
+      <p><strong>Price:</strong> $49.99</p>
+      <p><strong>Sign-up Link:</strong> <a href="#" style="color:#0ff;">Join Now</a></p>
+      <p><strong>Testimonials:</strong> "This product changed my life!" - Jane D.</p>
+    </div>
+  </section>
+
+  <section id="video" class="video-demo">
+    <h2>Video Demo</h2>
+    <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Demo Video" frameborder="0" allowfullscreen></iframe>
+  </section>
+
+  <footer>
+    &copy; 2025 Artworqq Kevin J Suber Jr
+  </footer>
+
 </body>
 </html>
