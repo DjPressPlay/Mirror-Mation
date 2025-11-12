@@ -2,6 +2,6 @@
 var continueBtn = document.getElementById("continue-btn");
 if (continueBtn) {
   continueBtn.addEventListener("click", () => {
-    window.location.href = "/Summoner-Selector.html";
+    window.location.href = "/ZetsuFunnelZ.html";
   });
 }
