@@ -36,6 +36,33 @@
       margin: 0 auto 2rem;
     }
 
+    .hero-input-group {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 600px;
+      margin: 0 auto 2rem;
+    }
+
+    .hero-input-group input {
+      padding: 1rem 1.5rem;
+      font-size: 16px;
+      border: 2px solid #2fffda;
+      border-radius: 8px;
+      flex: 1;
+      min-width: 250px;
+      font-family: 'Poppins', sans-serif;
+      background: #1a1a1a;
+      color: #fff;
+    }
+
+    .hero-input-group input:focus {
+      outline: none;
+      border-color: #00d4ff;
+    }
+
     .cta-btn {
       display: inline-block;
       background: linear-gradient(90deg, #00ffe1, #00a2ff);
@@ -46,10 +73,26 @@
       text-decoration: none;
       transition: transform .2s, box-shadow .2s;
       box-shadow: 0 0 20px rgba(0,255,221,.3);
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
     }
     .cta-btn:hover {
       transform: translateY(-2px);
       box-shadow: 0 0 30px rgba(0,255,221,.6);
+    }
+
+    #name-card {
+      margin-top: 30px;
+      padding: 20px 40px;
+      background: #151515;
+      color: #00ffe1;
+      border-radius: 8px;
+      display: inline-block;
+      font-size: 20px;
+      font-weight: 600;
+      box-shadow: 0 4px 15px rgba(0,255,221,0.15);
+      border: 1px solid rgba(0,255,234,.3);
     }
 
     .features {
@@ -107,6 +150,14 @@
     @media (max-width:600px) {
       header h1 { font-size: 2rem; }
       .cta-btn { padding: .9rem 2rem; }
+      .hero-input-group {
+        flex-direction: column;
+        width: 100%;
+        padding: 0 1rem;
+      }
+      .hero-input-group input {
+        width: 100%;
+      }
     }
   </style>
 </head>
@@ -115,7 +166,13 @@
   <header>
     <h1>Zetsu Infinity Access</h1>
     <p>Join the next evolution of creation. Unlock your portal, connect your nodes, and amplify your reach across every Zetsumetsu system.</p>
-    <a href="#start" class="cta-btn">Activate My Portal</a>
+
+    <div class="hero-input-group">
+      <input type="text" id="screen-name" placeholder="Enter your screen name" maxlength="20" />
+      <button class="cta-btn" id="start-btn">Start Your Free Trial</button>
+    </div>
+
+    <div id="name-card" style="display:none;"></div>
   </header>
 
   <section class="features" id="start">
@@ -140,5 +197,28 @@
     <a href="https://sporez.netlify.app/" target="_blank">Spore’z Network</a> | <a href="#">SignalZ</a> | <a href="#">Z-Auth</a>
   </footer>
 
+  <script>
+    const startBtn = document.getElementById('start-btn');
+    const screenNameInput = document.getElementById('screen-name');
+    const nameCard = document.getElementById('name-card');
+
+    startBtn.addEventListener('click', () => {
+      const name = screenNameInput.value.trim();
+      if(!name) {
+        alert('Please enter a screen name!');
+        return;
+      }
+
+      localStorage.setItem('screenName', name);
+      localStorage.setItem('signedUp', 'true');
+
+      nameCard.textContent = `Welcome, ${name}!`;
+      nameCard.style.display = 'inline-block';
+
+      setTimeout(() => {
+        window.location.href = '/info.html';
+      }, 1500);
+    });
+  </script>
 </body>
 </html>
