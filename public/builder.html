@@ -447,6 +447,144 @@
       margin-left: 0;
     }
 
+    .floating-container {
+      display: none;
+      position: fixed;
+      width: 400px;
+      height: 400px;
+      background: #ffffff;
+      border: 2px solid #667eea;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+      z-index: 1000;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .floating-container.active {
+      display: flex;
+    }
+
+    #template-container {
+      top: 120px;
+      left: 30px;
+    }
+
+    #preview-container {
+      top: 120px;
+      right: 30px;
+    }
+
+    .floating-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #ffffff;
+    }
+
+    .floating-header h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .floating-close {
+      background: rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      border: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 18px;
+      line-height: 1;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .floating-close:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: rotate(90deg);
+    }
+
+    .floating-body {
+      flex: 1;
+      overflow: auto;
+      padding: 20px;
+    }
+
+    .template-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .template-card {
+      padding: 20px;
+      border: 2px solid #cbd5e0;
+      border-radius: 8px;
+      background: #f7fafc;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s ease;
+      font-weight: 600;
+      color: #4a5568;
+    }
+
+    .template-card:hover {
+      background: #edf2f7;
+      border-color: #667eea;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(102, 126, 234, 0.2);
+    }
+
+    .template-card.selected {
+      background: #667eea;
+      border-color: #667eea;
+      color: #ffffff;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+    }
+
+    .preview-viewer-content {
+      text-align: center;
+    }
+
+    .preview-viewer-content iframe {
+      width: 100%;
+      height: 280px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      background: #ffffff;
+    }
+
+    .preview-actions {
+      margin-top: 15px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .preview-actions button {
+      flex: 1;
+      padding: 10px;
+      background: #667eea;
+      color: #ffffff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .preview-actions button:hover {
+      background: #764ba2;
+      transform: translateY(-2px);
+    }
+
     .preview-overlay {
       display: none;
       position: fixed;
@@ -639,6 +777,37 @@
   </div>
 
   <div class="side-panel-tab" id="side-panel-tab">MENU</div>
+
+  <div class="floating-container" id="template-container">
+    <div class="floating-header">
+      <h3>Template Style Version</h3>
+      <button class="floating-close" id="template-close">×</button>
+    </div>
+    <div class="floating-body">
+      <div class="template-grid">
+        <div class="template-card selected" data-template="classic">Classic</div>
+        <div class="template-card" data-template="modern">Modern</div>
+        <div class="template-card" data-template="minimal">Minimal</div>
+        <div class="template-card" data-template="vibrant">Vibrant</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="floating-container" id="preview-container">
+    <div class="floating-header">
+      <h3>Preview Viewer</h3>
+      <button class="floating-close" id="preview-viewer-close">×</button>
+    </div>
+    <div class="floating-body">
+      <div class="preview-viewer-content">
+        <iframe id="mini-preview-iframe" src="preview.html"></iframe>
+        <div class="preview-actions">
+          <button id="refresh-preview-btn">Refresh</button>
+          <button id="full-preview-btn">Full View</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div class="preview-overlay" id="preview-overlay">
     <div class="preview-container">
@@ -866,6 +1035,15 @@
     const sidePanel = document.getElementById('side-panel');
     const sidePanelTab = document.getElementById('side-panel-tab');
     const contentWrapper = document.getElementById('content-wrapper');
+    
+    const templateContainer = document.getElementById('template-container');
+    const previewContainer = document.getElementById('preview-container');
+    const templateClose = document.getElementById('template-close');
+    const previewViewerClose = document.getElementById('preview-viewer-close');
+    const templateCards = document.querySelectorAll('.template-card');
+    const miniPreviewIframe = document.getElementById('mini-preview-iframe');
+    const refreshPreviewBtn = document.getElementById('refresh-preview-btn');
+    const fullPreviewBtn = document.getElementById('full-preview-btn');
 
     const templates = ['classic', 'modern', 'minimal', 'vibrant'];
     let currentTemplateIndex = 0;
@@ -883,14 +1061,45 @@
     });
 
     templateStyleBtn.addEventListener('click', () => {
-      currentTemplateIndex = (currentTemplateIndex + 1) % templates.length;
-      const newTemplate = templates[currentTemplateIndex];
-      templateInput.value = newTemplate;
-      
-      const templateName = newTemplate.charAt(0).toUpperCase() + newTemplate.slice(1);
-      templateStyleBtn.setAttribute('title', `Template Style: ${templateName}`);
-      
+      templateContainer.classList.add('active');
+    });
+
+    templateClose.addEventListener('click', () => {
+      templateContainer.classList.remove('active');
+    });
+
+    previewViewerBtn.addEventListener('click', () => {
       saveFunnelData();
+      miniPreviewIframe.src = 'preview.html?' + new Date().getTime();
+      previewContainer.classList.add('active');
+    });
+
+    previewViewerClose.addEventListener('click', () => {
+      previewContainer.classList.remove('active');
+    });
+
+    refreshPreviewBtn.addEventListener('click', () => {
+      saveFunnelData();
+      miniPreviewIframe.src = 'preview.html?' + new Date().getTime();
+    });
+
+    fullPreviewBtn.addEventListener('click', () => {
+      saveFunnelData();
+      previewIframe.src = 'preview.html?' + new Date().getTime();
+      previewOverlay.classList.add('active');
+    });
+
+    templateCards.forEach(card => {
+      card.addEventListener('click', () => {
+        templateCards.forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        
+        const selectedTemplate = card.dataset.template;
+        templateInput.value = selectedTemplate;
+        currentTemplateIndex = templates.indexOf(selectedTemplate);
+        
+        saveFunnelData();
+      });
     });
 
     sidePanelItems.forEach(item => {
@@ -901,12 +1110,6 @@
         const section = item.dataset.section;
         console.log(`Navigating to ${section} section`);
       });
-    });
-
-    previewViewerBtn.addEventListener('click', () => {
-      saveFunnelData();
-      previewIframe.src = 'preview.html?' + new Date().getTime();
-      previewOverlay.classList.add('active');
     });
 
     previewClose.addEventListener('click', () => {
@@ -935,8 +1138,13 @@
             const templateIndex = templates.indexOf(data.template);
             if (templateIndex !== -1) {
               currentTemplateIndex = templateIndex;
-              const templateName = data.template.charAt(0).toUpperCase() + data.template.slice(1);
-              templateStyleBtn.setAttribute('title', `Template Style: ${templateName}`);
+              templateCards.forEach(card => {
+                if (card.dataset.template === data.template) {
+                  card.classList.add('selected');
+                } else {
+                  card.classList.remove('selected');
+                }
+              });
             }
           }
         } catch (e) {
