@@ -1,467 +1,160 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Myth Ledger Summoner Setup</title>
-<style>
-body {
-  margin: 0;
-  font-family: 'Segoe UI', sans-serif;
-  background: radial-gradient(circle at center, #0a0a0a, #000);
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  color: #fff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
-body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.6);
-  z-index: -1;
-}
-.selector-wrapper {
-  border: 3px solid #00ffff;
-  border-radius: 12px;
-  background: rgba(10,10,10,0.9);
-  box-shadow: 0 0 30px rgba(0,255,255,0.4);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 32px;
-  width: 480px;
-  max-width: 90vw;
-}
-.selector-header {
-  font-size: 22px;
-  font-weight: bold;
-  color: #00ffff;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 20px;
-  text-shadow: 0 0 10px #00ffff;
-}
-.search-row {
-  display: flex;
-  gap: 10px;
-  width: 100%;
-  justify-content: center;
-  margin-bottom: 20px;
-}
-.search-row input {
-  background: #111;
-  border: 1px solid #00ffff;
-  border-radius: 6px;
-  color: #fff;
-  padding: 8px 12px;
-  font-size: 14px;
-}
-.search-row input:first-of-type {
-  flex: 2;
-}
-.search-row input:nth-of-type(2) {
-  flex: 1;
-}
-.search-row button {
-  background: #00ffff;
-  color: #000;
-  border: none;
-  border-radius: 6px;
-  padding: 8px 14px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.2s;
-}
-.search-row button:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 10px #00ffff;
-}
-.search-row button:disabled {
-  background: #333;
-  color: #777;
-  cursor: not-allowed;
-}
-.profile-display {
-  width: 200px;
-  height: 200px;
-  border: 2px solid #00ffff;
-  border-radius: 12px;
-  background: #111;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  margin-bottom: 12px;
-}
-.profile-display img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.summoner-name {
-  font-size: 18px;
-  margin-top: 10px;
-  text-shadow: 0 0 8px #00ffff;
-}
-.summoner-level {
-  font-size: 13px;
-  color: #aaa;
-  margin-top: 4px;
-}
-.rank-display {
-  margin-top: 10px;
-  font-size: 14px;
-  color: #00ffff;
-  text-shadow: 0 0 8px rgba(0,255,255,0.7);
-}
-.action-row {
-  margin-top: 20px;
-  display: flex;
-  gap: 12px;
-}
-.action-row button {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.2s;
-}
-.save-btn { background: #00ffff; color: #000; }
-.home-btn { background: #111; border: 1px solid #00ffff; color: #00ffff; }
-.save-btn:hover, .home-btn:hover { transform: scale(1.05); }
-
-/* ✅ Mini-card for real scrappable data only */
-.mini-card {
-  margin-top: 18px;
-  width: 100%;
-  border: 2px solid #00ffff;
-  border-radius: 10px;
-  padding: 12px;
-  background: rgba(15,15,15,0.9);
-  display: none;
-  flex-direction: column;
-  gap: 6px;
-  text-align: left;
-  box-shadow: 0 0 15px rgba(0,255,255,0.2);
-}
-.mini-card h4 {
-  text-align: center;
-  margin: 0 0 8px 0;
-  font-size: 15px;
-  color: #00ffff;
-  text-shadow: 0 0 8px #00ffff;
-}
-.mini-stat {
-  display: flex;
-  justify-content: space-between;
-  font-size: 13px;
-  color: #bfffe8;
-}
-.mini-stat b { color: #00ffff; }
-
-.status {
-  margin-top: 16px;
-  font-size: 14px;
-  text-align: center;
-}
-.loading { color: #ffd24d; }
-.error { color: #ff6b6b; }
-.success { color: #00ff99; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Funnel Page Template</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin:0;
+      padding:0;
+      background:#111;
+      color:#fff;
+      text-align:center;
+    }
+    header, footer {
+      background:#000;
+      padding:20px;
+    }
+    nav {
+      background:#222;
+      padding:10px;
+      display:flex;
+      justify-content:center;
+      gap:20px;
+    }
+    nav a {
+      color:#0ff;
+      text-decoration:none;
+      font-weight:bold;
+    }
+    section {
+      padding:40px 20px;
+      max-width:800px;
+      margin:auto;
+      border-bottom:1px solid #333;
+    }
+    h1,h2 { color:#0ff; margin-bottom:10px; }
+    p, a { color:#fff; }
+    .price { font-size:1.5em; font-weight:bold; color:#0ff; margin:10px 0; }
+    .cta { display:inline-block; background:#0ff; color:#000; padding:10px 20px; margin-top:10px; border-radius:8px; text-decoration:none; font-weight:bold; }
+    .video-container { display:flex; flex-wrap:wrap; gap:20px; justify-content:center; margin-top:20px; }
+    iframe { width:360px; height:200px; border:none; }
+  </style>
 </head>
 <body>
 
-<div class="selector-wrapper">
-  <div class="selector-header">Myth Ledger Summoner Setup</div>
+<header>
+  <h1 id="productName">SuperCool Gadget 3000</h1>
+</header>
 
-  <div class="search-row">
-    <input id="summoner" placeholder="Game Name" onkeypress="if(event.key==='Enter')runScrape()" disabled>
-    <input id="tagline" placeholder="#NA1" onkeypress="if(event.key==='Enter')runScrape()" disabled>
-    <button id="searchBtn" onclick="runScrape()" disabled>Search</button>
+<nav>
+  <a href="#description">Product</a>
+  <a href="#testimonials">Testimonials</a>
+  <a href="#tutorials">Tutorials</a>
+  <a href="#schedule">Schedule</a>
+  <a href="#livestream">Live Stream</a>
+  <a href="#about">About</a>
+</nav>
+<section id="ad">
+  <h2>Advertisement</h2>
+  <div class="video-container">
+    <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe>
   </div>
+</section>
 
-  <div class="profile-display">
-    <img id="profile-icon" src="./METAMEDIA/lol.jpeg" alt="Profile Icon">
+<section id="description">
+  <h2>Product Description</h2>
+  <p id="productDesc">The SuperCool Gadget 3000 makes your life easier, faster, and more fun. Perfect for home, office, or travel.</p>
+  <p class="price" id="price">$99.99</p>
+  <a href="#" class="cta" id="signUpLink">Sign Up Now</a>
+</section>
+
+<section id="testimonials">
+  <h2>Testimonials</h2>
+  <div style="display:flex; justify-content:center; flex-wrap:wrap; gap:20px; margin-top:20px;">
+
+    <!-- Testimonial 1 -->
+    <div style="width:200px; flex-shrink:0; text-align:center;">
+      <div style="width:200px; height:300px; overflow:hidden; border-radius:20px; background:#000;">
+        <img src="https://via.placeholder.com/200x300" alt="User 1" style="width:100%; height:100%; object-fit:cover; display:block;">
+      </div>
+      <div style="background:#222; color:#fff; padding:10px; border-radius:10px; margin-top:5px;">
+        <p>"Absolutely love it! Changed the way I work." <br><strong>- Alex P.</strong></p>
+      </div>
+    </div>
+
+    <!-- Testimonial 2 -->
+    <div style="width:200px; flex-shrink:0; text-align:center;">
+      <div style="width:200px; height:300px; overflow:hidden; border-radius:20px; background:#000;">
+        <img src="https://via.placeholder.com/200x300" alt="User 2" style="width:100%; height:100%; object-fit:cover; display:block;">
+      </div>
+      <div style="background:#222; color:#fff; padding:10px; border-radius:10px; margin-top:5px;">
+        <p>"Best gadget ever! Highly recommend." <br><strong>- Jamie L.</strong></p>
+      </div>
+    </div>
+
+    <!-- Testimonial 3 -->
+    <div style="width:200px; flex-shrink:0; text-align:center;">
+      <div style="width:200px; height:300px; overflow:hidden; border-radius:20px; background:#000;">
+        <img src="https://via.placeholder.com/200x300" alt="User 3" style="width:100%; height:100%; object-fit:cover; display:block;">
+      </div>
+      <div style="background:#222; color:#fff; padding:10px; border-radius:10px; margin-top:5px;">
+        <p>"I use it every day — fantastic product!" <br><strong>- Sam K.</strong></p>
+      </div>
+    </div>
+
+  
+
   </div>
+</section>
 
-  <div class="summoner-name" id="player-name">No Profile Loaded</div>
-  <div class="summoner-level" id="player-level"></div>
-  <div class="rank-display" id="player-rank"></div>
-
-  <div class="action-row">
-    <button class="save-btn" id="save-profile" style="display:none;">Confirm Profile</button>
-    <button class="home-btn" id="goto-home">Enter Home Room</button>
+<section id="tutorials">
+  <h2>Tutorial Videos</h2>
+  <div class="video-container">
+    <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe>
+    <iframe src="https://www.youtube.com/embed/oHg5SJYRHA0" allowfullscreen></iframe>
   </div>
+</section>
 
-  <!-- ✅ Only the real scrappable stats -->
-  <div class="mini-card" id="mini-card">
-    <h4>Summoner Stats</h4>
-    <div class="mini-stat"><b>Level:</b> <span id="mini-level">—</span></div>
-    <div class="mini-stat"><b>Rank:</b> <span id="mini-rank">—</span></div>
-    <div class="mini-stat"><b>LP:</b> <span id="mini-lp">—</span></div>
-    <div class="mini-stat"><b>Wins:</b> <span id="mini-wins">—</span></div>
-    <div class="mini-stat"><b>Losses:</b> <span id="mini-losses">—</span></div>
-  </div>
+<section id="schedule">
+  <h2>Schedule a Call / Join Telegram</h2>
+  <a href="#" class="cta" id="scheduleLink">Book a Call / Join TG</a>
+</section>
 
-  <div class="status" id="status"></div>
-</div>
+<section id="livestream">
+  <h2>Join Live Stream Event</h2>
+  <a href="#" class="cta" id="liveStreamLink">Reserve Your Spot</a>
+</section>
+
+<section id="signup2">
+  <h2>Sign Up Again</h2>
+  <a href="#" class="cta" id="signUpLink2">Sign Up Now</a>
+  <p class="price" id="price2">$99.99</p>
+</section>
+
+<section id="about">
+  <h2>About</h2>
+  <p id="aboutText">The SuperCool Gadget 3000 was designed by tech innovators to simplify everyday tasks. Easy to use, portable, and stylish.</p>
+</section>
+
+<section id="disclosure">
+  <h2>Disclosure</h2>
+  <p id="disclosureText">*Results may vary. This product is for demonstration purposes. All images and videos are for illustrative purposes only.</p>
+</section>
+
+<footer>
+  <p>&copy; 2025 SuperCool Gadgets, Inc.</p>
+</footer>
 
 <script>
-  // 🔹 Set random LoL champion splash as background
-async function setRandomChampionBackground() {
-  try {
-    const championsResponse = await fetch('https://ddragon.leagueoflegends.com/cdn/14.1.1/data/en_US/champion.json');
-    const championsData = await championsResponse.json();
-    const championKeys = Object.keys(championsData.data);
-    const randomChampion = championKeys[Math.floor(Math.random() * championKeys.length)];
-    const championId = championsData.data[randomChampion].id;
-    const splashUrl = `https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${championId}_0.jpg`;
-    document.body.style.backgroundImage = `url('${splashUrl}')`;
-  } catch (err) {
-    console.error('Failed to load champion background:', err);
-  }
-}
-
-  // 🔹 Preload handshake for faster real scrape
-window.addEventListener("DOMContentLoaded", () => {
-  // Set random champion background on page load
-  setRandomChampionBackground();
-  
-  // dummy fetch to warm up DNS/TLS/connection
-  fetch("https://www.leagueofgraphs.com/summoner/na/placeholder").catch(() => {});
-
-  // then continue with your existing setup
-  checkRegionStatus();
-});
-
-  
-
-
-async function checkRegionStatus() {
-  const statusDiv = document.getElementById("status");
-  const input = document.getElementById("summoner");
-  const tagInput = document.getElementById("tagline");
-  const btn = document.getElementById("searchBtn");
-  
-  try {
-    statusDiv.textContent = "Checking Riot server status...";
-    statusDiv.className = "status loading";
-    
-    const res = await fetch("/.netlify/functions/checkStatus");
-    if (!res.ok) throw new Error("Failed to check server status");
-    
-    const data = await res.json();
-    
-    if (data.allOnline) {
-      statusDiv.textContent = "All servers online. Ready to search!";
-      statusDiv.className = "status success";
-      statusDiv.style.color = "#ffd700";
-    } else {
-      statusDiv.textContent = `Some servers offline: ${data.offlineRegions.join(', ')}. You can still search.`;
-      statusDiv.className = "status loading";
-      statusDiv.style.color = "#ffd700";
-    }
-    
-    input.disabled = false;
-    tagInput.disabled = false;
-    btn.disabled = false;
-  } catch (err) {
-    statusDiv.textContent = "Unable to check server status. You can still search.";
-    statusDiv.className = "status error";
-    input.disabled = false;
-    tagInput.disabled = false;
-    btn.disabled = false;
-  }
-}
-
-async function fetchProfile(name, tagLine) {
-  const searchName = `${name}-${tagLine}`.toLowerCase().replace(/#/g, '');
-  const url = `https://www.leagueofgraphs.com/summoner/na/${encodeURIComponent(searchName)}`;
-  
-  const proxies = [
-    `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-    `https://corsproxy.io/?${encodeURIComponent(url)}`,
-    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
-  ];
-  
-  let lastError = null;
-  
-  for (let i = 0; i < proxies.length; i++) {
-    try {
-      const res = await fetch(proxies[i], {
-        method: 'GET',
-        headers: {
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
-        }
-      });
-      
-      if (!res.ok) {
-        lastError = new Error(`HTTP ${res.status}`);
-        continue;
-      }
-      
-      const html = await res.text();
-      
-      if (!html || html.length < 100) {
-        lastError = new Error("Response too short");
-        continue;
-      }
-      
-      if (html.includes("<!DOCTYPE") || html.includes("<html") || html.includes("leagueofgraphs")) {
-        return html;
-      } else {
-        lastError = new Error("Invalid HTML response from proxy");
-        continue;
-      }
-    } catch (err) {
-      lastError = err;
-      continue;
-    }
-  }
-  
-  throw lastError || new Error("All proxy attempts failed");
-}
-
-async function runScrape(retryAttempt = 0) {
-  const name = document.getElementById("summoner").value.trim();
-  const tagLineInput = document.getElementById("tagline").value.trim();
-  const tagLine = tagLineInput.startsWith('#') ? tagLineInput.slice(1) : tagLineInput || "NA1";
-  const status = document.getElementById("status");
-  const miniCard = document.getElementById("mini-card");
-  const confirmBtn = document.getElementById("save-profile");
-  const homeBtn = document.getElementById("goto-home");
-  const profileIcon = document.getElementById("profile-icon");
-
-  homeBtn.disabled = true;
-  if (!name) {
-    status.textContent = "Enter a summoner name first.";
-    status.className = "status error";
-    return;
-  }
-
-  status.textContent = retryAttempt > 0 ? "Retrying search..." : "Fetching data from League of Graphs...";
-  status.className = "status loading";
-  
-  profileIcon.src = "./METAMEDIA/abo7do.gif";
-  document.getElementById("player-name").textContent = "LOADING....";
-  
-  try {
-    const html = await fetchProfile(name, tagLine);
-    const doc = new DOMParser().parseFromString(html, "text/html");
-
-    let levelText = doc.querySelector(".bannerSubtitle")?.textContent || "";
-    let level = levelText.replace(/Level/gi, "").trim() || "Unknown";
-    
-    if (level === "Unknown") {
-      const altLevel = doc.querySelector('[class*="level"]')?.textContent || "";
-      level = altLevel.match(/\d+/)?.[0] || "Unknown";
-    }
-    
-    let rankTier = doc.querySelector(".leagueTier")?.textContent.trim() || "";
-    if (!rankTier) {
-      rankTier = doc.querySelector('[class*="rank"]')?.textContent.trim() || "Unranked";
-    }
-    if (!rankTier || rankTier === "") rankTier = "Unranked";
-    
-    let lp = doc.querySelector(".leaguePoints")?.textContent.trim() || "0 LP";
-    if (lp === "0 LP") {
-      const altLP = doc.querySelector('[class*="points"]')?.textContent.trim() || "0 LP";
-      lp = altLP.includes("LP") ? altLP : lp;
-    }
-    
-    const winsText = doc.querySelector(".wins")?.textContent || "0";
-    const wins = winsText.replace(/Wins:/gi, "").trim() || "0";
-    
-    const lossesText = doc.querySelector(".losses")?.textContent || "0";
-    const losses = lossesText.replace(/Losses:/gi, "").trim() || "0";
-
-    const profileIconElement = doc.querySelector(".summonerProfileImage img") || 
-                               doc.querySelector('img[alt*="profile" i]') ||
-                               doc.querySelector('img[class*="profile" i]');
-    let profileIconUrl = "./METAMEDIA/lol.jpeg";
-    if (profileIconElement && profileIconElement.src) {
-      profileIconUrl = profileIconElement.src;
-    }
-
-    profileIcon.src = profileIconUrl;
-    document.getElementById("player-name").textContent = `${name}#${tagLine}`;
-    document.getElementById("player-level").textContent = `Level ${level}`;
-    document.getElementById("player-rank").textContent = rankTier;
-
-    document.getElementById("mini-level").textContent = level;
-    document.getElementById("mini-rank").textContent = rankTier;
-    document.getElementById("mini-lp").textContent = lp;
-    document.getElementById("mini-wins").textContent = wins;
-    document.getElementById("mini-losses").textContent = losses;
-    miniCard.style.display = "flex";
-
-    localStorage.setItem("summonerData", JSON.stringify({ 
-      name, 
-      tagLine, 
-      level, 
-      rank: rankTier, 
-      lp, 
-      wins, 
-      losses,
-      profileIconUrl
-    }));
-
-    confirmBtn.textContent = "Confirm Profile";
-    confirmBtn.disabled = false;
-    confirmBtn.style.display = "block";
-    confirmBtn.style.background = "#ffd24d";
-    confirmBtn.style.color = "#000";
-
-    homeBtn.disabled = true;
-    homeBtn.style.opacity = "0.5";
-
-    status.textContent = "✅ Profile loaded. Please confirm to continue.";
-    status.className = "status success";
-  } catch (err) {
-    console.error("Scrape error:", err);
-    profileIcon.src = "./METAMEDIA/lol.jpeg";
-    if (retryAttempt === 0) {
-      status.textContent = "Search failed. Retrying with alternative proxy...";
-      status.className = "status loading";
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      return runScrape(1);
-    }
-    status.textContent = `Error: ${err.message || "Failed to load profile"}. Check summoner name and tag.`;
-    status.className = "status error";
-    miniCard.style.display = "none";
-  }
-}
-
-// 🔹 Confirm button
-document.getElementById("save-profile").addEventListener("click", () => {
-  const status = document.getElementById("status");
-  const homeBtn = document.getElementById("goto-home");
-
-  status.textContent = "✅ Profile confirmed. You may enter the Home Room.";
-  status.className = "status success";
-  homeBtn.disabled = false;
-  homeBtn.style.opacity = "1";
-  homeBtn.style.cursor = "pointer";
-  const confirmBtn = document.getElementById("save-profile");
-  confirmBtn.textContent = "Confirmed";
-  confirmBtn.style.background = "#00ff99";
-  confirmBtn.disabled = true;
-});
-
-// 🔹 Go to Home Room
-document.getElementById("goto-home").addEventListener("click", () => {
-  if (document.getElementById("goto-home").disabled) return;
-  window.location.href = "homeroom.html";
-});
+  // Example JS: Setup placeholder links
+  document.getElementById('signUpLink').href = "#";
+  document.getElementById('signUpLink2').href = "#";
+  document.getElementById('scheduleLink').href = "#";
+  document.getElementById('liveStreamLink').href = "#";
 </script>
+
 </body>
 </html>
