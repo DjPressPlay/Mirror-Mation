@@ -1,16 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zetsu Funnelz - Build Your Marketing Funnel</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zetsu Infinity — Launch Portal</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    * { margin:0; padding:0; box-sizing:border-box; }
     body {
       font-family: 'Poppins', sans-serif;
       background: linear-gradient(180deg, #0a0a0a 0%, #111 100%);
@@ -41,33 +36,6 @@
       margin: 0 auto 2rem;
     }
 
-    .hero-input-group {
-      display: flex;
-      gap: 15px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-      justify-content: center;
-      max-width: 600px;
-      margin: 0 auto 2rem;
-    }
-
-    .hero-input-group input {
-      padding: 1rem 1.5rem;
-      font-size: 16px;
-      border: 2px solid #2fffda;
-      border-radius: 8px;
-      flex: 1;
-      min-width: 250px;
-      font-family: 'Poppins', sans-serif;
-      background: #1a1a1a;
-      color: #fff;
-    }
-
-    .hero-input-group input:focus {
-      outline: none;
-      border-color: #00d4ff;
-    }
-
     .cta-btn {
       display: inline-block;
       background: linear-gradient(90deg, #00ffe1, #00a2ff);
@@ -78,32 +46,15 @@
       text-decoration: none;
       transition: transform .2s, box-shadow .2s;
       box-shadow: 0 0 20px rgba(0,255,221,.3);
-      border: none;
-      cursor: pointer;
-      font-size: 16px;
     }
-
     .cta-btn:hover {
       transform: translateY(-2px);
       box-shadow: 0 0 30px rgba(0,255,221,.6);
     }
 
-    #name-card {
-      margin-top: 30px;
-      padding: 20px 40px;
-      background: #151515;
-      color: #00ffe1;
-      border-radius: 8px;
-      display: inline-block;
-      font-size: 20px;
-      font-weight: 600;
-      box-shadow: 0 4px 15px rgba(0,255,221,0.15);
-      border: 1px solid rgba(0,255,234,.3);
-    }
-
     .features {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      grid-template-columns: repeat(auto-fit,minmax(260px,1fr));
       gap: 2rem;
       padding: 4rem 2rem;
       max-width: 1100px;
@@ -144,43 +95,32 @@
       border-top: 1px solid rgba(255,255,255,.08);
     }
 
-    @media (max-width: 600px) {
-      header h1 {
-        font-size: 2rem;
-      }
+    footer a {
+      color: #00ffe1;
+      text-decoration: none;
+    }
 
-      .cta-btn {
-        padding: .9rem 2rem;
-      }
+    footer a:hover {
+      text-decoration: underline;
+    }
 
-      .hero-input-group {
-        flex-direction: column;
-        width: 100%;
-        padding: 0 1rem;
-      }
-
-      .hero-input-group input {
-        width: 100%;
-      }
+    @media (max-width:600px) {
+      header h1 { font-size: 2rem; }
+      .cta-btn { padding: .9rem 2rem; }
     }
   </style>
 </head>
 <body>
+
   <header>
-    <h1>Zetsu Funnelz</h1>
-    <p>The all-in-one platform to create, launch, and scale your marketing funnels. No coding required.</p>
-
-    <div class="hero-input-group">
-      <input type="text" id="screen-name" placeholder="Enter your screen name" maxlength="20" />
-      <button class="cta-btn" id="start-btn">Start Your Free Trial</button>
-    </div>
-
-    <div id="name-card" style="display:none;"></div>
+    <h1>Zetsu Infinity Access</h1>
+    <p>Join the next evolution of creation. Unlock your portal, connect your nodes, and amplify your reach across every Zetsumetsu system.</p>
+    <a href="#start" class="cta-btn">Activate My Portal</a>
   </header>
 
   <section class="features" id="start">
+      
     <div class="feature">
-   <div class="feature">
       <h3>SignalZ Integration</h3>
       <p>Access the wall, drop your signal, and generate engagement through your unique tag system.</p>
     </div>
@@ -194,36 +134,11 @@
     </div>
   </section>
 
-
   <footer>
-© 2025 Zetsumetsu Corporation™  
-All systems, products, and materials are the property of Zetsumetsu Corporation.  
-Unauthorized use or reproduction is prohibited.
-Zetsumetsu EOe™ | © 2024 Zetsumetsu Corporation™ | Artworqq Kevin Suber    
+    © 2025 Zetsumetsu Corporation™ — Artworqq Kevin Suber. All Rights Reserved.
+    <br>
+    <a href="https://sporez.netlify.app/" target="_blank">Spore’z Network</a> | <a href="#">SignalZ</a> | <a href="#">Z-Auth</a>
   </footer>
 
-  <script>
-    const startBtn = document.getElementById('start-btn');
-    const screenNameInput = document.getElementById('screen-name');
-    const nameCard = document.getElementById('name-card');
-
-    startBtn.addEventListener('click', () => {
-      const name = screenNameInput.value.trim();
-      if(!name) {
-        alert('Please enter a screen name!');
-        return;
-      }
-
-      localStorage.setItem('screenName', name);
-      localStorage.setItem('signedUp', 'true');
-
-      nameCard.textContent = `Welcome, ${name}!`;
-      nameCard.style.display = 'inline-block';
-
-      setTimeout(() => {
-        window.location.href = '/info.html';
-      }, 1500);
-    });
-  </script>
 </body>
 </html>
