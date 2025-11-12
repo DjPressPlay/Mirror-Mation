@@ -50,41 +50,41 @@
 
     main {
       flex: 1;
-      padding: 40px 20px;
+      padding: 20px;
     }
 
     .builder-container {
       background: #ffffff;
       border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 40px;
+      border-radius: 8px;
+      padding: 24px;
       max-width: 900px;
       width: 100%;
       margin: 0 auto;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     }
 
     h2 {
       color: #2d3748;
-      margin-bottom: 30px;
+      margin-bottom: 20px;
       text-align: center;
-      font-size: 24px;
+      font-size: 20px;
       font-weight: 600;
     }
 
     .form-section {
-      margin-bottom: 30px;
-      padding: 25px;
+      margin-bottom: 20px;
+      padding: 16px;
       background: #f7fafc;
-      border-radius: 8px;
-      border: 2px solid #e2e8f0;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
     }
 
     .form-section h3 {
       color: #4a5568;
       margin-top: 0;
-      margin-bottom: 20px;
-      font-size: 18px;
+      margin-bottom: 12px;
+      font-size: 15px;
       font-weight: 600;
     }
 
@@ -111,10 +111,10 @@
 
     label {
       display: block;
-      margin-bottom: 8px;
+      margin-bottom: 5px;
       color: #4a5568;
       font-weight: 600;
-      font-size: 14px;
+      font-size: 13px;
     }
 
     label span {
@@ -129,20 +129,20 @@
     textarea,
     select {
       width: 100%;
-      padding: 12px;
-      font-size: 14px;
-      border: 2px solid #cbd5e0;
-      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 13px;
+      border: 1px solid #cbd5e0;
+      border-radius: 4px;
       background: #ffffff;
       color: #2d3748;
-      margin-bottom: 20px;
+      margin-bottom: 12px;
       box-sizing: border-box;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
       transition: border-color 0.2s, box-shadow 0.2s;
     }
 
     textarea {
-      min-height: 100px;
+      min-height: 70px;
       resize: vertical;
     }
 
@@ -151,7 +151,7 @@
     select:focus {
       outline: none;
       border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
     }
 
     .video-container-group {
@@ -168,10 +168,10 @@
 
     .testimonial-item {
       margin-bottom: 0;
-      padding: 15px;
+      padding: 12px;
       background: #ffffff;
-      border: 2px solid #e2e8f0;
-      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
     }
 
     .testimonial-item:last-child {
@@ -183,7 +183,7 @@
     }
 
     .testimonial-item textarea {
-      min-height: 80px;
+      min-height: 60px;
     }
 
     .template-selection {
@@ -224,11 +224,11 @@
 
     button {
       flex: 1;
-      padding: 15px;
-      font-size: 16px;
+      padding: 10px 16px;
+      font-size: 14px;
       font-weight: 600;
-      border: 2px solid #667eea;
-      border-radius: 8px;
+      border: 1px solid #667eea;
+      border-radius: 6px;
       cursor: pointer;
       transition: all 0.2s ease;
     }
@@ -293,7 +293,295 @@
       text-decoration: underline;
     }
 
+    .instructions {
+      background: #f7fafc;
+      padding: 12px 16px;
+      margin: 12px auto;
+      max-width: 900px;
+      border-radius: 6px;
+      border-left: 2px solid #667eea;
+    }
+
+    .instructions h3 {
+      margin-top: 0;
+      color: #2d3748;
+      font-size: 15px;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .instructions ol {
+      margin: 0;
+      padding-left: 18px;
+      color: #4a5568;
+      line-height: 1.5;
+      font-size: 13px;
+    }
+
+    .instructions li {
+      margin-bottom: 4px;
+    }
+
+    .button-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+      background: transparent;
+      border-bottom: none;
+      box-shadow: none;
+    }
+
+    .floating-button {
+      width: auto;
+      min-width: 140px;
+      height: auto;
+      font-size: 14px;
+      font-weight: 600;
+      border: 2px solid #667eea;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: #ffffff;
+      color: #667eea;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 12px 24px;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .floating-button:hover {
+      background: #667eea;
+      color: #ffffff;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+    }
+
+    #template-style-btn {
+      margin-right: auto;
+    }
+
+    #preview-viewer-btn {
+      margin-left: auto;
+    }
+
+    .side-panel {
+      position: fixed;
+      left: -200px;
+      top: 0;
+      width: 200px;
+      height: 100vh;
+      background: #ffffff;
+      border-right: 1px solid #e2e8f0;
+      padding: 20px 0;
+      z-index: 1000;
+      overflow-y: auto;
+      transition: left 0.3s ease;
+      box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .side-panel.open {
+      left: 0;
+    }
+
+    .side-panel-item {
+      padding: 10px 16px;
+      color: #4a5568;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border-left: 2px solid transparent;
+    }
+
+    .side-panel-item:hover {
+      background: #f7fafc;
+      color: #667eea;
+      border-left-color: #667eea;
+    }
+
+    .side-panel-item.active {
+      background: #edf2f7;
+      color: #667eea;
+      border-left-color: #667eea;
+    }
+
+    .side-panel-tab {
+      position: fixed;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #ffffff;
+      padding: 12px 6px;
+      border-radius: 0 6px 6px 0;
+      cursor: pointer;
+      z-index: 1001;
+      font-weight: 600;
+      font-size: 12px;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.15);
+      transition: all 0.3s ease;
+    }
+
+    .side-panel-tab:hover {
+      background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+      box-shadow: 2px 2px 12px rgba(102, 126, 234, 0.4);
+      transform: translateY(-50%) translateX(2px);
+    }
+
+    .side-panel.open + .side-panel-tab {
+      left: 200px;
+      z-index: 1001;
+    }
+
+    .content-wrapper {
+      margin-left: 0;
+      transition: none;
+    }
+
+    .content-wrapper.panel-open {
+      margin-left: 0;
+    }
+
+    .preview-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .preview-overlay.active {
+      display: flex;
+    }
+
+    .preview-container {
+      background: #ffffff;
+      width: 90%;
+      max-width: 1200px;
+      height: 90%;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .preview-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+      border-bottom: 2px solid #e2e8f0;
+      background: #f7fafc;
+      border-radius: 12px 12px 0 0;
+    }
+
+    .preview-header h3 {
+      margin: 0;
+      color: #2d3748;
+      font-size: 18px;
+    }
+
+    .preview-close {
+      background: #ef4444;
+      color: #ffffff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .preview-close:hover {
+      background: #dc2626;
+      transform: scale(1.05);
+    }
+
+    .preview-content {
+      flex: 1;
+      overflow: auto;
+      padding: 20px;
+    }
+
+    .preview-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: #ffffff;
+    }
+
+    #save-btn {
+      background: #10b981;
+      color: #ffffff;
+      border-color: #10b981;
+    }
+
+    #save-btn:hover {
+      background: #059669;
+      border-color: #059669;
+    }
+
     @media (max-width: 768px) {
+      .side-panel {
+        width: 60px;
+        left: -60px;
+      }
+
+      .side-panel.open {
+        left: 0;
+      }
+
+      .side-panel.open + .side-panel-tab {
+        left: 60px;
+      }
+
+      .side-panel-item {
+        font-size: 10px;
+        padding: 12px 8px;
+        text-align: center;
+      }
+
+      .side-panel-tab {
+        font-size: 12px;
+        padding: 12px 6px;
+      }
+
+      .content-wrapper {
+        margin-left: 0;
+      }
+
+      .content-wrapper.panel-open {
+        margin-left: 0;
+      }
+
+      .button-bar {
+        padding: 10px 20px;
+      }
+
+      .floating-button {
+        min-width: 100px;
+        font-size: 12px;
+        padding: 8px 12px;
+      }
+
+      #template-style-btn {
+        margin-right: 0;
+      }
+
+      #preview-viewer-btn {
+        margin-left: 0;
+      }
       .video-container-group {
         grid-template-columns: 1fr;
       }
@@ -326,7 +614,45 @@
     <a href="affiliate.html">Affiliate</a>
   </nav>
 
-  <main>
+  <div class="button-bar">
+    <button id="template-style-btn" class="floating-button">Template Style</button>
+    <button id="preview-viewer-btn" class="floating-button">Preview Viewer</button>
+  </div>
+
+  <div class="instructions">
+    <h3>How to Create Your Funnel:</h3>
+    <ol>
+      <li>Fill in your product details and links in the form below</li>
+      <li>Use the Template Style button to choose your funnel design</li>
+      <li>Click Save to store your work as a draft</li>
+      <li>Preview your funnel to see how it looks before publishing</li>
+      <li>When ready, hit Publish to make your funnel live!</li>
+    </ol>
+  </div>
+
+  <div class="side-panel" id="side-panel">
+    <div class="side-panel-item active" data-section="drafts">Drafts</div>
+    <div class="side-panel-item" data-section="previews">Previews</div>
+    <div class="side-panel-item" data-section="published">Published</div>
+    <div class="side-panel-item" data-section="quick-funnelz">Quick Funnelz</div>
+    <div class="side-panel-item" data-section="files">Files</div>
+  </div>
+
+  <div class="side-panel-tab" id="side-panel-tab">MENU</div>
+
+  <div class="preview-overlay" id="preview-overlay">
+    <div class="preview-container">
+      <div class="preview-header">
+        <h3>Live Preview</h3>
+        <button class="preview-close" id="preview-close">Close</button>
+      </div>
+      <div class="preview-content">
+        <iframe class="preview-iframe" id="preview-iframe" src="preview.html"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <main class="content-wrapper" id="content-wrapper">
     <div class="builder-container">
       <h2>Create Your Funnel</h2>
       
@@ -361,7 +687,7 @@
           <textarea 
             id="product-description" 
             name="productDescription"
-            placeholder="Describe your product and its benefits"
+            placeholder="Example: Transform your business with our comprehensive automation suite. Save 10+ hours weekly with smart workflows, advanced analytics, and seamless integrations. Perfect for entrepreneurs looking to scale efficiently."
             maxlength="1000"
             required
           ></textarea>
@@ -410,7 +736,7 @@
                 <textarea 
                   id="testimonial-desc-0"
                   name="testimonial1Description"
-                  placeholder="Customer testimonial text"
+                  placeholder="Example: 'This product completely changed my workflow! I went from spending hours on manual tasks to having everything automated. My revenue increased by 300% in just 3 months!' - Sarah J., Entrepreneur"
                   maxlength="500"
                   required
                 ></textarea>
@@ -428,7 +754,7 @@
                 <textarea 
                   id="testimonial-desc-1"
                   name="testimonial2Description"
-                  placeholder="Customer testimonial text"
+                  placeholder="Example: 'Best investment I ever made for my business. The support team is incredible, and the ROI was immediate. I recommend this to everyone in my network!' - Mike T., Marketing Director"
                   maxlength="500"
                   required
                 ></textarea>
@@ -501,32 +827,16 @@
           <textarea 
             id="bonus-confirmation" 
             name="bonusConfirmation"
-            placeholder="Confirm pricing and any bonuses included"
+            placeholder="Example: Get started today for only $97! Plus receive 3 exclusive bonuses: Premium Templates Pack ($297 value), 1-on-1 Strategy Session ($500 value), and Lifetime Updates (Priceless). Total value: $894 - Yours for just $97!"
             maxlength="500"
             required
           ></textarea>
         </div>
 
-        <div class="form-section">
-          <label>Pre-made Templates for instant funnel creation</label>
-          <div class="template-selection">
-            <div class="template-option" data-template="classic">
-              <div>Classic</div>
-            </div>
-            <div class="template-option" data-template="modern">
-              <div>Modern</div>
-            </div>
-            <div class="template-option" data-template="minimal">
-              <div>Minimal</div>
-            </div>
-            <div class="template-option" data-template="vibrant">
-              <div>Vibrant</div>
-            </div>
-          </div>
-          <input type="hidden" id="template" name="template" value="classic" />
-        </div>
+        <input type="hidden" id="template" name="template" value="classic" />
 
         <div class="button-group">
+          <button type="button" id="save-btn">Save Draft</button>
           <button type="button" id="preview-btn">Preview Button: shows exactly how the funnel will appear</button>
           <button type="submit" id="publish-btn">Publish Button: generates a live site ready for promotion</button>
         </div>
@@ -545,18 +855,69 @@
     const form = document.getElementById('funnel-form');
     const previewBtn = document.getElementById('preview-btn');
     const publishBtn = document.getElementById('publish-btn');
-    const templateOptions = document.querySelectorAll('.template-option');
+    const saveBtn = document.getElementById('save-btn');
     const templateInput = document.getElementById('template');
+    const templateStyleBtn = document.getElementById('template-style-btn');
+    const previewViewerBtn = document.getElementById('preview-viewer-btn');
+    const previewOverlay = document.getElementById('preview-overlay');
+    const previewClose = document.getElementById('preview-close');
+    const previewIframe = document.getElementById('preview-iframe');
+    const sidePanelItems = document.querySelectorAll('.side-panel-item');
+    const sidePanel = document.getElementById('side-panel');
+    const sidePanelTab = document.getElementById('side-panel-tab');
+    const contentWrapper = document.getElementById('content-wrapper');
 
-    templateOptions.forEach(option => {
-      option.addEventListener('click', () => {
-        templateOptions.forEach(opt => opt.classList.remove('selected'));
-        option.classList.add('selected');
-        templateInput.value = option.dataset.template;
+    const templates = ['classic', 'modern', 'minimal', 'vibrant'];
+    let currentTemplateIndex = 0;
+    let isPanelOpen = false;
+
+    sidePanelTab.addEventListener('click', () => {
+      isPanelOpen = !isPanelOpen;
+      if (isPanelOpen) {
+        sidePanel.classList.add('open');
+        sidePanelTab.textContent = 'CLOSE';
+      } else {
+        sidePanel.classList.remove('open');
+        sidePanelTab.textContent = 'MENU';
+      }
+    });
+
+    templateStyleBtn.addEventListener('click', () => {
+      currentTemplateIndex = (currentTemplateIndex + 1) % templates.length;
+      const newTemplate = templates[currentTemplateIndex];
+      templateInput.value = newTemplate;
+      
+      const templateName = newTemplate.charAt(0).toUpperCase() + newTemplate.slice(1);
+      templateStyleBtn.setAttribute('title', `Template Style: ${templateName}`);
+      
+      saveFunnelData();
+    });
+
+    sidePanelItems.forEach(item => {
+      item.addEventListener('click', () => {
+        sidePanelItems.forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+        
+        const section = item.dataset.section;
+        console.log(`Navigating to ${section} section`);
       });
     });
 
-    templateOptions[0].classList.add('selected');
+    previewViewerBtn.addEventListener('click', () => {
+      saveFunnelData();
+      previewIframe.src = 'preview.html?' + new Date().getTime();
+      previewOverlay.classList.add('active');
+    });
+
+    previewClose.addEventListener('click', () => {
+      previewOverlay.classList.remove('active');
+    });
+
+    previewOverlay.addEventListener('click', (e) => {
+      if (e.target === previewOverlay) {
+        previewOverlay.classList.remove('active');
+      }
+    });
 
     function loadFunnelData() {
       const savedData = localStorage.getItem('funnelData');
@@ -571,13 +932,12 @@
           });
           
           if (data.template) {
-            templateOptions.forEach(opt => {
-              if (opt.dataset.template === data.template) {
-                opt.classList.add('selected');
-              } else {
-                opt.classList.remove('selected');
-              }
-            });
+            const templateIndex = templates.indexOf(data.template);
+            if (templateIndex !== -1) {
+              currentTemplateIndex = templateIndex;
+              const templateName = data.template.charAt(0).toUpperCase() + data.template.slice(1);
+              templateStyleBtn.setAttribute('title', `Template Style: ${templateName}`);
+            }
           }
         } catch (e) {
           console.error('Error loading saved data:', e);
@@ -598,6 +958,13 @@
 
     form.addEventListener('input', () => {
       saveFunnelData();
+    });
+
+    saveBtn.addEventListener('click', () => {
+      saveFunnelData();
+      localStorage.setItem('funnelDraftSaved', 'true');
+      localStorage.setItem('funnelDraftDate', new Date().toISOString());
+      alert('Draft saved successfully! Your work has been stored.');
     });
 
     previewBtn.addEventListener('click', () => {
