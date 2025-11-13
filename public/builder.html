@@ -1571,6 +1571,9 @@
         { media: data.tutorial2Media, title: data.tutorial2Title, description: data.tutorial2Description }
       ];
 
+      data.scheduleCall = data.scheduleCall || '';
+      data.livestreamEvent = data.livestreamEvent || '';
+
       localStorage.setItem('funnelData', JSON.stringify(data));
     }
 
