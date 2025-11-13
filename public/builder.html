@@ -15,42 +15,38 @@
       flex-direction: column;
     }
 
-    header {
-      text-align: right;
-      padding: 1.5rem 1rem;
-      background: radial-gradient(circle at center, #1a1a1a, #000);
+    .topbar {
+      width: 100%;
+      background: #000;
       border-bottom: 2px solid #fff;
+      color: #00ffe1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+      font-size: 16px;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(0,255,255,0.2);
     }
-
-    header h1 {
-      font-size: 1.8rem;
+    .topbar-title {
+      font-size: 1.2rem;
       font-weight: 700;
       background: linear-gradient(90deg, #2fffda, #00d4ff);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       margin: 0;
     }
-
-    nav {
-      background: #ffffff;
+    .topbar-nav {
       display: flex;
-      justify-content: flex-end;
       gap: 30px;
-      padding: 15px 30px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-      border-bottom: 1px solid #e2e8f0;
     }
-
-    nav a {
-      color: #667eea;
+    .topbar-nav a {
+      color: #00ffe1;
       text-decoration: none;
-      font-weight: 600;
-      font-size: 16px;
-      transition: color 0.2s;
+      transition: opacity .2s ease;
     }
-
-    nav a:hover {
-      color: #764ba2;
+    .topbar-nav a:hover {
+      opacity: .7;
     }
 
     main {
@@ -911,17 +907,16 @@
 </head>
 <body>
 
-  <header>
-    <h1>Funnel Builder</h1>
-  </header>
-
-  <nav>
-    <a href="index.html">Home</a>
-    <a href="info.html">Info</a>
-    <a href="builder.html">Builder</a>
-    <a href="preview.html">Preview</a>
-    <a href="affiliate.html">Affiliate</a>
-  </nav>
+  <div class="topbar">
+    <h1 class="topbar-title">Funnel Builder</h1>
+    <nav class="topbar-nav">
+      <a href="index.html">Home</a>
+      <a href="info.html">Info</a>
+      <a href="builder.html">Builder</a>
+      <a href="preview.html">Preview</a>
+      <a href="affiliate.html">Affiliate</a>
+    </nav>
+  </div>
 
   <div class="button-bar">
     <button id="template-style-btn" class="floating-button">Template Style</button>
