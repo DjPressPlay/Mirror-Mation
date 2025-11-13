@@ -269,6 +269,146 @@
       margin-top: 20px;
     }
 
+    .funnel-steps {
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 0 20px;
+    }
+
+    .steps-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      position: relative;
+    }
+
+    .steps-header::before {
+      content: '';
+      position: absolute;
+      top: 20px;
+      left: 60px;
+      right: 60px;
+      height: 2px;
+      background: #e2e8f0;
+      z-index: 0;
+    }
+
+    .step-indicator {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      position: relative;
+      z-index: 1;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .step-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 3px solid #cbd5e0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: #cbd5e0;
+      margin-bottom: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .step-indicator.active .step-circle {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-color: #667eea;
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .step-indicator.completed .step-circle {
+      background: #10b981;
+      border-color: #10b981;
+      color: #ffffff;
+    }
+
+    .step-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #718096;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .step-indicator.active .step-label {
+      color: #667eea;
+    }
+
+    .step-indicator.completed .step-label {
+      color: #10b981;
+    }
+
+    .step-content {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .step-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .step-navigation {
+      display: flex;
+      gap: 15px;
+      margin-top: 30px;
+      justify-content: flex-end;
+    }
+
+    .step-navigation button {
+      padding: 10px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      flex: none;
+    }
+
+    .step-prev-btn {
+      background: #ffffff;
+      color: #667eea;
+      border: 2px solid #667eea;
+    }
+
+    .step-prev-btn:hover:not(:disabled) {
+      background: #f7fafc;
+      transform: translateY(-2px);
+    }
+
+    .step-next-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #ffffff;
+      border: none;
+    }
+
+    .step-next-btn:hover:not(:disabled) {
+      background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
     footer {
       text-align: center;
       padding: 1rem 1rem;
@@ -735,6 +875,32 @@
       .compact-row {
         grid-template-columns: 1fr;
       }
+
+      .steps-header::before {
+        display: none;
+      }
+
+      .step-indicator {
+        flex: 1;
+      }
+
+      .step-circle {
+        width: 35px;
+        height: 35px;
+        font-size: 14px;
+      }
+
+      .step-label {
+        font-size: 10px;
+      }
+
+      .step-navigation {
+        flex-direction: column;
+      }
+
+      .step-navigation button {
+        width: 100%;
+      }
     }
   </style>
 </head>
@@ -757,15 +923,25 @@
     <button id="preview-viewer-btn" class="floating-button">Preview Viewer</button>
   </div>
 
-  <div class="instructions">
-    <h3>How to Create Your Funnel:</h3>
-    <ol>
-      <li>Fill in your product details and links in the form below</li>
-      <li>Use the Template Style button to choose your funnel design</li>
-      <li>Click Save to store your work as a draft</li>
-      <li>Preview your funnel to see how it looks before publishing</li>
-      <li>When ready, hit Publish to make your funnel live!</li>
-    </ol>
+  <div class="funnel-steps">
+    <div class="steps-header">
+      <div class="step-indicator active" data-step="1">
+        <div class="step-circle">1</div>
+        <div class="step-label">Product Details</div>
+      </div>
+      <div class="step-indicator" data-step="2">
+        <div class="step-circle">2</div>
+        <div class="step-label">Testimonials</div>
+      </div>
+      <div class="step-indicator" data-step="3">
+        <div class="step-circle">3</div>
+        <div class="step-label">Tutorial & Events</div>
+      </div>
+      <div class="step-indicator" data-step="4">
+        <div class="step-circle">4</div>
+        <div class="step-label">Final Offer</div>
+      </div>
+    </div>
   </div>
 
   <div class="side-panel" id="side-panel">
@@ -827,190 +1003,221 @@
       
       <form id="funnel-form">
         
-        <div class="form-section">
-          <div class="compact-row">
-            <div class="compact-field">
-              <label for="product-name">Product Name</label>
-              <input 
-                type="text" 
-                id="product-name" 
-                name="productName"
-                placeholder="Enter your product name" 
-                maxlength="100"
-                required
-              />
-            </div>
-            <div class="compact-field">
-              <label for="ad-reference">Ad Reference <span>(Optional)</span></label>
-              <input 
-                type="text" 
-                id="ad-reference" 
-                name="adReference"
-                placeholder="Reference to your ad campaign" 
-                maxlength="100"
-              />
-            </div>
-          </div>
-
-          <label for="product-description">Product Description</label>
-          <textarea 
-            id="product-description" 
-            name="productDescription"
-            placeholder="Example: Transform your business with our comprehensive automation suite. Save 10+ hours weekly with smart workflows, advanced analytics, and seamless integrations. Perfect for entrepreneurs looking to scale efficiently."
-            maxlength="1000"
-            required
-          ></textarea>
-        </div>
-
-        <div class="form-section">
-          <div class="compact-row">
-            <div class="compact-field">
-              <label for="signup-link">Sign-up Link</label>
-              <input 
-                type="url" 
-                id="signup-link" 
-                name="signupLink"
-                placeholder="https://example.com/signup" 
-                required
-              />
-            </div>
-            <div class="compact-field">
-              <label for="price">Price</label>
-              <input 
-                type="text" 
-                id="price" 
-                name="price"
-                placeholder="$99 or Free" 
-                maxlength="50"
-                required
-              />
-            </div>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <label>Testimonials</label>
-          <div id="testimonials-container">
+        <div class="step-content active" data-step="1">
+          <div class="form-section">
+            <h3>Product Information</h3>
             <div class="compact-row">
-              <div class="testimonial-item" data-index="0">
-                <label for="testimonial-media-0">Testimonial 1 - Image/Video URL</label>
+              <div class="compact-field">
+                <label for="product-name">Product Name</label>
                 <input 
-                  type="url" 
-                  id="testimonial-media-0"
-                  name="testimonial1Media"
-                  placeholder="https://example.com/image.jpg or https://youtube.com/watch?v=..." 
+                  type="text" 
+                  id="product-name" 
+                  name="productName"
+                  placeholder="Enter your product name" 
+                  maxlength="100"
                   required
                 />
-                <label for="testimonial-desc-0">Testimonial 1 - Description</label>
-                <textarea 
-                  id="testimonial-desc-0"
-                  name="testimonial1Description"
-                  placeholder="Example: 'This product completely changed my workflow! I went from spending hours on manual tasks to having everything automated. My revenue increased by 300% in just 3 months!' - Sarah J., Entrepreneur"
-                  maxlength="500"
-                  required
-                ></textarea>
               </div>
-              <div class="testimonial-item" data-index="1">
-                <label for="testimonial-media-1">Testimonial 2 - Image/Video URL</label>
+              <div class="compact-field">
+                <label for="ad-reference">Ad Reference <span>(Optional)</span></label>
+                <input 
+                  type="text" 
+                  id="ad-reference" 
+                  name="adReference"
+                  placeholder="Reference to your ad campaign" 
+                  maxlength="100"
+                />
+              </div>
+            </div>
+
+            <label for="product-description">Product Description</label>
+            <textarea 
+              id="product-description" 
+              name="productDescription"
+              placeholder="Example: Transform your business with our comprehensive automation suite. Save 10+ hours weekly with smart workflows, advanced analytics, and seamless integrations. Perfect for entrepreneurs looking to scale efficiently."
+              maxlength="1000"
+              required
+            ></textarea>
+          </div>
+
+          <div class="form-section">
+            <h3>Pricing & Links</h3>
+            <div class="compact-row">
+              <div class="compact-field">
+                <label for="signup-link">Sign-up Link</label>
                 <input 
                   type="url" 
-                  id="testimonial-media-1"
-                  name="testimonial2Media"
-                  placeholder="https://example.com/image.jpg or https://youtube.com/watch?v=..." 
+                  id="signup-link" 
+                  name="signupLink"
+                  placeholder="https://example.com/signup" 
                   required
                 />
-                <label for="testimonial-desc-1">Testimonial 2 - Description</label>
-                <textarea 
-                  id="testimonial-desc-1"
-                  name="testimonial2Description"
-                  placeholder="Example: 'Best investment I ever made for my business. The support team is incredible, and the ROI was immediate. I recommend this to everyone in my network!' - Mike T., Marketing Director"
-                  maxlength="500"
+              </div>
+              <div class="compact-field">
+                <label for="price">Price</label>
+                <input 
+                  type="text" 
+                  id="price" 
+                  name="price"
+                  placeholder="$99 or Free" 
+                  maxlength="50"
                   required
-                ></textarea>
+                />
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="form-section">
-          <label>Two Tutorial Video Containers</label>
-          <div class="compact-row">
-            <div class="compact-field">
-              <label for="video-1">Tutorial Video 1 URL</label>
-              <input 
-                type="url" 
-                id="video-1" 
-                name="video1"
-                placeholder="https://youtube.com/watch?v=..." 
-                required
-              />
-            </div>
-            <div class="compact-field">
-              <label for="video-2">Tutorial Video 2 URL</label>
-              <input 
-                type="url" 
-                id="video-2" 
-                name="video2"
-                placeholder="https://youtube.com/watch?v=..." 
-                required
-              />
-            </div>
+          <div class="step-navigation">
+            <button type="button" class="step-next-btn" data-next="2">Next: Testimonials</button>
           </div>
         </div>
 
-        <div class="form-section">
-          <div class="compact-row">
-            <div class="compact-field">
-              <label for="schedule-call">Schedule a Call / Join TG <span>(Optional)</span></label>
-              <input 
-                type="url" 
-                id="schedule-call" 
-                name="scheduleCall"
-                placeholder="https://example.com/schedule" 
-              />
+        <div class="step-content" data-step="2">
+          <div class="form-section">
+            <h3>Customer Testimonials</h3>
+            <div id="testimonials-container">
+              <div class="compact-row">
+                <div class="testimonial-item" data-index="0">
+                  <label for="testimonial-media-0">Testimonial 1 - Image/Video URL</label>
+                  <input 
+                    type="url" 
+                    id="testimonial-media-0"
+                    name="testimonial1Media"
+                    placeholder="https://example.com/image.jpg or https://youtube.com/watch?v=..." 
+                    required
+                  />
+                  <label for="testimonial-desc-0">Testimonial 1 - Description</label>
+                  <textarea 
+                    id="testimonial-desc-0"
+                    name="testimonial1Description"
+                    placeholder="Example: 'This product completely changed my workflow! I went from spending hours on manual tasks to having everything automated. My revenue increased by 300% in just 3 months!' - Sarah J., Entrepreneur"
+                    maxlength="500"
+                    required
+                  ></textarea>
+                </div>
+                <div class="testimonial-item" data-index="1">
+                  <label for="testimonial-media-1">Testimonial 2 - Image/Video URL</label>
+                  <input 
+                    type="url" 
+                    id="testimonial-media-1"
+                    name="testimonial2Media"
+                    placeholder="https://example.com/image.jpg or https://youtube.com/watch?v=..." 
+                    required
+                  />
+                  <label for="testimonial-desc-1">Testimonial 2 - Description</label>
+                  <textarea 
+                    id="testimonial-desc-1"
+                    name="testimonial2Description"
+                    placeholder="Example: 'Best investment I ever made for my business. The support team is incredible, and the ROI was immediate. I recommend this to everyone in my network!' - Mike T., Marketing Director"
+                    maxlength="500"
+                    required
+                  ></textarea>
+                </div>
+              </div>
             </div>
-            <div class="compact-field">
-              <label for="livestream-event">Join Live Stream Event (Book Spot)</label>
-              <input 
-                type="url" 
-                id="livestream-event" 
-                name="livestreamEvent"
-                placeholder="https://example.com/livestream" 
-                required
-              />
-            </div>
+          </div>
+
+          <div class="step-navigation">
+            <button type="button" class="step-prev-btn" data-prev="1">Previous</button>
+            <button type="button" class="step-next-btn" data-next="3">Next: Tutorial & Events</button>
           </div>
         </div>
 
-        <div class="form-section">
-          <label for="signup-link-repeat">Sign-up (repeat CTA)</label>
-          <input 
-            type="url" 
-            id="signup-link-repeat" 
-            name="signupLinkRepeat"
-            placeholder="https://example.com/signup" 
-            required
-          />
+        <div class="step-content" data-step="3">
+          <div class="form-section">
+            <h3>Tutorial Videos</h3>
+            <div class="compact-row">
+              <div class="compact-field">
+                <label for="video-1">Tutorial Video 1 URL</label>
+                <input 
+                  type="url" 
+                  id="video-1" 
+                  name="video1"
+                  placeholder="https://youtube.com/watch?v=..." 
+                  required
+                />
+              </div>
+              <div class="compact-field">
+                <label for="video-2">Tutorial Video 2 URL</label>
+                <input 
+                  type="url" 
+                  id="video-2" 
+                  name="video2"
+                  placeholder="https://youtube.com/watch?v=..." 
+                  required
+                />
+              </div>
+            </div>
+          </div>
 
-          <label for="bonus-confirmation">Price / Bonus Confirmation</label>
-          <textarea 
-            id="bonus-confirmation" 
-            name="bonusConfirmation"
-            placeholder="Example: Get started today for only $97! Plus receive 3 exclusive bonuses: Premium Templates Pack ($297 value), 1-on-1 Strategy Session ($500 value), and Lifetime Updates (Priceless). Total value: $894 - Yours for just $97!"
-            maxlength="500"
-            required
-          ></textarea>
+          <div class="form-section">
+            <h3>Event Links</h3>
+            <div class="compact-row">
+              <div class="compact-field">
+                <label for="schedule-call">Schedule a Call / Join TG <span>(Optional)</span></label>
+                <input 
+                  type="url" 
+                  id="schedule-call" 
+                  name="scheduleCall"
+                  placeholder="https://example.com/schedule" 
+                />
+              </div>
+              <div class="compact-field">
+                <label for="livestream-event">Join Live Stream Event (Book Spot)</label>
+                <input 
+                  type="url" 
+                  id="livestream-event" 
+                  name="livestreamEvent"
+                  placeholder="https://example.com/livestream" 
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="step-navigation">
+            <button type="button" class="step-prev-btn" data-prev="2">Previous</button>
+            <button type="button" class="step-next-btn" data-next="4">Next: Final Offer</button>
+          </div>
         </div>
 
-        <input type="hidden" id="template" name="template" value="classic" />
+        <div class="step-content" data-step="4">
+          <div class="form-section">
+            <h3>Final Call to Action</h3>
+            <label for="signup-link-repeat">Sign-up (repeat CTA)</label>
+            <input 
+              type="url" 
+              id="signup-link-repeat" 
+              name="signupLinkRepeat"
+              placeholder="https://example.com/signup" 
+              required
+            />
 
-        <div class="button-group">
-          <button type="button" id="save-btn">Save Draft</button>
-          <button type="button" id="preview-btn">Preview Button: shows exactly how the funnel will appear</button>
-          <button type="submit" id="publish-btn">Publish Button: generates a live site ready for promotion</button>
+            <label for="bonus-confirmation">Price / Bonus Confirmation</label>
+            <textarea 
+              id="bonus-confirmation" 
+              name="bonusConfirmation"
+              placeholder="Example: Get started today for only $97! Plus receive 3 exclusive bonuses: Premium Templates Pack ($297 value), 1-on-1 Strategy Session ($500 value), and Lifetime Updates (Priceless). Total value: $894 - Yours for just $97!"
+              maxlength="500"
+              required
+            ></textarea>
+          </div>
+
+          <input type="hidden" id="template" name="template" value="classic" />
+
+          <div class="step-navigation">
+            <button type="button" class="step-prev-btn" data-prev="3">Previous</button>
+          </div>
+
+          <div class="button-group">
+            <button type="button" id="save-btn">Save Draft</button>
+            <button type="button" id="preview-btn">Preview Button: shows exactly how the funnel will appear</button>
+            <button type="submit" id="publish-btn">Publish Button: generates a live site ready for promotion</button>
+          </div>
+
+          <p class="info-text">Fill out all required fields to preview and publish your funnel</p>
         </div>
 
-        <p class="info-text">Fill out all required fields to preview and publish your funnel</p>
       </form>
     </div>
   </main>
@@ -1045,9 +1252,65 @@
     const refreshPreviewBtn = document.getElementById('refresh-preview-btn');
     const fullPreviewBtn = document.getElementById('full-preview-btn');
 
+    const stepIndicators = document.querySelectorAll('.step-indicator');
+    const stepContents = document.querySelectorAll('.step-content');
+    const stepNextBtns = document.querySelectorAll('.step-next-btn');
+    const stepPrevBtns = document.querySelectorAll('.step-prev-btn');
+
     const templates = ['classic', 'modern', 'minimal', 'vibrant'];
     let currentTemplateIndex = 0;
     let isPanelOpen = false;
+    let currentStep = 1;
+
+    function goToStep(stepNumber) {
+      stepContents.forEach(content => {
+        content.classList.remove('active');
+      });
+      
+      stepIndicators.forEach(indicator => {
+        indicator.classList.remove('active');
+        const indicatorStep = parseInt(indicator.dataset.step);
+        if (indicatorStep < stepNumber) {
+          indicator.classList.add('completed');
+        } else {
+          indicator.classList.remove('completed');
+        }
+      });
+      
+      const targetContent = document.querySelector(`.step-content[data-step="${stepNumber}"]`);
+      const targetIndicator = document.querySelector(`.step-indicator[data-step="${stepNumber}"]`);
+      
+      if (targetContent) targetContent.classList.add('active');
+      if (targetIndicator) targetIndicator.classList.add('active');
+      
+      currentStep = stepNumber;
+      
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+
+    stepIndicators.forEach(indicator => {
+      indicator.addEventListener('click', () => {
+        const step = parseInt(indicator.dataset.step);
+        goToStep(step);
+      });
+    });
+
+    stepNextBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const nextStep = parseInt(btn.dataset.next);
+        goToStep(nextStep);
+      });
+    });
+
+    stepPrevBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const prevStep = parseInt(btn.dataset.prev);
+        goToStep(prevStep);
+      });
+    });
 
     sidePanelTab.addEventListener('click', () => {
       isPanelOpen = !isPanelOpen;
