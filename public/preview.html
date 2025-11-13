@@ -17,39 +17,35 @@
     .topbar {
       width: 100%;
       background: #000;
-      border-bottom: 1px solid rgba(255,255,255,.1);
+      border-bottom: 2px solid #fff;
       color: #00ffe1;
       display: flex;
-      justify-content: flex-end;
-      gap: 2rem;
-      padding: 0.7rem 2rem;
-      font-size: 0.9rem;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+      font-size: 16px;
       font-weight: 600;
-      letter-spacing: 0.05em;
+      box-shadow: 0 2px 8px rgba(0,255,255,0.2);
     }
-    .topbar a {
-      color: #00ffe1;
-      text-decoration: none;
-      transition: opacity .2s ease;
-    }
-    .topbar a:hover {
-      opacity: .7;
-    }
-
-    header {
-      text-align: right;
-      padding: 1.5rem 1rem;
-      background: radial-gradient(circle at center, #1a1a1a, #000);
-      border-bottom: 2px solid #fff;
-    }
-
-    header h1 {
-      font-size: 1.8rem;
+    .topbar-title {
+      font-size: 1.2rem;
       font-weight: 700;
       background: linear-gradient(90deg, #2fffda, #00d4ff);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       margin: 0;
+    }
+    .topbar-nav {
+      display: flex;
+      gap: 30px;
+    }
+    .topbar-nav a {
+      color: #00ffe1;
+      text-decoration: none;
+      transition: opacity .2s ease;
+    }
+    .topbar-nav a:hover {
+      opacity: .7;
     }
 
     main {
@@ -338,8 +334,8 @@
     }
 
     @media (max-width:600px) {
-      header h1 { font-size: 2rem; }
-      .topbar { justify-content: center; flex-wrap: wrap; gap: 1rem; font-size: .8rem; }
+      .topbar { flex-direction: column; gap: 1rem; font-size: .8rem; text-align: center; }
+      .topbar-nav { flex-wrap: wrap; justify-content: center; }
       .funnel-header h1 { font-size: 2rem; }
       .funnel-header p { font-size: 1rem; }
       h2 { font-size: 1.6rem; }
@@ -353,15 +349,15 @@
 <body>
 
   <div class="topbar">
-    <a href="info.html">How to</a>
-    <a href="builder.html">Builder</a>
-    <a href="preview.html">Preview</a>
-    <a href="affiliate.html">Affiliate</a>
+    <h1 class="topbar-title">Funnel Preview</h1>
+    <nav class="topbar-nav">
+      <a href="index.html">Home</a>
+      <a href="info.html">Info</a>
+      <a href="builder.html">Builder</a>
+      <a href="preview.html">Preview</a>
+      <a href="affiliate.html">Affiliate</a>
+    </nav>
   </div>
-
-  <header>
-    <h1>Funnel Preview</h1>
-  </header>
 
   <main>
     <div id="preview-content"></div>

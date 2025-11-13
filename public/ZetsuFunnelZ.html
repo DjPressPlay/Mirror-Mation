@@ -13,16 +13,42 @@
       color:#fff;
       text-align:center;
     }
-    header, footer {
+    .topbar {
+      width: 100%;
+      background: #000;
+      border-bottom: 2px solid #fff;
+      color: #00ffe1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+      font-size: 16px;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(0,255,255,0.2);
+    }
+    .topbar-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, #2fffda, #00d4ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin: 0;
+    }
+    .topbar-nav {
+      display: flex;
+      gap: 30px;
+    }
+    .topbar-nav a {
+      color: #00ffe1;
+      text-decoration: none;
+      transition: opacity .2s ease;
+    }
+    .topbar-nav a:hover {
+      opacity: .7;
+    }
+    footer {
       background:#000;
       padding:20px;
-    }
-    nav {
-      background:#222;
-      padding:10px;
-      display:flex;
-      justify-content:center;
-      gap:20px;
     }
     nav a {
       color:#0ff;
@@ -35,7 +61,7 @@
       margin:auto;
       border-bottom:1px solid #333;
     }
-    h1,h2 { color:#0ff; margin-bottom:10px; }
+    h2 { color:#0ff; margin-bottom:10px; }
     p, a { color:#fff; }
     .price { font-size:1.5em; font-weight:bold; color:#0ff; margin:10px 0; }
     .cta { display:inline-block; background:#0ff; color:#000; padding:10px 20px; margin-top:10px; border-radius:8px; text-decoration:none; font-weight:bold; }
@@ -45,17 +71,16 @@
 </head>
 <body>
 
-<header>
-  <h1 id="productName">ZetsuFunnelZ</h1>
-</header>
-
-<nav>
-  <a href="index.html">Home</a>
-  <a href="info.html">Info</a>
-  <a href="builder.html">Builder</a>
-  <a href="preview.html">Preview</a>
-  <a href="affiliate.html">Affiliate</a>
-</nav>
+<div class="topbar">
+  <h1 class="topbar-title">ZetsuFunnelZ</h1>
+  <nav class="topbar-nav">
+    <a href="index.html">Home</a>
+    <a href="info.html">Info</a>
+    <a href="builder.html">Builder</a>
+    <a href="preview.html">Preview</a>
+    <a href="affiliate.html">Affiliate</a>
+  </nav>
+</div>
 <section id="ad">
   <h2>Advertisement</h2>
   <div class="video-container">
