@@ -425,6 +425,27 @@
     const previewContent = document.getElementById('preview-content');
     const savedData = localStorage.getItem('funnelData');
 
+    async function loadTemplate(templateName, data) {
+      try {
+        const response = await fetch(`templates/${templateName}.html`);
+        if (!response.ok) {
+          throw new Error(`Template ${templateName} not found`);
+        }
+        
+        let templateHTML = await response.text();
+        
+        Object.keys(data).forEach(key => {
+          const placeholder = new RegExp(`{{${key}}}`, 'g');
+          templateHTML = templateHTML.replace(placeholder, data[key] || '');
+        });
+        
+        return templateHTML;
+      } catch (error) {
+        console.error('Error loading template:', error);
+        return null;
+      }
+    }
+
     function extractVideoId(url) {
       if (!url) return null;
       const youtubeRegex = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/;
@@ -448,137 +469,162 @@
       }
     }
 
-    if (savedData) {
-      try {
-        const data = JSON.parse(savedData);
-        const video1Id = extractVideoId(data.video1);
-        const video2Id = extractVideoId(data.video2);
-
-        let testimonialsHTML = '';
-        if (data.testimonial1Media && data.testimonial1Description) {
-          testimonialsHTML += `
-            <div class="testimonial">
-              ${renderTestimonialMedia(data.testimonial1Media)}
-              <p>"${data.testimonial1Description}"</p>
-            </div>
-          `;
-        }
-        if (data.testimonial2Media && data.testimonial2Description) {
-          testimonialsHTML += `
-            <div class="testimonial">
-              ${renderTestimonialMedia(data.testimonial2Media)}
-              <p>"${data.testimonial2Description}"</p>
-            </div>
-          `;
-        }
-
-        let videosHTML = '';
-        if (video1Id) {
-          videosHTML += `
-            <div class="video">
-              <iframe src="https://www.youtube.com/embed/${video1Id}" frameborder="0" allowfullscreen></iframe>
-            </div>
-          `;
-        }
-        if (video2Id) {
-          videosHTML += `
-            <div class="video">
-              <iframe src="https://www.youtube.com/embed/${video2Id}" frameborder="0" allowfullscreen></iframe>
-            </div>
-          `;
-        }
-
-        previewContent.innerHTML = `
-          <div class="container">
-            <div class="funnel-header">
-              <h1>${data.productName || 'Your Product Name'}</h1>
-              <p>${data.productDescription ? data.productDescription.substring(0, 100) + '...' : 'Power your workflow with this amazing solution'}</p>
-              ${data.signupLink ? `<a href="${data.signupLink}" class="cta" target="_blank">Get Started Now</a>` : '<a href="#" class="cta">Get Started Now</a>'}
-              <p class="price">${data.price || '$99 • Lifetime Access'}</p>
-            </div>
-
-            <section>
-              <h2>What is ${data.productName || 'This Product'}?</h2>
-              <p>${data.productDescription || 'An innovative solution designed for creators, developers, and digital professionals.'}</p>
-            </section>
-
-            ${testimonialsHTML ? `
-              <section>
-                <h2>Customer Testimonials</h2>
-                <div class="testimonials">
-                  ${testimonialsHTML}
-                </div>
-              </section>
-            ` : ''}
-
-            ${(data.secret1Header || data.secret2Header || data.secret3Header) ? `
-              <section class="secrets">
-                <h2>You'll Find Out...</h2>
-                <div class="secret-cards">
-                  ${data.secret1Header ? `
-                    <div class="secret-card">
-                      <div class="secret-header">${data.secret1Header}</div>
-                      <div class="secret-body">${data.secret1Body || ''}</div>
-                    </div>
-                  ` : ''}
-                  ${data.secret2Header ? `
-                    <div class="secret-card">
-                      <div class="secret-header">${data.secret2Header}</div>
-                      <div class="secret-body">${data.secret2Body || ''}</div>
-                    </div>
-                  ` : ''}
-                  ${data.secret3Header ? `
-                    <div class="secret-card">
-                      <div class="secret-header">${data.secret3Header}</div>
-                      <div class="secret-body">${data.secret3Body || ''}</div>
-                    </div>
-                  ` : ''}
-                </div>
-              </section>
-            ` : ''}
-
-            ${videosHTML ? `
-              <section>
-                <h2>Watch How It Works</h2>
-                <div class="videos">
-                  ${videosHTML}
-                </div>
-              </section>
-            ` : ''}
-
-            <section class="community-section">
-              <h2>Join the Community</h2>
-              <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&q=80" alt="Community Preview">
-              <p>${data.bonusConfirmation || 'Book a live session, join our community, or catch our next stream to see this product in action.'}</p>
-              <div class="community-buttons">
-                ${data.scheduleCall ? `<a href="${data.scheduleCall}" target="_blank">Schedule a Call</a>` : '<a href="#">Schedule a Call</a>'}
-                ${data.livestreamEvent ? `<a href="${data.livestreamEvent}" target="_blank">Join Live Stream</a>` : '<a href="#">Join Live Stream</a>'}
+    async function renderPreview() {
+      if (savedData) {
+        try {
+          const data = JSON.parse(savedData);
+          const template = data.template || 'classic';
+          
+          const templateHTML = await loadTemplate(template, data);
+          
+          if (templateHTML) {
+            previewContent.innerHTML = `
+              <div style="width: 100%;">
+                ${templateHTML}
               </div>
-            </section>
+              <div class="action-buttons">
+                <button id="edit-btn">Edit Funnel</button>
+              </div>
+            `;
 
-            <section class="offer-section">
-              <h2>Limited-Time Offer</h2>
-              <img src="https://images.unsplash.com/photo-1607083206869-4c7672e72a8a?w=600&q=80" alt="Offer Preview">
-              <p>Get started today and unlock exclusive bonuses, premium support, and lifetime access.</p>
-              ${data.signupLink ? `<a href="${data.signupLink}" target="_blank">Claim Your Offer</a>` : '<a href="#">Claim Your Offer</a>'}
-            </section>
-          </div>
+            document.getElementById('edit-btn').addEventListener('click', () => {
+              window.location.href = 'builder.html';
+            });
+          } else {
+            renderFallbackPreview(data);
+          }
 
-          <div class="action-buttons">
-            <button id="edit-btn">Edit Funnel</button>
-          </div>
-        `;
-
-        document.getElementById('edit-btn').addEventListener('click', () => {
-          window.location.href = 'builder.html';
-        });
-
-      } catch (e) {
-        console.error('Error loading funnel data:', e);
+        } catch (e) {
+          console.error('Error loading funnel data:', e);
+          showNoFunnel();
+        }
+      } else {
         showNoFunnel();
       }
-    } else {
-      showNoFunnel();
+    }
+
+    function renderFallbackPreview(data) {
+      const video1Id = extractVideoId(data.video1);
+      const video2Id = extractVideoId(data.video2);
+
+      let testimonialsHTML = '';
+      if (data.testimonial1Media && data.testimonial1Description) {
+        testimonialsHTML += `
+          <div class="testimonial">
+            ${renderTestimonialMedia(data.testimonial1Media)}
+            <p>"${data.testimonial1Description}"</p>
+          </div>
+        `;
+      }
+      if (data.testimonial2Media && data.testimonial2Description) {
+        testimonialsHTML += `
+          <div class="testimonial">
+            ${renderTestimonialMedia(data.testimonial2Media)}
+            <p>"${data.testimonial2Description}"</p>
+          </div>
+        `;
+      }
+
+      let videosHTML = '';
+      if (video1Id) {
+        videosHTML += `
+          <div class="video">
+            <iframe src="https://www.youtube.com/embed/${video1Id}" frameborder="0" allowfullscreen></iframe>
+          </div>
+        `;
+      }
+      if (video2Id) {
+        videosHTML += `
+          <div class="video">
+            <iframe src="https://www.youtube.com/embed/${video2Id}" frameborder="0" allowfullscreen></iframe>
+          </div>
+        `;
+      }
+
+      previewContent.innerHTML = `
+        <div class="container">
+          <div class="funnel-header">
+            <h1>${data.productName || 'Your Product Name'}</h1>
+            <p>${data.productDescription ? data.productDescription.substring(0, 100) + '...' : 'Power your workflow with this amazing solution'}</p>
+            ${data.signupLink ? `<a href="${data.signupLink}" class="cta" target="_blank">Get Started Now</a>` : '<a href="#" class="cta">Get Started Now</a>'}
+            <p class="price">${data.price || '$99 • Lifetime Access'}</p>
+          </div>
+
+          <section>
+            <h2>What is ${data.productName || 'This Product'}?</h2>
+            <p>${data.productDescription || 'An innovative solution designed for creators, developers, and digital professionals.'}</p>
+          </section>
+
+          ${testimonialsHTML ? `
+            <section>
+              <h2>Customer Testimonials</h2>
+              <div class="testimonials">
+                ${testimonialsHTML}
+              </div>
+            </section>
+          ` : ''}
+
+          ${(data.secret1Header || data.secret2Header || data.secret3Header) ? `
+            <section class="secrets">
+              <h2>You'll Find Out...</h2>
+              <div class="secret-cards">
+                ${data.secret1Header ? `
+                  <div class="secret-card">
+                    <div class="secret-header">${data.secret1Header}</div>
+                    <div class="secret-body">${data.secret1Body || ''}</div>
+                  </div>
+                ` : ''}
+                ${data.secret2Header ? `
+                  <div class="secret-card">
+                    <div class="secret-header">${data.secret2Header}</div>
+                    <div class="secret-body">${data.secret2Body || ''}</div>
+                  </div>
+                ` : ''}
+                ${data.secret3Header ? `
+                  <div class="secret-card">
+                    <div class="secret-header">${data.secret3Header}</div>
+                    <div class="secret-body">${data.secret3Body || ''}</div>
+                  </div>
+                ` : ''}
+              </div>
+            </section>
+          ` : ''}
+
+          ${videosHTML ? `
+            <section>
+              <h2>Watch How It Works</h2>
+              <div class="videos">
+                ${videosHTML}
+              </div>
+            </section>
+          ` : ''}
+
+          <section class="community-section">
+            <h2>Join the Community</h2>
+            <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&q=80" alt="Community Preview">
+            <p>${data.bonusConfirmation || 'Book a live session, join our community, or catch our next stream to see this product in action.'}</p>
+            <div class="community-buttons">
+              ${data.scheduleCall ? `<a href="${data.scheduleCall}" target="_blank">Schedule a Call</a>` : '<a href="#">Schedule a Call</a>'}
+              ${data.livestreamEvent ? `<a href="${data.livestreamEvent}" target="_blank">Join Live Stream</a>` : '<a href="#">Join Live Stream</a>'}
+            </div>
+          </section>
+
+          <section class="offer-section">
+            <h2>Limited-Time Offer</h2>
+            <img src="https://images.unsplash.com/photo-1607083206869-4c7672e72a8a?w=600&q=80" alt="Offer Preview">
+            <p>Get started today and unlock exclusive bonuses, premium support, and lifetime access.</p>
+            ${data.signupLink ? `<a href="${data.signupLink}" target="_blank">Claim Your Offer</a>` : '<a href="#">Claim Your Offer</a>'}
+          </section>
+        </div>
+
+        <div class="action-buttons">
+          <button id="edit-btn">Edit Funnel</button>
+        </div>
+      `;
+
+      document.getElementById('edit-btn').addEventListener('click', () => {
+        window.location.href = 'builder.html';
+      });
     }
 
     function showNoFunnel() {
@@ -596,6 +642,8 @@
         window.location.href = 'builder.html';
       });
     }
+
+    renderPreview();
   </script>
 
 </body>
