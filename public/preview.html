@@ -92,10 +92,15 @@ function isImageUrl(url) {
   return /\.(jpg|jpeg|png|gif|webp|svg)(\?.*)?$/i.test(url);
 }
 
+function isVideoUrl(url) {
+  return /\.(mp4|webm|ogg)(\?.*)?$/i.test(url);
+}
+
 function renderMedia(url) {
   const videoId = extractVideoId(url);
   if (videoId) return `<iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
   if (isImageUrl(url)) return `<img src="${url}" alt="Media Preview">`;
+  if (isVideoUrl(url)) return `<video controls src="${url}" style="max-width:100%;border-radius:8px;"></video>`;
   return `<div style="color:#00ffe1;padding:20px;">Media: ${url}</div>`;
 }
 
@@ -123,13 +128,21 @@ function renderPreview() {
       </div>`;
   });
 
-  let videosHTML = '';
-  (data.videos || []).forEach(v => {
-    const id = extractVideoId(v);
-    if (id) videosHTML += `<div class="video"><iframe src="https://www.youtube.com/embed/${id}" frameborder="0" allowfullscreen></iframe></div>`;
+  let tutorialsHTML = '';
+  (data.tutorials || []).forEach(t => {
+    if (t.media || t.title || t.description) {
+      tutorialsHTML += `
+        <div class="video">
+          ${t.media ? renderMedia(t.media) : ''}
+          ${t.title ? `<h3 style="color: #00ffe1; margin-top: 15px; text-align: center;">${t.title}</h3>` : ''}
+          ${t.description ? `<p style="font-size: 15px;">${t.description}</p>` : ''}
+        </div>`;
+    }
   });
 
   const productImageHTML = data.productImage ? `<img src="${data.productImage}" class="product-image" alt="Product Image">` : '';
+
+  const adVideoHTML = data.adVideo ? renderMedia(data.adVideo) : '';
 
   previewContent.innerHTML = `
   <div class="container">
@@ -137,6 +150,7 @@ function renderPreview() {
       <h1>${data.productName || 'Your Product Name'}</h1>
       <p>${data.productDescription || 'Power your workflow with this amazing solution'}</p>
       ${productImageHTML}
+      ${adVideoHTML}
       ${data.signupLink ? `<a href="${data.signupLink}" class="cta" target="_blank">Get Started Now</a>` : '<a href="#" class="cta">Get Started Now</a>'}
       <p class="price">${data.price || '$99 • Lifetime Access'}</p>
     </div>
@@ -148,7 +162,7 @@ function renderPreview() {
 
     ${testimonialsHTML ? `<section><h2>Customer Testimonials</h2><div class="testimonials">${testimonialsHTML}</div></section>` : ''}
     ${secretsHTML ? `<section class="secrets"><h2>You'll Find Out...</h2><div class="secret-cards">${secretsHTML}</div></section>` : ''}
-    ${videosHTML ? `<section><h2>Watch How It Works</h2><div class="videos">${videosHTML}</div></section>` : ''}
+    ${tutorialsHTML ? `<section><h2>Watch How It Works</h2><div class="videos">${tutorialsHTML}</div></section>` : ''}
 
     <section class="community-section">
       <h2>Join the Community</h2>

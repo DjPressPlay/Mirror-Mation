@@ -1021,29 +1021,15 @@
         <div class="step-content active" data-step="1">
           <div class="form-section">
             <h3>Product Information</h3>
-            <div class="compact-row">
-              <div class="compact-field">
-                <label for="product-name">Product Name</label>
-                <input 
-                  type="text" 
-                  id="product-name" 
-                  name="productName"
-                  placeholder="Enter your product name" 
-                  maxlength="100"
-                  required
-                />
-              </div>
-              <div class="compact-field">
-                <label for="ad-reference">Ad Reference <span>(Optional)</span></label>
-                <input 
-                  type="text" 
-                  id="ad-reference" 
-                  name="adReference"
-                  placeholder="Reference to your ad campaign" 
-                  maxlength="100"
-                />
-              </div>
-            </div>
+            <label for="product-name">Product Name</label>
+            <input 
+              type="text" 
+              id="product-name" 
+              name="productName"
+              placeholder="Enter your product name" 
+              maxlength="100"
+              required
+            />
 
             <label for="product-description">Product Description</label>
             <textarea 
@@ -1053,6 +1039,14 @@
               maxlength="1000"
               required
             ></textarea>
+
+            <label for="ad-video">Advertisement Video URL</label>
+            <input 
+              type="url" 
+              id="ad-video" 
+              name="adVideo"
+              placeholder="https://youtube.com/watch?v=..." 
+            />
           </div>
 
           <div class="form-section">
@@ -1211,27 +1205,55 @@
 
         <div class="step-content" data-step="4">
           <div class="form-section">
-            <h3>Tutorial Videos</h3>
-            <div class="compact-row">
-              <div class="compact-field">
-                <label for="video-1">Tutorial Video 1 URL</label>
-                <input 
-                  type="url" 
-                  id="video-1" 
-                  name="video1"
-                  placeholder="https://youtube.com/watch?v=..." 
-                  required
-                />
-              </div>
-              <div class="compact-field">
-                <label for="video-2">Tutorial Video 2 URL</label>
-                <input 
-                  type="url" 
-                  id="video-2" 
-                  name="video2"
-                  placeholder="https://youtube.com/watch?v=..." 
-                  required
-                />
+            <h3>Tutorials</h3>
+            <div id="tutorials-container">
+              <div class="compact-row">
+                <div class="testimonial-item" data-index="0">
+                  <label for="tutorial-media-0">Tutorial 1 - Image/Video URL</label>
+                  <input 
+                    type="url" 
+                    id="tutorial-media-0"
+                    name="tutorial1Media"
+                    placeholder="https://example.com/image.jpg or https://youtube.com/watch?v=..." 
+                  />
+                  <label for="tutorial-title-0">Tutorial 1 - Title</label>
+                  <input
+                    type="text"
+                    id="tutorial-title-0"
+                    name="tutorial1Title"
+                    placeholder="e.g., Getting Started"
+                  />
+                  <label for="tutorial-desc-0">Tutorial 1 - Description</label>
+                  <textarea 
+                    id="tutorial-desc-0"
+                    name="tutorial1Description"
+                    placeholder="e.g., An introduction to the main features."
+                    maxlength="500"
+                  ></textarea>
+                </div>
+                <div class="testimonial-item" data-index="1">
+                  <label for="tutorial-media-1">Tutorial 2 - Image/Video URL</label>
+                  <input 
+                    type="url" 
+                    id="tutorial-media-1"
+                    name="tutorial2Media"
+                    placeholder="https://example.com/image.jpg or https://youtube.com/watch?v=..." 
+                  />
+                  <label for="tutorial-title-1">Tutorial 2 - Title</label>
+                  <input
+                    type="text"
+                    id="tutorial-title-1"
+                    name="tutorial2Title"
+                    placeholder="e.g., Advanced Techniques"
+                  />
+                  <label for="tutorial-desc-1">Tutorial 2 - Description</label>
+                  <textarea 
+                    id="tutorial-desc-1"
+                    name="tutorial2Description"
+                    placeholder="e.g., Learn how to use advanced features to boost your productivity."
+                    maxlength="500"
+                  ></textarea>
+                </div>
               </div>
             </div>
           </div>
@@ -1532,6 +1554,23 @@
       formData.forEach((value, key) => {
         data[key] = value;
       });
+
+      data.testimonials = [
+        { media: data.testimonial1Media, description: data.testimonial1Description },
+        { media: data.testimonial2Media, description: data.testimonial2Description }
+      ];
+
+      data.secrets = [
+        { header: data.secret1Header, body: data.secret1Body },
+        { header: data.secret2Header, body: data.secret2Body },
+        { header: data.secret3Header, body: data.secret3Body }
+      ];
+
+      data.tutorials = [
+        { media: data.tutorial1Media, title: data.tutorial1Title, description: data.tutorial1Description },
+        { media: data.tutorial2Media, title: data.tutorial2Title, description: data.tutorial2Description }
+      ];
+
       localStorage.setItem('funnelData', JSON.stringify(data));
     }
 
