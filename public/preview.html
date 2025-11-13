@@ -226,6 +226,56 @@
       transform: translateY(-2px);
     }
 
+    .secrets {
+      text-align: center;
+      padding: 60px 30px;
+      background: rgba(0,0,0,0.3);
+    }
+
+    .secrets h2 {
+      font-size: 2.2em;
+      margin-bottom: 40px;
+      color: #00ffe1;
+    }
+
+    .secret-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .secret-card {
+      background: rgba(0,0,0,0.4);
+      border: 2px solid rgba(0,255,225,0.3);
+      border-radius: 12px;
+      padding: 25px 20px;
+      transition: all 0.3s ease;
+    }
+
+    .secret-card:hover {
+      transform: translateY(-5px);
+      border-color: #00ffe1;
+      box-shadow: 0 8px 20px rgba(0,255,225,0.3);
+    }
+
+    .secret-header {
+      color: #00ffe1;
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 15px;
+    }
+
+    .secret-body {
+      color: #ccc;
+      font-size: 16px;
+      line-height: 1.5;
+      text-align: center;
+    }
+
     .offer-section {
       text-align:center;
       padding:80px 20px;
@@ -343,6 +393,9 @@
       .testimonial, .video { min-width: 100%; }
       .community-section h2, .offer-section h2 { font-size: 1.6rem; }
       .community-section p, .offer-section p { font-size: 1rem; }
+      .secrets h2 { font-size: 1.6rem; }
+      .secret-cards { grid-template-columns: 1fr; }
+      .secret-body { font-size: 14px; }
     }
   </style>
 </head>
@@ -454,6 +507,32 @@
                 <h2>Customer Testimonials</h2>
                 <div class="testimonials">
                   ${testimonialsHTML}
+                </div>
+              </section>
+            ` : ''}
+
+            ${(data.secret1Header || data.secret2Header || data.secret3Header) ? `
+              <section class="secrets">
+                <h2>You'll Find Out...</h2>
+                <div class="secret-cards">
+                  ${data.secret1Header ? `
+                    <div class="secret-card">
+                      <div class="secret-header">${data.secret1Header}</div>
+                      <div class="secret-body">${data.secret1Body || ''}</div>
+                    </div>
+                  ` : ''}
+                  ${data.secret2Header ? `
+                    <div class="secret-card">
+                      <div class="secret-header">${data.secret2Header}</div>
+                      <div class="secret-body">${data.secret2Body || ''}</div>
+                    </div>
+                  ` : ''}
+                  ${data.secret3Header ? `
+                    <div class="secret-card">
+                      <div class="secret-header">${data.secret3Header}</div>
+                      <div class="secret-body">${data.secret3Body || ''}</div>
+                    </div>
+                  ` : ''}
                 </div>
               </section>
             ` : ''}
