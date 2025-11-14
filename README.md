@@ -1,159 +1,85 @@
-Zetsu Quick Funnelz
+Mirror‑Mation: ZETSU × FIBO AI Animation Studio, ready to start tomorrow:
 
-A full-stack system for creating high-converting funnels in minutes. Built to simplify idea-to-publish workflows for creators, marketers, and affiliate users.
+1. Core Concept
 
-Overview
+Purpose: Modular AI-powered animation studio.
 
-Zetsu Quick Funnelz is a funnel creation platform designed to make the process of building, previewing, and publishing marketing funnels fast, simple, and accessible. Users can go from idea → live funnel → promotion without coding, design skills, or multiple tools.
+Pipeline: Emulator / asset capture → FIBO AI edits → Timeline/Animator → Final output.
 
-Key features include:
+Key Features:
 
-Pre-made funnel templates
+Multi-layer AI (BG, characters, interactions).
 
-Instant builder form + preview
+Custom timeline editor for scene/frame orchestration.
 
-Auto-Funneler for inspiration and data-driven auto-fill
+Reusable styles, templates, and JSON-driven AI instructions.
 
-Seamless publishing and sharing
+Branching frames for variation and interpolation.
 
-Integrated affiliate and profile management
+2. Layers
 
-The platform is structured to onboard users quickly, letting them experience results in minutes.
+Background Layer (BG)
 
-Project Flow / Page Structure
+Static or dynamic scene generation.
 
-Landing Page
+Templates and AI-generated variations.
 
-Capture screen name for onboarding.
+Pre-render for heavy assets to save computation.
 
-Introduce value proposition: “Build Funnels Faster, Simpler, Better.”
+Character Layer
 
-Explain funnel concept visually with carousel.
+AI generates poses, costumes, and actions per frame.
 
-Highlight key features: SignalZ Integration, Spore’z Network, Secure Authentication.
+Handles frame-by-frame animation.
 
-CTA: Start Free Trial → leads to info page.
+Supports branching frames for variations.
 
-Info Page
+Interaction Layer
 
-Educates user on how the funnel system works.
+Triggers: props, effects, UI events.
 
-Shows the speed and simplicity of Zetsu Quick Funnelz.
+Timeline-based control.
 
-Introduces Auto-Funneler: one-click funnel generation from public data or templates.
+Synchronizes character and BG changes.
 
-Prepares user for the builder preview.
+3. Timeline Editor
 
-Builder Preview
+Visual interface for sequencing frames/scenes.
 
-Core funnel creation interface.
+Allows:
 
-Form Fields:
+Cross-scene edits (BG swaps, event triggers).
 
-Product Name
+Section grouping for pre-rendering.
 
-(Optional) Ad Reference
+AI layer assignment per frame/section.
 
-Product Description
+4. Workflow
 
-Sign-up Link
+Import assets or capture from emulator/game engine.
 
-Price
+Define timeline and sections.
 
-Testimonials
+Assign AI layers to frames/sections.
 
-Two Tutorial Video Containers
+Use FIBO AI to generate/edit frames (dressing, style, props).
 
-Schedule a Call / Join TG (Optional)
+Optional: Frame interpolation or motion generation.
 
-Join Live Stream Event (Book Spot)
+Preview timeline → tweak frames → export final animation/video.
 
-Sign-up (repeat CTA)
+5. Storage / File Management
 
-Price / Bonus Confirmation
+File bin: stores frames, layers, templates, and AI-generated variations.
 
-Pre-made Templates for instant funnel creation.
+Branching support: easy to swap styles, backgrounds, or character edits globally.
 
-Preview Button: shows exactly how the funnel will appear.
+6. Optional Enhancements
 
-Publish Button: generates a live site ready for promotion.
+Style presets for different eras/themes.
 
-Profile / Affiliate Section
+Multi-AI integration for specialized edits (e.g., color grading, effects).
 
-Stores user history of created funnels.
+Realtime preview mode for immediate feedback.
 
-Displays auto-funneler usage and templates.
-
-Tracks affiliate links and conversions.
-
-Provides options for upgrading from free trial to paid profile.
-
-Auto-Funneler Feature
-
-The Auto-Funneler allows users to populate a funnel automatically from public-facing data or inspiration sources.
-
-Access Levels:
-
-Free Trial: 1 auto-fill funnel.
-
-Paid Profile: Unlimited funnels and priority processing.
-
-Affiliate Users: Full templates + conversion tracking.
-
-Workflow:
-
-Select product/category.
-
-Pull public data (product info, testimonials, tutorials, videos).
-
-Auto-fill builder form.
-
-Preview and adjust content.
-
-Publish live funnel.
-
-Promote funnel directly through ads, social, or campaigns.
-
-Benefits:
-
-Converts ideas into publish-ready funnels in minutes.
-
-Eliminates need for multiple platforms or technical knowledge.
-
-Encourages upgrades and paid usage through limited free trials.
-
-Technology Stack (Suggested)
-
-Frontend: HTML, CSS (Poppins, neon style), JavaScript (carousel + form preview)
-
-Backend: Node.js / Supabase for user storage, session tracking, and funnel data
-
-Optional Integration: Gemini (or scraping tool) for public data auto-fill
-
-Deployment: Static hosting for funnels (Netlify, Vercel, or similar)
-
-Analytics: Track funnel conversions, clicks, and affiliate referrals
-
-User Journey Summary
-
-User lands on the Landing Page, enters screen name → directed to info page.
-
-Learns about funnels and auto-funneler benefits → clicks Start Trial.
-
-Opens Builder Preview, selects template or uses Auto-Funneler → fills in product details.
-
-Previews funnel → clicks Publish → live funnel ready to share.
-
-Funnels are tracked in Profile / Affiliate Section → monitor conversions and manage campaigns.
-
-Goals & Value Proposition
-
-Fast: From idea → live funnel in minutes.
-
-Simple: Minimal user input, pre-made templates, no coding/design needed.
-
-Complete: Funnels include all essential marketing steps (CTAs, testimonials, videos, scheduling).
-
-Scalable: Free trial introduces the system, paid/affiliate users unlock unlimited usage and tracking.
-
-Legal & Safe: Public-facing data only, no personal info scraping, source attribution optional.
+Export to common video formats or interactive web modules.
