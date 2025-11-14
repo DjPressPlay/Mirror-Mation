@@ -259,11 +259,174 @@
       border-radius: 3px;
       font-weight: 600;
     }
+    
+    #chatBubble {
+      position: fixed;
+      top: 70px;
+      right: 20px;
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+      transition: all 0.3s;
+      z-index: 1000;
+    }
+    
+    #chatBubble:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 16px rgba(37, 99, 235, 0.6);
+    }
+    
+    #chatBubble svg {
+      width: 28px;
+      height: 28px;
+      fill: #fff;
+    }
+    
+    #chatOverlay {
+      position: fixed;
+      top: 70px;
+      right: 20px;
+      width: 380px;
+      height: 500px;
+      background: #27273a;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      display: none;
+      flex-direction: column;
+      z-index: 999;
+      overflow: hidden;
+      border: 1px solid #3f3f5e;
+    }
+    
+    #chatOverlay.active {
+      display: flex;
+    }
+    
+    .chat-header {
+      background: linear-gradient(90deg, #2563eb 0%, #7c3aed 100%);
+      padding: 1rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .chat-header h3 {
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    
+    .chat-close {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      transition: background 0.2s;
+    }
+    
+    .chat-close:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    
+    .chat-messages {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .chat-messages::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .chat-messages::-webkit-scrollbar-track {
+      background: #1e1e2e;
+    }
+    
+    .chat-messages::-webkit-scrollbar-thumb {
+      background: #4f46e5;
+      border-radius: 3px;
+    }
+    
+    .message {
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      max-width: 85%;
+      word-wrap: break-word;
+    }
+    
+    .message.user {
+      background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+      color: #fff;
+      align-self: flex-end;
+      margin-left: auto;
+    }
+    
+    .message.agent {
+      background: #3f3f5e;
+      color: #e4e4e7;
+      align-self: flex-start;
+    }
+    
+    .chat-input-container {
+      padding: 1rem;
+      border-top: 1px solid #3f3f5e;
+      background: #1e1e2e;
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    #chatInput {
+      flex: 1;
+      padding: 0.75rem;
+      background: #27273a;
+      border: 1px solid #3f3f5e;
+      border-radius: 6px;
+      color: #e4e4e7;
+      font-size: 0.9rem;
+      outline: none;
+    }
+    
+    #chatInput:focus {
+      border-color: #7c3aed;
+    }
+    
+    #chatSend {
+      padding: 0.75rem 1.25rem;
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      border: none;
+      color: #fff;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    
+    #chatSend:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
   </style>
 </head>
 <body>
   <header>
-    <div class="logo">Mirror-Mation Studio Pro</div>
+    <div class="logo">Mirror-Mation ZETSU X FIBO AI Animation Studio</div>
     <div id="filesHeader">
       <button>Import</button>
       <button>Export</button>
@@ -314,6 +477,27 @@
       <div id="timeline">
       </div>
     </main>
+  </div>
+
+  <div id="chatBubble">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
+      <path d="M7 9h10v2H7zm0-3h10v2H7z"/>
+    </svg>
+  </div>
+
+  <div id="chatOverlay">
+    <div class="chat-header">
+      <h3>AI Agent Chat</h3>
+      <button class="chat-close">&times;</button>
+    </div>
+    <div class="chat-messages">
+      <div class="message agent">Hello! I'm your AI assistant. How can I help you with your animation project today?</div>
+    </div>
+    <div class="chat-input-container">
+      <input type="text" id="chatInput" placeholder="Type your message...">
+      <button id="chatSend">Send</button>
+    </div>
   </div>
 
   <script>
@@ -395,6 +579,51 @@
     });
 
     renderTimeline();
+
+    const chatBubble = document.getElementById('chatBubble');
+    const chatOverlay = document.getElementById('chatOverlay');
+    const chatClose = document.querySelector('.chat-close');
+    const chatInput = document.getElementById('chatInput');
+    const chatSend = document.getElementById('chatSend');
+    const chatMessages = document.querySelector('.chat-messages');
+
+    chatBubble.addEventListener('click', () => {
+      chatOverlay.classList.add('active');
+      chatBubble.style.display = 'none';
+    });
+
+    chatClose.addEventListener('click', () => {
+      chatOverlay.classList.remove('active');
+      chatBubble.style.display = 'flex';
+    });
+
+    function addMessage(text, sender) {
+      const message = document.createElement('div');
+      message.classList.add('message', sender);
+      message.textContent = text;
+      chatMessages.appendChild(message);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function sendMessage() {
+      const text = chatInput.value.trim();
+      if (text) {
+        addMessage(text, 'user');
+        chatInput.value = '';
+        
+        setTimeout(() => {
+          addMessage('Thanks for your message! This is a demo AI agent. In a real implementation, this would connect to an AI service.', 'agent');
+        }, 800);
+      }
+    }
+
+    chatSend.addEventListener('click', sendMessage);
+    
+    chatInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
   </script>
 </body>
 </html>
