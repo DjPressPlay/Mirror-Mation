@@ -57,6 +57,11 @@
       transform: translateY(-1px);
     }
     
+    #filesHeader button:active {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(0);
+    }
+    
     .workspace-container {
       display: flex;
       flex: 1;
@@ -106,6 +111,11 @@
       background: #4f4f6e;
     }
     
+    .layer:active {
+      background: #5f5f7e;
+      transform: scale(0.98);
+    }
+    
     .layer.active {
       background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
       border-color: #a78bfa;
@@ -138,6 +148,8 @@
     
     button:active {
       transform: translateY(0);
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     }
     
     .main-content {
@@ -186,13 +198,150 @@
     }
     
     #canvasOverlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 2;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 650px;
+      height: 550px;
+      background: #27273a;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      border: 1px solid #3f3f5e;
+      pointer-events: auto;
+      z-index: 1001;
+      display: none;
+      flex-direction: column;
+    }
+    
+    #canvasOverlay.active {
+      display: flex;
+    }
+    
+    .paint-toolbar {
+      background: #1e1e2e;
+      border-bottom: 1px solid #3f3f5e;
+      padding: 0.5rem 0.75rem;
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+    
+    .tool-group {
+      display: flex;
+      gap: 0.25rem;
+      align-items: center;
+    }
+    
+    .paint-toolbar button {
+      padding: 0.35rem 0.65rem;
+      font-size: 0.75rem;
+      min-width: auto;
+    }
+    
+    .paint-toolbar button.active {
+      background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%);
+      box-shadow: 0 0 10px rgba(124, 58, 237, 0.5);
+    }
+    
+    .paint-toolbar button:active {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      transform: scale(0.95);
+    }
+    
+    .paint-toolbar input[type="color"] {
+      width: 35px;
+      height: 28px;
+      border: 1px solid #3f3f5e;
+      border-radius: 4px;
+      cursor: pointer;
+      background: transparent;
+    }
+    
+    .paint-toolbar input[type="range"] {
+      width: 80px;
+    }
+    
+    .paint-toolbar label {
+      font-size: 0.7rem;
+      color: #9ca3af;
+      margin-left: 0.25rem;
+    }
+    
+    .paint-toolbar .size-value {
+      font-size: 0.7rem;
+      color: #9ca3af;
+      min-width: 30px;
+    }
+    
+    .pan-controls {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 4px;
+      background: rgba(63, 63, 94, 0.3);
+      border-radius: 6px;
+      border: 1px solid #3f3f5e;
+    }
+    
+    .pan-row {
+      display: flex;
+      gap: 2px;
+    }
+    
+    .pan-btn {
+      padding: 0.25rem 0.4rem !important;
+      font-size: 0.7rem !important;
+      min-width: 28px !important;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .pan-canvas-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      background: #1e1e2e;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .canvas-zoom-wrapper {
+      transform-origin: center;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    #paintCanvas {
+      background: #ffffff;
+      border-radius: 4px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+      cursor: crosshair;
+      display: block;
+    }
+    
+    .paint-toolbar-bottom {
+      background: #1e1e2e;
+      border-top: 1px solid #3f3f5e;
+      padding: 0.5rem 0.75rem;
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .paint-toolbar-bottom button {
+      padding: 0.35rem 0.75rem;
+      font-size: 0.75rem;
     }
     
     #timeline {
@@ -282,6 +431,12 @@
       box-shadow: 0 6px 16px rgba(37, 99, 235, 0.6);
     }
     
+    #chatBubble:active {
+      transform: scale(1.05);
+      background: linear-gradient(135deg, #1d4ed8 0%, #6d28d9 100%);
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.5);
+    }
+    
     #chatBubble svg {
       width: 28px;
       height: 28px;
@@ -340,6 +495,10 @@
     
     .chat-close:hover {
       background: rgba(255, 255, 255, 0.2);
+    }
+    
+    .chat-close:active {
+      background: rgba(255, 255, 255, 0.3);
     }
     
     .chat-messages {
@@ -422,6 +581,12 @@
       transform: translateY(-1px);
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     }
+    
+    #chatSend:active {
+      transform: translateY(0);
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
   </style>
 </head>
 <body>
@@ -440,10 +605,10 @@
       <div class="sidebar-section">
         <h3>Layers</h3>
         <div id="layers">
-          <div class="layer active">Background</div>
-          <div class="layer">Characters</div>
-          <div class="layer">Interaction</div>
-          <div class="layer">Canvas Overlay</div>
+          <div class="layer active" data-layer="background">Background</div>
+          <div class="layer" data-layer="characters">Characters</div>
+          <div class="layer" data-layer="interaction">Interaction</div>
+          <div class="layer" data-layer="overlay">Canvas Overlay</div>
         </div>
       </div>
       
@@ -470,7 +635,47 @@
       <div id="preview">
         <div class="canvas-wrapper">
           <canvas id="previewCanvas"></canvas>
-          <canvas id="canvasOverlay"></canvas>
+          <div id="canvasOverlay">
+            <div class="paint-toolbar">
+              <div class="tool-group">
+                <button id="brushTool" class="active">🖌️</button>
+                <button id="eraserTool">🧹</button>
+                <button id="lineTool">📏</button>
+                <button id="rectTool">⬜</button>
+                <button id="circleTool">⭕</button>
+              </div>
+              <div class="tool-group">
+                <input type="color" id="colorPicker" value="#000000">
+                <input type="range" id="brushSize" min="1" max="50" value="3">
+                <span id="brushSizeValue" class="size-value">3px</span>
+              </div>
+              <div class="tool-group">
+                <button id="zoomIn">🔍+</button>
+                <button id="zoomOut">🔍-</button>
+                <div class="pan-controls">
+                  <button id="panUp" class="pan-btn">▲</button>
+                  <div class="pan-row">
+                    <button id="panLeft" class="pan-btn">◀</button>
+                    <button id="panCenter" class="pan-btn">⊙</button>
+                    <button id="panRight" class="pan-btn">▶</button>
+                  </div>
+                  <button id="panDown" class="pan-btn">▼</button>
+                </div>
+              </div>
+            </div>
+            <div class="paint-canvas-container">
+              <div class="canvas-zoom-wrapper">
+                <canvas id="paintCanvas" width="600" height="400"></canvas>
+              </div>
+            </div>
+            <div class="paint-toolbar-bottom">
+              <div class="tool-group">
+                <button id="clearCanvas">🗑️</button>
+                <button id="undoBtn">↶</button>
+              </div>
+              <button id="closePaint">✕ Close</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -503,11 +708,7 @@
   <script>
     const timeline = document.getElementById('timeline');
     const previewCanvas = document.getElementById('previewCanvas');
-    const overlayCanvas = document.getElementById('canvasOverlay');
     const ctx = previewCanvas.getContext('2d');
-    const overlayCtx = overlayCanvas.getContext('2d');
-    overlayCanvas.width = previewCanvas.width;
-    overlayCanvas.height = previewCanvas.height;
 
     let frames = [];
     let selectedFrameIndex = null;
@@ -536,12 +737,9 @@
         img.onload = () => {
           ctx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
           ctx.drawImage(img, 0, 0, previewCanvas.width, previewCanvas.height);
-          overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
-          // Overlay layer updates would go here
         };
       } else {
         ctx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
-        overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
       }
     }
 
@@ -622,6 +820,277 @@
     chatInput.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') {
         sendMessage();
+      }
+    });
+
+    const layers = document.querySelectorAll('.layer');
+    const canvasOverlay = document.getElementById('canvasOverlay');
+
+    layers.forEach(layer => {
+      layer.addEventListener('click', () => {
+        layers.forEach(l => l.classList.remove('active'));
+        layer.classList.add('active');
+        
+        if (layer.getAttribute('data-layer') === 'overlay') {
+          canvasOverlay.classList.add('active');
+        } else {
+          canvasOverlay.classList.remove('active');
+        }
+      });
+    });
+
+    const paintCanvas = document.getElementById('paintCanvas');
+    const paintCtx = paintCanvas.getContext('2d');
+    const brushTool = document.getElementById('brushTool');
+    const eraserTool = document.getElementById('eraserTool');
+    const lineTool = document.getElementById('lineTool');
+    const rectTool = document.getElementById('rectTool');
+    const circleTool = document.getElementById('circleTool');
+    const colorPicker = document.getElementById('colorPicker');
+    const brushSize = document.getElementById('brushSize');
+    const brushSizeValue = document.getElementById('brushSizeValue');
+    const clearCanvas = document.getElementById('clearCanvas');
+    const undoBtn = document.getElementById('undoBtn');
+    const closePaint = document.getElementById('closePaint');
+
+    let currentTool = 'brush';
+    let isDrawing = false;
+    let startX, startY;
+    let canvasHistory = [];
+    let historyStep = -1;
+    
+    let zoom = 1;
+    let panX = 0;
+    let panY = 0;
+    let isPanning = false;
+    let panStartX, panStartY;
+    const canvasZoomWrapper = document.querySelector('.canvas-zoom-wrapper');
+
+    function saveCanvasState() {
+      historyStep++;
+      if (historyStep < canvasHistory.length) {
+        canvasHistory.length = historyStep;
+      }
+      canvasHistory.push(paintCanvas.toDataURL());
+    }
+    
+    function updateCanvasTransform() {
+      canvasZoomWrapper.style.transform = `translate(${panX}px, ${panY}px) scale(${zoom})`;
+    }
+
+    saveCanvasState();
+
+    brushSize.addEventListener('input', (e) => {
+      brushSizeValue.textContent = e.target.value + 'px';
+    });
+
+    [brushTool, eraserTool, lineTool, rectTool, circleTool].forEach(tool => {
+      tool.addEventListener('click', (e) => {
+        [brushTool, eraserTool, lineTool, rectTool, circleTool].forEach(t => t.classList.remove('active'));
+        e.target.classList.add('active');
+        
+        if (e.target === brushTool) currentTool = 'brush';
+        else if (e.target === eraserTool) currentTool = 'eraser';
+        else if (e.target === lineTool) currentTool = 'line';
+        else if (e.target === rectTool) currentTool = 'rect';
+        else if (e.target === circleTool) currentTool = 'circle';
+      });
+    });
+
+    paintCanvas.addEventListener('mousedown', (e) => {
+      if (e.button === 1 || (e.button === 0 && e.shiftKey)) {
+        return;
+      }
+      isDrawing = true;
+      const rect = paintCanvas.getBoundingClientRect();
+      const scaleX = paintCanvas.width / rect.width;
+      const scaleY = paintCanvas.height / rect.height;
+      startX = (e.clientX - rect.left) * scaleX;
+      startY = (e.clientY - rect.top) * scaleY;
+
+      if (currentTool === 'brush' || currentTool === 'eraser') {
+        paintCtx.beginPath();
+        paintCtx.moveTo(startX, startY);
+      }
+    });
+
+    paintCanvas.addEventListener('mousemove', (e) => {
+      if (!isDrawing) return;
+
+      const rect = paintCanvas.getBoundingClientRect();
+      const scaleX = paintCanvas.width / rect.width;
+      const scaleY = paintCanvas.height / rect.height;
+      const x = (e.clientX - rect.left) * scaleX;
+      const y = (e.clientY - rect.top) * scaleY;
+
+      if (currentTool === 'brush') {
+        paintCtx.strokeStyle = colorPicker.value;
+        paintCtx.lineWidth = brushSize.value;
+        paintCtx.lineCap = 'round';
+        paintCtx.lineJoin = 'round';
+        paintCtx.lineTo(x, y);
+        paintCtx.stroke();
+      } else if (currentTool === 'eraser') {
+        paintCtx.strokeStyle = '#ffffff';
+        paintCtx.lineWidth = brushSize.value;
+        paintCtx.lineCap = 'round';
+        paintCtx.lineJoin = 'round';
+        paintCtx.lineTo(x, y);
+        paintCtx.stroke();
+      }
+    });
+
+    paintCanvas.addEventListener('mouseup', (e) => {
+      if (!isDrawing) return;
+      isDrawing = false;
+
+      const rect = paintCanvas.getBoundingClientRect();
+      const scaleX = paintCanvas.width / rect.width;
+      const scaleY = paintCanvas.height / rect.height;
+      const x = (e.clientX - rect.left) * scaleX;
+      const y = (e.clientY - rect.top) * scaleY;
+
+      if (currentTool === 'line') {
+        paintCtx.strokeStyle = colorPicker.value;
+        paintCtx.lineWidth = brushSize.value;
+        paintCtx.lineCap = 'round';
+        paintCtx.beginPath();
+        paintCtx.moveTo(startX, startY);
+        paintCtx.lineTo(x, y);
+        paintCtx.stroke();
+      } else if (currentTool === 'rect') {
+        paintCtx.strokeStyle = colorPicker.value;
+        paintCtx.lineWidth = brushSize.value;
+        paintCtx.strokeRect(startX, startY, x - startX, y - startY);
+      } else if (currentTool === 'circle') {
+        const radius = Math.sqrt(Math.pow(x - startX, 2) + Math.pow(y - startY, 2));
+        paintCtx.strokeStyle = colorPicker.value;
+        paintCtx.lineWidth = brushSize.value;
+        paintCtx.beginPath();
+        paintCtx.arc(startX, startY, radius, 0, 2 * Math.PI);
+        paintCtx.stroke();
+      }
+
+      saveCanvasState();
+    });
+
+    paintCanvas.addEventListener('mouseleave', () => {
+      isDrawing = false;
+    });
+
+    clearCanvas.addEventListener('click', () => {
+      paintCtx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
+      saveCanvasState();
+    });
+
+    undoBtn.addEventListener('click', () => {
+      if (historyStep > 0) {
+        historyStep--;
+        const img = new Image();
+        img.src = canvasHistory[historyStep];
+        img.onload = () => {
+          paintCtx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
+          paintCtx.drawImage(img, 0, 0);
+        };
+      }
+    });
+
+    closePaint.addEventListener('click', () => {
+      canvasOverlay.classList.remove('active');
+      const bgLayer = document.querySelector('.layer[data-layer="background"]');
+      layers.forEach(l => l.classList.remove('active'));
+      bgLayer.classList.add('active');
+    });
+    
+    const zoomIn = document.getElementById('zoomIn');
+    const zoomOut = document.getElementById('zoomOut');
+    const panUp = document.getElementById('panUp');
+    const panDown = document.getElementById('panDown');
+    const panLeft = document.getElementById('panLeft');
+    const panRight = document.getElementById('panRight');
+    const panCenter = document.getElementById('panCenter');
+    
+    const panStep = 50; // pixels to move per click
+    
+    zoomIn.addEventListener('click', () => {
+      zoom = Math.min(zoom + 0.2, 3);
+      updateCanvasTransform();
+    });
+    
+    zoomOut.addEventListener('click', () => {
+      zoom = Math.max(zoom - 0.2, 0.5);
+      updateCanvasTransform();
+    });
+    
+    panUp.addEventListener('click', () => {
+      panY += panStep;
+      updateCanvasTransform();
+    });
+    
+    panDown.addEventListener('click', () => {
+      panY -= panStep;
+      updateCanvasTransform();
+    });
+    
+    panLeft.addEventListener('click', () => {
+      panX += panStep;
+      updateCanvasTransform();
+    });
+    
+    panRight.addEventListener('click', () => {
+      panX -= panStep;
+      updateCanvasTransform();
+    });
+    
+    panCenter.addEventListener('click', () => {
+      zoom = 1;
+      panX = 0;
+      panY = 0;
+      updateCanvasTransform();
+    });
+    
+    paintCanvas.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      if (e.deltaY < 0) {
+        zoom = Math.min(zoom + 0.1, 3);
+      } else {
+        zoom = Math.max(zoom - 0.1, 0.5);
+      }
+      updateCanvasTransform();
+    });
+    
+    const paintCanvasContainer = document.querySelector('.paint-canvas-container');
+    
+    paintCanvasContainer.addEventListener('mousedown', (e) => {
+      if (e.button === 1 || (e.button === 0 && e.shiftKey)) {
+        isPanning = true;
+        panStartX = e.clientX - panX;
+        panStartY = e.clientY - panY;
+        paintCanvas.style.cursor = 'grab';
+        e.preventDefault();
+      }
+    });
+    
+    paintCanvasContainer.addEventListener('mousemove', (e) => {
+      if (isPanning) {
+        panX = e.clientX - panStartX;
+        panY = e.clientY - panStartY;
+        updateCanvasTransform();
+        paintCanvas.style.cursor = 'grabbing';
+      }
+    });
+    
+    paintCanvasContainer.addEventListener('mouseup', (e) => {
+      if (isPanning) {
+        isPanning = false;
+        paintCanvas.style.cursor = 'crosshair';
+      }
+    });
+    
+    paintCanvasContainer.addEventListener('mouseleave', () => {
+      if (isPanning) {
+        isPanning = false;
+        paintCanvas.style.cursor = 'crosshair';
       }
     });
   </script>
