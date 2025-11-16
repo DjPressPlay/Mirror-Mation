@@ -26,6 +26,7 @@ class MirrorMationApp {
     
     this.setupEventListeners();
     this.connectModules();
+    this.setupOverlayDragAndResize();
   }
 
   connectModules() {
@@ -317,6 +318,73 @@ class MirrorMationApp {
       if (this.canvasEditor.isPanning) {
         this.canvasEditor.isPanning = false;
         paintCanvas.style.cursor = 'crosshair';
+      }
+    });
+  }
+  
+  setupOverlayDragAndResize() {
+    const overlay = document.getElementById('canvasOverlay');
+    const dragHandle = document.querySelector('.canvas-top-bar');
+    const resizeHandle = document.querySelector('.resize-handle');
+    
+    let isDragging = false;
+    let isResizing = false;
+    let startX, startY, startLeft, startTop, startWidth, startHeight;
+    
+    dragHandle.addEventListener('mousedown', (e) => {
+      if (e.target.closest('button') || e.target.closest('input')) {
+        return;
+      }
+      
+      isDragging = true;
+      const rect = overlay.getBoundingClientRect();
+      startX = e.clientX;
+      startY = e.clientY;
+      startLeft = rect.left;
+      startTop = rect.top;
+      
+      overlay.style.transition = 'none';
+      e.preventDefault();
+    });
+    
+    resizeHandle.addEventListener('mousedown', (e) => {
+      isResizing = true;
+      const rect = overlay.getBoundingClientRect();
+      startX = e.clientX;
+      startY = e.clientY;
+      startWidth = rect.width;
+      startHeight = rect.height;
+      
+      overlay.style.transition = 'none';
+      e.preventDefault();
+      e.stopPropagation();
+    });
+    
+    document.addEventListener('mousemove', (e) => {
+      if (isDragging) {
+        const deltaX = e.clientX - startX;
+        const deltaY = e.clientY - startY;
+        
+        overlay.style.left = `${startLeft + deltaX}px`;
+        overlay.style.top = `${startTop + deltaY}px`;
+        overlay.style.transform = 'none';
+      } else if (isResizing) {
+        const deltaX = e.clientX - startX;
+        const deltaY = e.clientY - startY;
+        
+        const newWidth = Math.max(450, Math.min(startWidth + deltaX, window.innerWidth * 0.95));
+        const newHeight = Math.max(350, Math.min(startHeight + deltaY, window.innerHeight * 0.95));
+        
+        overlay.style.width = `${newWidth}px`;
+        overlay.style.height = `${newHeight}px`;
+        overlay.style.transform = 'none';
+      }
+    });
+    
+    document.addEventListener('mouseup', () => {
+      if (isDragging || isResizing) {
+        isDragging = false;
+        isResizing = false;
       }
     });
   }
