@@ -212,10 +212,31 @@
       z-index: 1001;
       display: none;
       flex-direction: column;
+      overflow: hidden;
     }
     
     #canvasOverlay.active {
       display: flex;
+    }
+
+    .canvas-top-bar {
+      background: #1e1e2e;
+      padding: 0.5rem 0.75rem;
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #3f3f5e;
+    }
+
+    .canvas-top-bar .tool-group {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .canvas-top-bar button {
+      padding: 0.35rem 0.75rem;
+      font-size: 0.75rem;
     }
     
     .paint-toolbar {
@@ -645,6 +666,13 @@
           <canvas id="previewCanvas"></canvas>
           <!-- Paint/Canvas Overlay -->
           <div id="canvasOverlay">
+            <div class="canvas-top-bar">
+              <div class="tool-group">
+                <button id="undoBtn">↶ Undo</button>
+                <button id="clearCanvas">🗑️ Clear</button>
+              </div>
+              <button id="closePaint">✕ Close</button>
+            </div>
             <div class="paint-toolbar">
               <div class="tool-group">
                 <button id="brushTool" class="active">🖌️</button>
@@ -676,13 +704,6 @@
               <div class="canvas-zoom-wrapper">
                 <canvas id="paintCanvas" width="600" height="400"></canvas>
               </div>
-            </div>
-            <div class="paint-toolbar-bottom">
-              <div class="tool-group">
-                <button id="clearCanvas">🗑️</button>
-                <button id="undoBtn">↶</button>
-              </div>
-              <button id="closePaint">✕ Close</button>
             </div>
           </div>
         </div>
