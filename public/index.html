@@ -458,12 +458,22 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
+      cursor: grab;
       background-size: cover;
       background-position: center;
       background-color: #27273a;
       transition: all 0.2s;
       position: relative;
+    }
+    
+    .frame.dragging {
+      cursor: grabbing;
+      opacity: 0.5;
+      transform: scale(0.95);
+    }
+    
+    .frame[draggable="true"]:active {
+      cursor: grabbing;
     }
     
     .frame:hover {

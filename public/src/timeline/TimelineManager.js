@@ -15,6 +15,9 @@ export class TimelineManager {
     
     this.onFrameSelect = null;
     this.onLayerUpdate = null;
+    
+    this.draggedFrameIndex = null;
+    this.draggedFrameElement = null;
   }
 
   setSelectedLayer(layerName) {
@@ -96,25 +99,27 @@ export class TimelineManager {
     }
   }
 
-  showMoveDialog(layerName, frameIndex) {
-    const currentPosition = frameIndex + 1;
-    const totalFrames = this.layers[layerName].length;
-    
-    const newPosition = prompt(
-      `Move frame ${currentPosition} to position (1-${totalFrames}):`,
-      currentPosition
-    );
-    
-    if (newPosition === null) return;
-    
-    const targetIndex = parseInt(newPosition) - 1;
-    
-    if (isNaN(targetIndex) || targetIndex < 0 || targetIndex >= totalFrames) {
-      alert(`Invalid position. Please enter a number between 1 and ${totalFrames}.`);
-      return;
+  startDrag(frameIndex, frameElement) {
+    this.draggedFrameIndex = frameIndex;
+    this.draggedFrameElement = frameElement;
+    frameElement.style.opacity = '0.5';
+    frameElement.classList.add('dragging');
+  }
+
+  endDrag() {
+    if (this.draggedFrameElement) {
+      this.draggedFrameElement.style.opacity = '1';
+      this.draggedFrameElement.classList.remove('dragging');
     }
-    
-    this.moveFrame(layerName, frameIndex, targetIndex);
+    this.draggedFrameIndex = null;
+    this.draggedFrameElement = null;
+  }
+
+  handleDrop(targetIndex) {
+    if (this.draggedFrameIndex !== null && this.draggedFrameIndex !== targetIndex) {
+      this.moveFrame(this.selectedLayer, this.draggedFrameIndex, targetIndex);
+    }
+    this.endDrag();
   }
 
   getLayerFrames(layerName) {
@@ -168,9 +173,12 @@ export class TimelineManager {
       const moveBtn = document.createElement('button');
       moveBtn.classList.add('frame-option-btn', 'move');
       moveBtn.textContent = '↔️ Move';
+      moveBtn.draggable = false;
+      moveBtn.addEventListener('mousedown', (e) => {
+        e.stopPropagation();
+      });
       moveBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        this.showMoveDialog(this.selectedLayer, index);
       });
       
       const duplicateBtn = document.createElement('button');
@@ -194,6 +202,41 @@ export class TimelineManager {
         if (this.onFrameSelect) {
           this.onFrameSelect(this.selectedLayer, index, frame);
         }
+      });
+      
+      frameDiv.draggable = true;
+      
+      frameDiv.addEventListener('dragstart', (e) => {
+        this.startDrag(index, frameDiv);
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/html', frameDiv.innerHTML);
+      });
+      
+      frameDiv.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        
+        if (this.draggedFrameIndex !== null && this.draggedFrameIndex !== index) {
+          frameDiv.style.borderLeft = '4px solid #3b82f6';
+        }
+      });
+      
+      frameDiv.addEventListener('dragleave', (e) => {
+        frameDiv.style.borderLeft = '';
+      });
+      
+      frameDiv.addEventListener('drop', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        frameDiv.style.borderLeft = '';
+        this.handleDrop(index);
+      });
+      
+      frameDiv.addEventListener('dragend', (e) => {
+        this.endDrag();
+        document.querySelectorAll('.frame').forEach(f => {
+          f.style.borderLeft = '';
+        });
       });
       
       this.timeline.appendChild(frameDiv);
