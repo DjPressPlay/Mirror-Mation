@@ -117,9 +117,60 @@
     }
     
     .layer.active {
-      background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+      background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
       border-color: #a78bfa;
       font-weight: 600;
+    }
+    
+    .layer[data-layer="background"] {
+      background: #1e3a5f;
+    }
+    
+    .layer[data-layer="background"]:hover {
+      background: #2a4d7a;
+    }
+    
+    .layer[data-layer="background"]:active {
+      background: #365a8f;
+    }
+    
+    .layer[data-layer="background"].active {
+      background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+      border-color: #60a5fa;
+    }
+    
+    .layer[data-layer="characters"] {
+      background: #7f1d1d;
+    }
+    
+    .layer[data-layer="characters"]:hover {
+      background: #991b1b;
+    }
+    
+    .layer[data-layer="characters"]:active {
+      background: #b91c1c;
+    }
+    
+    .layer[data-layer="characters"].active {
+      background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+      border-color: #f87171;
+    }
+    
+    .layer[data-layer="interaction"] {
+      background: #14532d;
+    }
+    
+    .layer[data-layer="interaction"]:hover {
+      background: #166534;
+    }
+    
+    .layer[data-layer="interaction"]:active {
+      background: #15803d;
+    }
+    
+    .layer[data-layer="interaction"].active {
+      background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+      border-color: #4ade80;
     }
     
     #controls {
@@ -188,8 +239,21 @@
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
       border-radius: 8px;
       overflow: hidden;
-        z-index: 1;
-
+      z-index: 1;
+      border: 3px solid transparent;
+      transition: border-color 0.3s ease;
+    }
+    
+    .canvas-wrapper.layer-background {
+      border-color: #1e3a5f;
+    }
+    
+    .canvas-wrapper.layer-characters {
+      border-color: #dc2626;
+    }
+    
+    .canvas-wrapper.layer-interaction {
+      border-color: #16a34a;
     }
     
     #previewCanvas {
@@ -426,14 +490,30 @@
     
     #timeline {
       height: 160px;
-      background: #1e1e2e;
-      border-top: 2px solid #3f3f5e;
+      background: #1e3a5f;
+      border-top: 2px solid #1e3a5f;
       padding: 1rem;
       overflow-x: auto;
       overflow-y: hidden;
       display: flex;
       gap: 0.75rem;
       align-items: center;
+      transition: background 0.3s ease, border-top-color 0.3s ease;
+    }
+    
+    #timeline.layer-background {
+      background: #1e3a5f;
+      border-top-color: #1e3a5f;
+    }
+    
+    #timeline.layer-characters {
+      background: #7f1d1d;
+      border-top-color: #7f1d1d;
+    }
+    
+    #timeline.layer-interaction {
+      background: #14532d;
+      border-top-color: #14532d;
     }
     
     #timeline::-webkit-scrollbar {
@@ -484,6 +564,21 @@
     .frame.selected {
       border-color: #2563eb;
       box-shadow: 0 0 20px rgba(37, 99, 235, 0.5);
+    }
+    
+    .frame.selected.layer-background {
+      border-color: #1e3a5f;
+      box-shadow: 0 0 20px rgba(30, 58, 95, 0.5);
+    }
+    
+    .frame.selected.layer-characters {
+      border-color: #dc2626;
+      box-shadow: 0 0 20px rgba(220, 38, 38, 0.5);
+    }
+    
+    .frame.selected.layer-interaction {
+      border-color: #16a34a;
+      box-shadow: 0 0 20px rgba(22, 163, 74, 0.5);
     }
     
     .frame::after {
