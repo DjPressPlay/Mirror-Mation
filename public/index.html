@@ -590,6 +590,7 @@
   </style>
 </head>
 <body>
+  <!-- Header Section -->
   <header>
     <div class="logo">Mirror-Mation ZETSU X FIBO AI Animation Studio</div>
     <div id="filesHeader">
@@ -600,8 +601,11 @@
     </div>
   </header>
 
+  <!-- Main Workspace Container -->
   <div class="workspace-container">
+    <!-- Sidebar -->
     <aside class="sidebar">
+      <!-- Layers Section -->
       <div class="sidebar-section">
         <h3>Layers</h3>
         <div id="layers">
@@ -612,6 +616,7 @@
         </div>
       </div>
       
+      <!-- Frame Controls Section -->
       <div class="sidebar-section">
         <h3>Frame Controls</h3>
         <div id="controls">
@@ -623,7 +628,9 @@
       </div>
     </aside>
 
+    <!-- Main Content Area -->
     <main class="main-content">
+      <!-- Toolbar -->
       <div class="toolbar">
         <button>Undo</button>
         <button>Redo</button>
@@ -632,9 +639,11 @@
         <button>Guides</button>
       </div>
       
+      <!-- Preview Area -->
       <div id="preview">
         <div class="canvas-wrapper">
           <canvas id="previewCanvas"></canvas>
+          <!-- Paint/Canvas Overlay -->
           <div id="canvasOverlay">
             <div class="paint-toolbar">
               <div class="tool-group">
@@ -679,11 +688,13 @@
         </div>
       </div>
 
+      <!-- Timeline Section -->
       <div id="timeline">
       </div>
     </main>
   </div>
 
+  <!-- Chat Bubble -->
   <div id="chatBubble">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
       <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
@@ -691,6 +702,7 @@
     </svg>
   </div>
 
+  <!-- Chat Overlay -->
   <div id="chatOverlay">
     <div class="chat-header">
       <h3>AI Agent Chat</h3>
