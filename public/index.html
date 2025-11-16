@@ -213,16 +213,25 @@
       pointer-events: auto;
       z-index: 1001;
       display: none;
-      flex-direction: column;
       overflow: hidden;
     }
     
     #canvasOverlay.active {
-      display: flex;
+      display: block;
+    }
+
+    .hud-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 9999;
+      pointer-events: none;
     }
 
     .canvas-top-bar {
-      background: #1e1e2e;
+      background: rgba(30, 30, 46, 0.95);
       padding: 0.5rem 0.75rem;
       display: flex;
       gap: 0.5rem;
@@ -233,7 +242,8 @@
       top: 0;
       left: 0;
       right: 0;
-      z-index: 99999;
+      height: 48px;
+      pointer-events: auto;
     }
 
     .canvas-top-bar .tool-group {
@@ -247,7 +257,7 @@
     }
     
     .paint-toolbar {
-      background: #1e1e2e;
+      background: rgba(30, 30, 46, 0.95);
       border-bottom: 1px solid #3f3f5e;
       padding: 0.5rem 0.75rem;
       display: flex;
@@ -255,7 +265,12 @@
       align-items: center;
       flex-wrap: wrap;
       justify-content: space-between;
-      margin-top: 42px;
+      position: absolute;
+      top: 48px;
+      left: 0;
+      right: 0;
+      height: 60px;
+      pointer-events: auto;
     }
     
     .tool-group {
@@ -331,16 +346,25 @@
       justify-content: center;
     }
     
+    .canvas-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 100;
+      overflow: hidden;
+    }
+
     .paint-canvas-container {
-      flex: 1;
+      width: 100%;
+      height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 1rem;
       background: #1e1e2e;
       overflow: hidden;
       position: relative;
-      margin-top: 0;
     }
     
     .canvas-zoom-wrapper {
@@ -360,13 +384,19 @@
     }
     
     .paint-toolbar-bottom {
-      background: #1e1e2e;
+      background: rgba(30, 30, 46, 0.95);
       border-top: 1px solid #3f3f5e;
       padding: 0.5rem 0.75rem;
       display: flex;
       gap: 0.5rem;
       align-items: center;
       justify-content: space-between;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 50px;
+      pointer-events: auto;
     }
     
     .paint-toolbar-bottom button {
@@ -675,43 +705,53 @@
           <canvas id="previewCanvas"></canvas>
           <!-- Paint/Canvas Overlay -->
           <div id="canvasOverlay">
-            <div class="canvas-top-bar">
-              <div class="tool-group">
-                <button id="undoBtn">↶ Undo</button>
-                <button id="clearCanvas">🗑️ Clear</button>
+            <!-- HUD LAYER (BUTTONS) -->
+            <div class="hud-layer">
+              <div class="canvas-top-bar">
+                <div class="tool-group">
+                  <button id="undoBtn">↶ Undo</button>
+                  <button id="clearCanvas">🗑️ Clear</button>
+                </div>
+                <button id="closePaint">✕ Close</button>
               </div>
-              <button id="closePaint">✕ Close</button>
-            </div>
-            <div class="paint-toolbar">
-              <div class="tool-group">
-                <button id="brushTool" class="active">🖌️</button>
-                <button id="eraserTool">🧹</button>
-                <button id="lineTool">📏</button>
-                <button id="rectTool">⬜</button>
-                <button id="circleTool">⭕</button>
-              </div>
-              <div class="tool-group">
-                <input type="color" id="colorPicker" value="#000000">
-                <input type="range" id="brushSize" min="1" max="50" value="3">
-                <span id="brushSizeValue" class="size-value">3px</span>
-              </div>
-              <div class="tool-group">
-                <button id="zoomIn">🔍+</button>
-                <button id="zoomOut">🔍-</button>
-                <div class="pan-controls">
-                  <button id="panUp" class="pan-btn">▲</button>
-                  <div class="pan-row">
-                    <button id="panLeft" class="pan-btn">◀</button>
-                    <button id="panCenter" class="pan-btn">⊙</button>
-                    <button id="panRight" class="pan-btn">▶</button>
+              <div class="paint-toolbar">
+                <div class="tool-group">
+                  <button id="brushTool" class="active">🖌️</button>
+                  <button id="eraserTool">🧹</button>
+                  <button id="lineTool">📏</button>
+                  <button id="rectTool">⬜</button>
+                  <button id="circleTool">⭕</button>
+                </div>
+                <div class="tool-group">
+                  <input type="color" id="colorPicker" value="#000000">
+                  <input type="range" id="brushSize" min="1" max="50" value="3">
+                  <span id="brushSizeValue" class="size-value">3px</span>
+                </div>
+                <div class="tool-group">
+                  <button id="zoomIn">🔍+</button>
+                  <button id="zoomOut">🔍-</button>
+                  <div class="pan-controls">
+                    <button id="panUp" class="pan-btn">▲</button>
+                    <div class="pan-row">
+                      <button id="panLeft" class="pan-btn">◀</button>
+                      <button id="panCenter" class="pan-btn">⊙</button>
+                      <button id="panRight" class="pan-btn">▶</button>
+                    </div>
+                    <button id="panDown" class="pan-btn">▼</button>
                   </div>
-                  <button id="panDown" class="pan-btn">▼</button>
                 </div>
               </div>
+              <div class="paint-toolbar-bottom">
+                <button id="addFrameBtn">+ Add Frame</button>
+              </div>
             </div>
-            <div class="paint-canvas-container">
-              <div class="canvas-zoom-wrapper">
-                <canvas id="paintCanvas" width="600" height="400"></canvas>
+            
+            <!-- CANVAS LAYER (PANNABLE/ZOOMABLE) -->
+            <div class="canvas-layer">
+              <div class="paint-canvas-container">
+                <div class="canvas-zoom-wrapper">
+                  <canvas id="paintCanvas" width="600" height="400"></canvas>
+                </div>
               </div>
             </div>
           </div>
