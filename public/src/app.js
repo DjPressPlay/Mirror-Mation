@@ -178,6 +178,8 @@ class MirrorMationApp {
       input.click();
     });
     
+    this.setupCanvasMouseEvents();
+    
     const canvasLayerBtn = document.getElementById('canvasLayerBtn');
     this.updateCanvasLayerButton();
     
@@ -220,22 +222,9 @@ class MirrorMationApp {
     }
   }
   
-  updateCanvasLayerButton() {
-    const canvasLayerBtn = document.getElementById('canvasLayerBtn');
-    const currentLayer = this.canvasEditor.getCurrentLayer();
-    
-    let displayName = currentLayer;
-    if (currentLayer === 'background') {
-      displayName = 'BG';
-    } else if (currentLayer === 'character') {
-      displayName = 'Character Layer';
-    } else if (currentLayer === 'interaction') {
-      displayName = 'Interaction Layer';
-    }
-    
-    canvasLayerBtn.textContent = `🗂️ ${displayName}`;
-    
+  setupCanvasMouseEvents() {
     const paintCanvas = document.getElementById('paintCanvas');
+    const zoomWrapper = document.querySelector('.canvas-zoom-wrapper');
     
     paintCanvas.addEventListener('mousedown', (e) => {
       if (e.button === 1 || (e.button === 0 && e.shiftKey)) {
@@ -252,7 +241,7 @@ class MirrorMationApp {
     });
     
     paintCanvas.addEventListener('mousemove', (e) => {
-      if (!this.canvasEditor.isDrawing) return;
+      if (!this.canvasEditor.isDrawing && !this.canvasEditor.draggingImage && !this.canvasEditor.resizingImage) return;
       
       const rect = paintCanvas.getBoundingClientRect();
       const scaleX = paintCanvas.width / rect.width;
@@ -275,6 +264,8 @@ class MirrorMationApp {
     
     paintCanvas.addEventListener('mouseleave', () => {
       this.canvasEditor.isDrawing = false;
+      this.canvasEditor.draggingImage = false;
+      this.canvasEditor.resizingImage = false;
     });
     
     paintCanvas.addEventListener('wheel', (e) => {
@@ -320,6 +311,22 @@ class MirrorMationApp {
         paintCanvas.style.cursor = 'crosshair';
       }
     });
+  }
+  
+  updateCanvasLayerButton() {
+    const canvasLayerBtn = document.getElementById('canvasLayerBtn');
+    const currentLayer = this.canvasEditor.getCurrentLayer();
+    
+    let displayName = currentLayer;
+    if (currentLayer === 'background') {
+      displayName = 'BG';
+    } else if (currentLayer === 'character') {
+      displayName = 'Character Layer';
+    } else if (currentLayer === 'interaction') {
+      displayName = 'Interaction Layer';
+    }
+    
+    canvasLayerBtn.textContent = `🗂️ ${displayName}`;
   }
   
   setupOverlayDragAndResize() {
