@@ -51,6 +51,8 @@ class MirrorMationApp {
         
         const layerType = layer.getAttribute('data-layer');
         
+        this.updateLayerVisuals(layerType);
+        
         if (layerType === 'overlay') {
           this.canvasEditor.show();
         } else {
@@ -188,7 +190,33 @@ class MirrorMationApp {
       this.canvasEditor.setCurrentLayer(nextLayer);
       this.timelineManager.setSelectedLayer(nextLayer);
       this.updateCanvasLayerButton();
+      
+      const layerTypeMap = {
+        'background': 'background',
+        'character': 'characters',
+        'interaction': 'interaction'
+      };
+      this.updateLayerVisuals(layerTypeMap[nextLayer]);
     });
+  }
+  
+  updateLayerVisuals(layerType) {
+    const timeline = document.getElementById('timeline');
+    const canvasWrapper = document.querySelector('.canvas-wrapper');
+    
+    timeline.className = '';
+    canvasWrapper.className = 'canvas-wrapper';
+    
+    if (layerType === 'background') {
+      timeline.classList.add('layer-background');
+      canvasWrapper.classList.add('layer-background');
+    } else if (layerType === 'characters') {
+      timeline.classList.add('layer-characters');
+      canvasWrapper.classList.add('layer-characters');
+    } else if (layerType === 'interaction') {
+      timeline.classList.add('layer-interaction');
+      canvasWrapper.classList.add('layer-interaction');
+    }
   }
   
   updateCanvasLayerButton() {

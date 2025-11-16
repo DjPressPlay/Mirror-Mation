@@ -155,6 +155,14 @@ export class TimelineManager {
       
       if (index === this.selectedFrameIndex) {
         frameDiv.classList.add('selected');
+        
+        if (this.selectedLayer === 'background') {
+          frameDiv.classList.add('layer-background');
+        } else if (this.selectedLayer === 'character') {
+          frameDiv.classList.add('layer-characters');
+        } else if (this.selectedLayer === 'interaction') {
+          frameDiv.classList.add('layer-interaction');
+        }
       }
       
       frameDiv.style.backgroundImage = `url(${frame})`;
