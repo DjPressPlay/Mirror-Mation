@@ -6,7 +6,7 @@ export class CanvasEditor {
     this.isActive = false;
     this.currentLayer = 'background';
     
-    this.currentTool = 'brush';
+    this.currentTool = 'select';
     this.isDrawing = false;
     this.startX = 0;
     this.startY = 0;
@@ -23,15 +23,11 @@ export class CanvasEditor {
     this.brushSize = 3;
     this.brushColor = '#000000';
     
-    this.imageObject = null;
-    this.imageX = 0;
-    this.imageY = 0;
-    this.imageW = 0;
-    this.imageH = 0;
-    this.draggingImage = false;
+    this.images = [];
+    this.draggingImageId = null;
     this.imageDragStartX = 0;
     this.imageDragStartY = 0;
-    this.resizingImage = false;
+    this.resizingImageId = null;
     this.resizeCorner = null;
     this.resizeStartX = 0;
     this.resizeStartY = 0;
@@ -155,30 +151,44 @@ export class CanvasEditor {
     this.updateCanvasTransform(zoomWrapperElement);
   }
 
-  drawImageWithBounds() {
-    if (!this.imageObject) return;
+  drawAllImages() {
+    this.images.forEach(img => {
+      this.paintCtx.drawImage(
+        img.imageObject,
+        img.x,
+        img.y,
+        img.w,
+        img.h
+      );
+    });
+  }
+  
+  drawImageWithBounds(imageId) {
+    const img = this.images.find(i => i.id === imageId);
+    if (!img) return;
     
     this.paintCtx.drawImage(
-      this.imageObject,
-      this.imageX,
-      this.imageY,
-      this.imageW,
-      this.imageH
+      img.imageObject,
+      img.x,
+      img.y,
+      img.w,
+      img.h
     );
     
     this.paintCtx.setLineDash([5, 5]);
     this.paintCtx.strokeStyle = '#000000';
     this.paintCtx.lineWidth = 1;
-    this.paintCtx.strokeRect(this.imageX, this.imageY, this.imageW, this.imageH);
+    this.paintCtx.strokeRect(img.x, img.y, img.w, img.h);
     this.paintCtx.setLineDash([]);
     
-    this.drawResizeHandles();
+    this.drawResizeHandles(imageId);
   }
   
-  drawResizeHandles() {
-    if (!this.imageObject) return;
+  drawResizeHandles(imageId) {
+    const img = this.images.find(i => i.id === imageId);
+    if (!img) return;
     
-    const handles = this.getResizeHandles();
+    const handles = this.getResizeHandles(imageId);
     this.paintCtx.fillStyle = '#0066ff';
     this.paintCtx.strokeStyle = '#ffffff';
     this.paintCtx.lineWidth = 1;
@@ -199,64 +209,83 @@ export class CanvasEditor {
     });
   }
   
-  getResizeHandles() {
+  getResizeHandles(imageId) {
+    const img = this.images.find(i => i.id === imageId);
+    if (!img) return {};
+    
     return {
-      topLeft: { x: this.imageX, y: this.imageY },
-      topRight: { x: this.imageX + this.imageW, y: this.imageY },
-      bottomLeft: { x: this.imageX, y: this.imageY + this.imageH },
-      bottomRight: { x: this.imageX + this.imageW, y: this.imageY + this.imageH }
+      topLeft: { x: img.x, y: img.y },
+      topRight: { x: img.x + img.w, y: img.y },
+      bottomLeft: { x: img.x, y: img.y + img.h },
+      bottomRight: { x: img.x + img.w, y: img.y + img.h }
     };
   }
   
   getResizeHandleAtPoint(x, y) {
-    if (!this.imageObject) return null;
-    
-    const handles = this.getResizeHandles();
-    const threshold = this.resizeHandleSize;
-    
-    for (let [corner, pos] of Object.entries(handles)) {
-      const dx = x - pos.x;
-      const dy = y - pos.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
+    for (let i = this.images.length - 1; i >= 0; i--) {
+      const img = this.images[i];
+      const handles = this.getResizeHandles(img.id);
+      const threshold = this.resizeHandleSize;
       
-      if (distance <= threshold) {
-        return corner;
+      for (let [corner, pos] of Object.entries(handles)) {
+        const dx = x - pos.x;
+        const dy = y - pos.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        if (distance <= threshold) {
+          return { imageId: img.id, corner };
+        }
       }
     }
     
     return null;
   }
 
-  isPointInImage(x, y) {
-    return (
-      x >= this.imageX &&
-      x <= this.imageX + this.imageW &&
-      y >= this.imageY &&
-      y <= this.imageY + this.imageH
-    );
+  getImageAtPoint(x, y) {
+    for (let i = this.images.length - 1; i >= 0; i--) {
+      const img = this.images[i];
+      if (
+        x >= img.x &&
+        x <= img.x + img.w &&
+        y >= img.y &&
+        y <= img.y + img.h
+      ) {
+        return img.id;
+      }
+    }
+    return null;
   }
 
   startDrawing(x, y) {
-    if (this.imageObject) {
-      const resizeHandle = this.getResizeHandleAtPoint(x, y);
-      if (resizeHandle) {
-        this.resizingImage = true;
-        this.resizeCorner = resizeHandle;
+    const resizeHandle = this.getResizeHandleAtPoint(x, y);
+    if (resizeHandle) {
+      const img = this.images.find(i => i.id === resizeHandle.imageId);
+      if (img) {
+        this.resizingImageId = resizeHandle.imageId;
+        this.resizeCorner = resizeHandle.corner;
         this.resizeStartX = x;
         this.resizeStartY = y;
-        this.resizeStartW = this.imageW;
-        this.resizeStartH = this.imageH;
-        this.resizeStartImageX = this.imageX;
-        this.resizeStartImageY = this.imageY;
+        this.resizeStartW = img.w;
+        this.resizeStartH = img.h;
+        this.resizeStartImageX = img.x;
+        this.resizeStartImageY = img.y;
         return;
       }
-      
-      if (this.isPointInImage(x, y)) {
-        this.draggingImage = true;
-        this.imageDragStartX = x - this.imageX;
-        this.imageDragStartY = y - this.imageY;
+    }
+    
+    const imageId = this.getImageAtPoint(x, y);
+    if (imageId) {
+      const img = this.images.find(i => i.id === imageId);
+      if (img) {
+        this.draggingImageId = imageId;
+        this.imageDragStartX = x - img.x;
+        this.imageDragStartY = y - img.y;
         return;
       }
+    }
+    
+    if (this.currentTool === 'select') {
+      return;
     }
     
     this.isDrawing = true;
@@ -270,63 +299,73 @@ export class CanvasEditor {
   }
 
   draw(x, y) {
-    if (this.resizingImage) {
-      const deltaX = x - this.resizeStartX;
-      const deltaY = y - this.resizeStartY;
-      
-      if (this.resizeCorner === 'topLeft') {
-        this.imageX = this.resizeStartImageX + deltaX;
-        this.imageY = this.resizeStartImageY + deltaY;
-        this.imageW = this.resizeStartW - deltaX;
-        this.imageH = this.resizeStartH - deltaY;
-      } else if (this.resizeCorner === 'topRight') {
-        this.imageY = this.resizeStartImageY + deltaY;
-        this.imageW = this.resizeStartW + deltaX;
-        this.imageH = this.resizeStartH - deltaY;
-      } else if (this.resizeCorner === 'bottomLeft') {
-        this.imageX = this.resizeStartImageX + deltaX;
-        this.imageW = this.resizeStartW - deltaX;
-        this.imageH = this.resizeStartH + deltaY;
-      } else if (this.resizeCorner === 'bottomRight') {
-        this.imageW = this.resizeStartW + deltaX;
-        this.imageH = this.resizeStartH + deltaY;
-      }
-      
-      this.imageW = Math.max(20, this.imageW);
-      this.imageH = Math.max(20, this.imageH);
-      
-      const savedHistory = this.canvasHistory[this.historyStep];
-      if (savedHistory) {
-        const img = new Image();
-        img.onload = () => {
+    if (this.resizingImageId) {
+      const img = this.images.find(i => i.id === this.resizingImageId);
+      if (img) {
+        const deltaX = x - this.resizeStartX;
+        const deltaY = y - this.resizeStartY;
+        
+        if (this.resizeCorner === 'topLeft') {
+          img.x = this.resizeStartImageX + deltaX;
+          img.y = this.resizeStartImageY + deltaY;
+          img.w = this.resizeStartW - deltaX;
+          img.h = this.resizeStartH - deltaY;
+        } else if (this.resizeCorner === 'topRight') {
+          img.y = this.resizeStartImageY + deltaY;
+          img.w = this.resizeStartW + deltaX;
+          img.h = this.resizeStartH - deltaY;
+        } else if (this.resizeCorner === 'bottomLeft') {
+          img.x = this.resizeStartImageX + deltaX;
+          img.w = this.resizeStartW - deltaX;
+          img.h = this.resizeStartH + deltaY;
+        } else if (this.resizeCorner === 'bottomRight') {
+          img.w = this.resizeStartW + deltaX;
+          img.h = this.resizeStartH + deltaY;
+        }
+        
+        img.w = Math.max(20, img.w);
+        img.h = Math.max(20, img.h);
+        
+        const savedHistory = this.canvasHistory[this.historyStep];
+        if (savedHistory) {
+          const histImg = new Image();
+          histImg.onload = () => {
+            this.paintCtx.clearRect(0, 0, this.paintCanvas.width, this.paintCanvas.height);
+            this.paintCtx.drawImage(histImg, 0, 0);
+            this.drawAllImages();
+            this.drawImageWithBounds(this.resizingImageId);
+          };
+          histImg.src = savedHistory;
+        } else {
           this.paintCtx.clearRect(0, 0, this.paintCanvas.width, this.paintCanvas.height);
-          this.paintCtx.drawImage(img, 0, 0);
-          this.drawImageWithBounds();
-        };
-        img.src = savedHistory;
-      } else {
-        this.paintCtx.clearRect(0, 0, this.paintCanvas.width, this.paintCanvas.height);
-        this.drawImageWithBounds();
+          this.drawAllImages();
+          this.drawImageWithBounds(this.resizingImageId);
+        }
       }
       return;
     }
     
-    if (this.draggingImage) {
-      this.imageX = x - this.imageDragStartX;
-      this.imageY = y - this.imageDragStartY;
-      
-      const savedHistory = this.canvasHistory[this.historyStep];
-      if (savedHistory) {
-        const img = new Image();
-        img.onload = () => {
+    if (this.draggingImageId) {
+      const img = this.images.find(i => i.id === this.draggingImageId);
+      if (img) {
+        img.x = x - this.imageDragStartX;
+        img.y = y - this.imageDragStartY;
+        
+        const savedHistory = this.canvasHistory[this.historyStep];
+        if (savedHistory) {
+          const histImg = new Image();
+          histImg.onload = () => {
+            this.paintCtx.clearRect(0, 0, this.paintCanvas.width, this.paintCanvas.height);
+            this.paintCtx.drawImage(histImg, 0, 0);
+            this.drawAllImages();
+            this.drawImageWithBounds(this.draggingImageId);
+          };
+          histImg.src = savedHistory;
+        } else {
           this.paintCtx.clearRect(0, 0, this.paintCanvas.width, this.paintCanvas.height);
-          this.paintCtx.drawImage(img, 0, 0);
-          this.drawImageWithBounds();
-        };
-        img.src = savedHistory;
-      } else {
-        this.paintCtx.clearRect(0, 0, this.paintCanvas.width, this.paintCanvas.height);
-        this.drawImageWithBounds();
+          this.drawAllImages();
+          this.drawImageWithBounds(this.draggingImageId);
+        }
       }
       return;
     }
@@ -351,40 +390,24 @@ export class CanvasEditor {
   }
 
   endDrawing(x, y) {
-    if (this.resizingImage) {
-      this.resizingImage = false;
+    if (this.resizingImageId) {
+      this.resizingImageId = null;
       this.resizeCorner = null;
       
       this.paintCtx.clearRect(0, 0, this.paintCanvas.width, this.paintCanvas.height);
       this.paintCtx.setLineDash([]);
-      if (this.imageObject) {
-        this.paintCtx.drawImage(
-          this.imageObject,
-          this.imageX,
-          this.imageY,
-          this.imageW,
-          this.imageH
-        );
-      }
+      this.drawAllImages();
       
       this.saveCanvasState();
       return;
     }
     
-    if (this.draggingImage) {
-      this.draggingImage = false;
+    if (this.draggingImageId) {
+      this.draggingImageId = null;
       
       this.paintCtx.clearRect(0, 0, this.paintCanvas.width, this.paintCanvas.height);
       this.paintCtx.setLineDash([]);
-      if (this.imageObject) {
-        this.paintCtx.drawImage(
-          this.imageObject,
-          this.imageX,
-          this.imageY,
-          this.imageW,
-          this.imageH
-        );
-      }
+      this.drawAllImages();
       
       this.saveCanvasState();
       return;
@@ -433,20 +456,24 @@ export class CanvasEditor {
       const scaleY = canvasH / imgH;
       const scale = Math.min(scaleX, scaleY, 1);
       
-      this.imageW = imgW * scale;
-      this.imageH = imgH * scale;
-      this.imageX = (canvasW - this.imageW) / 2;
-      this.imageY = (canvasH - this.imageH) / 2;
-      this.imageObject = img;
+      const w = imgW * scale;
+      const h = imgH * scale;
+      const x = (canvasW - w) / 2;
+      const y = (canvasH - h) / 2;
+      
+      const imageId = Date.now() + Math.random();
+      
+      this.images.push({
+        id: imageId,
+        imageObject: img,
+        x: x,
+        y: y,
+        w: w,
+        h: h
+      });
       
       this.paintCtx.clearRect(0, 0, canvasW, canvasH);
-      this.paintCtx.drawImage(
-        this.imageObject,
-        this.imageX,
-        this.imageY,
-        this.imageW,
-        this.imageH
-      );
+      this.drawAllImages();
       this.saveCanvasState();
     };
     img.src = imageData;

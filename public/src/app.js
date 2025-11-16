@@ -7,6 +7,7 @@ class MirrorMationApp {
     this.sceneViewer = null;
     this.canvasEditor = null;
     this.timelineManager = null;
+    this.fileBin = [];
     
     this.init();
   }
@@ -83,19 +84,21 @@ class MirrorMationApp {
   }
 
   setupCanvasEditorControls() {
+    const selectTool = document.getElementById('selectTool');
     const brushTool = document.getElementById('brushTool');
     const eraserTool = document.getElementById('eraserTool');
     const lineTool = document.getElementById('lineTool');
     const rectTool = document.getElementById('rectTool');
     const circleTool = document.getElementById('circleTool');
-    const tools = [brushTool, eraserTool, lineTool, rectTool, circleTool];
+    const tools = [selectTool, brushTool, eraserTool, lineTool, rectTool, circleTool];
     
     tools.forEach(tool => {
       tool.addEventListener('click', (e) => {
         tools.forEach(t => t.classList.remove('active'));
         e.target.classList.add('active');
         
-        if (e.target === brushTool) this.canvasEditor.setTool('brush');
+        if (e.target === selectTool) this.canvasEditor.setTool('select');
+        else if (e.target === brushTool) this.canvasEditor.setTool('brush');
         else if (e.target === eraserTool) this.canvasEditor.setTool('eraser');
         else if (e.target === lineTool) this.canvasEditor.setTool('line');
         else if (e.target === rectTool) this.canvasEditor.setTool('rect');
@@ -169,14 +172,17 @@ class MirrorMationApp {
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = 'image/*';
+      input.multiple = true;
       input.onchange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-          this.canvasEditor.importImage(file);
+        const files = Array.from(e.target.files);
+        if (files.length > 0) {
+          files.forEach(file => this.addFileToFileBin(file));
         }
       };
       input.click();
     });
+    
+    this.setupFileBinDragAndDrop();
     
     this.setupCanvasMouseEvents();
     
@@ -241,7 +247,7 @@ class MirrorMationApp {
     });
     
     paintCanvas.addEventListener('mousemove', (e) => {
-      if (!this.canvasEditor.isDrawing && !this.canvasEditor.draggingImage && !this.canvasEditor.resizingImage) return;
+      if (!this.canvasEditor.isDrawing && !this.canvasEditor.draggingImageId && !this.canvasEditor.resizingImageId) return;
       
       const rect = paintCanvas.getBoundingClientRect();
       const scaleX = paintCanvas.width / rect.width;
@@ -264,8 +270,8 @@ class MirrorMationApp {
     
     paintCanvas.addEventListener('mouseleave', () => {
       this.canvasEditor.isDrawing = false;
-      this.canvasEditor.draggingImage = false;
-      this.canvasEditor.resizingImage = false;
+      this.canvasEditor.draggingImageId = null;
+      this.canvasEditor.resizingImageId = null;
     });
     
     paintCanvas.addEventListener('wheel', (e) => {
@@ -392,6 +398,116 @@ class MirrorMationApp {
       if (isDragging || isResizing) {
         isDragging = false;
         isResizing = false;
+      }
+    });
+  }
+  
+  addFileToFileBin(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const imageData = e.target.result;
+      const fileItem = {
+        id: Date.now() + Math.random(),
+        name: file.name,
+        data: imageData
+      };
+      
+      this.fileBin.push(fileItem);
+      this.renderFileBin();
+    };
+    reader.readAsDataURL(file);
+  }
+  
+  renderFileBin() {
+    const fileBinContainer = document.getElementById('fileBin');
+    
+    if (this.fileBin.length === 0) {
+      fileBinContainer.innerHTML = '<div class="file-bin-empty">Upload images to see them here</div>';
+      return;
+    }
+    
+    fileBinContainer.innerHTML = '';
+    
+    this.fileBin.forEach(fileItem => {
+      const itemDiv = document.createElement('div');
+      itemDiv.className = 'file-bin-item';
+      itemDiv.draggable = true;
+      itemDiv.dataset.fileId = fileItem.id;
+      
+      const thumbnail = document.createElement('img');
+      thumbnail.className = 'file-bin-thumbnail';
+      thumbnail.src = fileItem.data;
+      
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'file-bin-name';
+      nameSpan.textContent = fileItem.name;
+      
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'file-bin-remove';
+      removeBtn.textContent = '×';
+      removeBtn.onclick = (e) => {
+        e.stopPropagation();
+        this.removeFileFromFileBin(fileItem.id);
+      };
+      
+      itemDiv.appendChild(thumbnail);
+      itemDiv.appendChild(nameSpan);
+      itemDiv.appendChild(removeBtn);
+      
+      fileBinContainer.appendChild(itemDiv);
+    });
+  }
+  
+  removeFileFromFileBin(fileId) {
+    this.fileBin = this.fileBin.filter(f => f.id !== fileId);
+    this.renderFileBin();
+  }
+  
+  setupFileBinDragAndDrop() {
+    const fileBinContainer = document.getElementById('fileBin');
+    const canvasOverlay = document.getElementById('canvasOverlay');
+    let draggedFileId = null;
+    
+    fileBinContainer.addEventListener('dragstart', (e) => {
+      if (e.target.classList.contains('file-bin-item')) {
+        draggedFileId = e.target.dataset.fileId;
+        e.target.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'copy';
+        e.dataTransfer.setData('text/plain', draggedFileId);
+      }
+    });
+    
+    fileBinContainer.addEventListener('dragend', (e) => {
+      if (e.target.classList.contains('file-bin-item')) {
+        e.target.classList.remove('dragging');
+        draggedFileId = null;
+      }
+    });
+    
+    canvasOverlay.addEventListener('dragover', (e) => {
+      if (!canvasOverlay.classList.contains('active')) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+      canvasOverlay.classList.add('drag-over');
+    });
+    
+    canvasOverlay.addEventListener('dragleave', (e) => {
+      if (e.target === canvasOverlay) {
+        canvasOverlay.classList.remove('drag-over');
+      }
+    });
+    
+    canvasOverlay.addEventListener('drop', (e) => {
+      if (!canvasOverlay.classList.contains('active')) return;
+      e.preventDefault();
+      canvasOverlay.classList.remove('drag-over');
+      
+      const fileId = e.dataTransfer.getData('text/plain');
+      if (fileId) {
+        const fileItem = this.fileBin.find(f => f.id == fileId);
+        if (fileItem) {
+          this.canvasEditor.loadImage(fileItem.data);
+        }
       }
     });
   }
