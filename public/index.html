@@ -859,6 +859,98 @@
       background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     }
+    
+    .file-bin {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    
+    .file-bin::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .file-bin::-webkit-scrollbar-track {
+      background: #1e1e2e;
+    }
+    
+    .file-bin::-webkit-scrollbar-thumb {
+      background: #4f46e5;
+      border-radius: 3px;
+    }
+    
+    .file-bin-empty {
+      padding: 1rem;
+      text-align: center;
+      color: #9ca3af;
+      font-size: 0.85rem;
+    }
+    
+    .file-bin-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      background: #3f3f5e;
+      border-radius: 6px;
+      cursor: grab;
+      transition: all 0.2s;
+      border: 2px solid transparent;
+    }
+    
+    .file-bin-item:hover {
+      background: #4f4f6e;
+      border-color: #7c3aed;
+    }
+    
+    .file-bin-item:active {
+      cursor: grabbing;
+    }
+    
+    .file-bin-item.dragging {
+      opacity: 0.5;
+      cursor: grabbing;
+    }
+    
+    .file-bin-thumbnail {
+      width: 40px;
+      height: 40px;
+      border-radius: 4px;
+      object-fit: cover;
+      background: #27273a;
+    }
+    
+    .file-bin-name {
+      flex: 1;
+      font-size: 0.8rem;
+      color: #e4e4e7;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    .file-bin-remove {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      color: #ef4444;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.7rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .file-bin-remove:hover {
+      background: rgba(239, 68, 68, 0.4);
+      border-color: #ef4444;
+    }
+    
+    #canvasOverlay.drag-over {
+      border-color: #7c3aed;
+      box-shadow: 0 8px 32px rgba(124, 58, 237, 0.5), 0 0 0 2px #7c3aed;
+    }
   </style>
 </head>
 <body>
@@ -888,6 +980,14 @@
         </div>
       </div>
       
+      
+      <!-- File Bin Section -->
+      <div class="sidebar-section">
+        <h3>File Bin</h3>
+        <div id="fileBin" class="file-bin">
+          <div class="file-bin-empty">Upload images to see them here</div>
+        </div>
+      </div>
       
       <!-- Timeline Controller Section -->
       <div class="sidebar-section" style="margin-top: auto;">
@@ -929,7 +1029,8 @@
               </div>
               <div class="paint-toolbar">
                 <div class="tool-group">
-                  <button id="brushTool" class="active">🖌️</button>
+                  <button id="selectTool" class="active">👆</button>
+                  <button id="brushTool">🖌️</button>
                   <button id="eraserTool">🧹</button>
                   <button id="lineTool">📏</button>
                   <button id="rectTool">⬜</button>
