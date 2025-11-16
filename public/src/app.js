@@ -39,7 +39,6 @@ class MirrorMationApp {
     
     this.canvasEditor.onFrameComplete = (layerName, frameData) => {
       this.timelineManager.addFrame(layerName, frameData);
-      this.sceneViewer.addFrameToLayer(layerName, frameData);
     };
   }
 
