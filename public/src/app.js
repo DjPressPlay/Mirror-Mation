@@ -178,6 +178,51 @@ class MirrorMationApp {
       this.canvasEditor.addFrameToTimeline();
     });
     
+    const uploadImageBtn = document.getElementById('uploadImageBtn');
+    uploadImageBtn.addEventListener('click', () => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          this.canvasEditor.importImage(file);
+        }
+      };
+      input.click();
+    });
+    
+    const canvasLayerBtn = document.getElementById('canvasLayerBtn');
+    this.updateCanvasLayerButton();
+    
+    canvasLayerBtn.addEventListener('click', () => {
+      const layers = ['background', 'character', 'interaction'];
+      const currentLayer = this.canvasEditor.getCurrentLayer();
+      const currentIndex = layers.indexOf(currentLayer);
+      const nextIndex = (currentIndex + 1) % layers.length;
+      const nextLayer = layers[nextIndex];
+      
+      this.canvasEditor.setCurrentLayer(nextLayer);
+      this.timelineManager.setSelectedLayer(nextLayer);
+      this.updateCanvasLayerButton();
+    });
+  }
+  
+  updateCanvasLayerButton() {
+    const canvasLayerBtn = document.getElementById('canvasLayerBtn');
+    const currentLayer = this.canvasEditor.getCurrentLayer();
+    
+    let displayName = currentLayer;
+    if (currentLayer === 'background') {
+      displayName = 'BG';
+    } else if (currentLayer === 'character') {
+      displayName = 'Character Layer';
+    } else if (currentLayer === 'interaction') {
+      displayName = 'Interaction Layer';
+    }
+    
+    canvasLayerBtn.textContent = `🗂️ ${displayName}`;
+    
     const paintCanvas = document.getElementById('paintCanvas');
     
     paintCanvas.addEventListener('mousedown', (e) => {
