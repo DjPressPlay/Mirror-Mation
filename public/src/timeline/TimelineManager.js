@@ -56,6 +56,67 @@ export class TimelineManager {
     }
   }
 
+  deleteFrame(layerName, frameIndex) {
+    if (!this.layers[layerName]) return;
+    if (this.layers[layerName].length === 0) return;
+    
+    this.removeFrame(layerName, frameIndex);
+  }
+
+  duplicateFrame(layerName, frameIndex) {
+    if (!this.layers[layerName]) return;
+    if (!this.layers[layerName][frameIndex]) return;
+    
+    const frameToDuplicate = this.layers[layerName][frameIndex];
+    this.layers[layerName].splice(frameIndex + 1, 0, frameToDuplicate);
+    
+    this.selectedFrameIndex = frameIndex + 1;
+    this.render();
+    
+    if (this.onLayerUpdate) {
+      this.onLayerUpdate(layerName, this.layers[layerName]);
+    }
+  }
+
+  moveFrame(layerName, fromIndex, toIndex) {
+    if (!this.layers[layerName]) return;
+    if (fromIndex < 0 || fromIndex >= this.layers[layerName].length) return;
+    if (toIndex < 0 || toIndex >= this.layers[layerName].length) return;
+    if (fromIndex === toIndex) return;
+    
+    const frameToMove = this.layers[layerName][fromIndex];
+    this.layers[layerName].splice(fromIndex, 1);
+    this.layers[layerName].splice(toIndex, 0, frameToMove);
+    
+    this.selectedFrameIndex = toIndex;
+    this.render();
+    
+    if (this.onLayerUpdate) {
+      this.onLayerUpdate(layerName, this.layers[layerName]);
+    }
+  }
+
+  showMoveDialog(layerName, frameIndex) {
+    const currentPosition = frameIndex + 1;
+    const totalFrames = this.layers[layerName].length;
+    
+    const newPosition = prompt(
+      `Move frame ${currentPosition} to position (1-${totalFrames}):`,
+      currentPosition
+    );
+    
+    if (newPosition === null) return;
+    
+    const targetIndex = parseInt(newPosition) - 1;
+    
+    if (isNaN(targetIndex) || targetIndex < 0 || targetIndex >= totalFrames) {
+      alert(`Invalid position. Please enter a number between 1 and ${totalFrames}.`);
+      return;
+    }
+    
+    this.moveFrame(layerName, frameIndex, targetIndex);
+  }
+
   getLayerFrames(layerName) {
     return this.layers[layerName] || [];
   }
@@ -92,6 +153,39 @@ export class TimelineManager {
       }
       
       frameDiv.style.backgroundImage = `url(${frame})`;
+      
+      const optionsDiv = document.createElement('div');
+      optionsDiv.classList.add('frame-options');
+      
+      const deleteBtn = document.createElement('button');
+      deleteBtn.classList.add('frame-option-btn', 'delete');
+      deleteBtn.textContent = '🗑️ Delete';
+      deleteBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.deleteFrame(this.selectedLayer, index);
+      });
+      
+      const moveBtn = document.createElement('button');
+      moveBtn.classList.add('frame-option-btn', 'move');
+      moveBtn.textContent = '↔️ Move';
+      moveBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.showMoveDialog(this.selectedLayer, index);
+      });
+      
+      const duplicateBtn = document.createElement('button');
+      duplicateBtn.classList.add('frame-option-btn', 'duplicate');
+      duplicateBtn.textContent = '📋 Duplicate';
+      duplicateBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.duplicateFrame(this.selectedLayer, index);
+      });
+      
+      optionsDiv.appendChild(deleteBtn);
+      optionsDiv.appendChild(moveBtn);
+      optionsDiv.appendChild(duplicateBtn);
+      
+      frameDiv.appendChild(optionsDiv);
       
       frameDiv.addEventListener('click', () => {
         this.selectedFrameIndex = index;

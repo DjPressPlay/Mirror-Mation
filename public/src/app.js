@@ -64,22 +64,6 @@ class MirrorMationApp {
       });
     });
     
-    document.getElementById('addFrame').addEventListener('click', () => {
-      this.canvasEditor.show();
-      const overlayLayer = document.querySelector('.layer[data-layer="overlay"]');
-      layers.forEach(l => l.classList.remove('active'));
-      overlayLayer.classList.add('active');
-    });
-    
-    document.getElementById('removeFrame').addEventListener('click', () => {
-      const selectedLayer = this.timelineManager.getSelectedLayer();
-      const selectedIndex = this.timelineManager.selectedFrameIndex;
-      
-      if (selectedIndex !== null) {
-        this.timelineManager.removeFrame(selectedLayer, selectedIndex);
-      }
-    });
-    
     document.getElementById('playPreview').addEventListener('click', () => {
       if (this.timelineManager.isPlaying) {
         this.timelineManager.stop();
