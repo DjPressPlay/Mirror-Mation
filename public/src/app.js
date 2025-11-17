@@ -71,6 +71,15 @@ class MirrorMationApp {
       this.sceneViewer.renderFrame(layerName, frameIndex);
       this.notificationSystem.notify('info', 'Frame Updated', `Frame ${frameIndex + 1} in ${layerName} layer has been updated`);
     };
+    
+    // Expose section info getter for AI agent
+    window.getTimelineSections = (layerName) => {
+      return this.timelineManager.getAllSections(layerName || this.timelineManager.selectedLayer);
+    };
+    
+    window.getTimelineFramesInSection = (layerName, sectionIndex) => {
+      return this.timelineManager.getSectionInfo(layerName, sectionIndex);
+    };
   }
 
   setupEventListeners() {
@@ -110,6 +119,16 @@ class MirrorMationApp {
     document.getElementById('generateGIF').addEventListener('click', () => {
       this.notificationSystem.notify('warning', 'Feature Unavailable', 'GIF generation not implemented yet.');
     });
+    
+    document.getElementById('frameRateSelect').addEventListener('change', (e) => {
+      const fps = parseInt(e.target.value);
+      const playbackSpeed = 1000 / fps;
+      this.timelineManager.setPlaybackSpeed(playbackSpeed);
+      this.notificationSystem.notify('info', 'Frame Rate Updated', `Animation playback set to ${fps} FPS`);
+    });
+    
+    const defaultFps = 24;
+    this.timelineManager.setPlaybackSpeed(1000 / defaultFps);
     
     this.setupCanvasEditorControls();
   }
