@@ -6,7 +6,7 @@ export class CanvasEditor {
     this.isActive = false;
     this.currentLayer = 'background';
     
-    this.currentTool = 'select';
+    this.currentTool = 'brush';
     this.isDrawing = false;
     this.startX = 0;
     this.startY = 0;
@@ -38,6 +38,14 @@ export class CanvasEditor {
     this.resizeHandleSize = 8;
     
     this.onFrameComplete = null;
+    this.onFrameUpdate = null;
+    
+    this.editMode = {
+      active: false,
+      layerName: null,
+      frameIndex: null,
+      originalData: null
+    };
     
     this.init();
   }
@@ -257,34 +265,34 @@ export class CanvasEditor {
   }
 
   startDrawing(x, y) {
-    const resizeHandle = this.getResizeHandleAtPoint(x, y);
-    if (resizeHandle) {
-      const img = this.images.find(i => i.id === resizeHandle.imageId);
-      if (img) {
-        this.resizingImageId = resizeHandle.imageId;
-        this.resizeCorner = resizeHandle.corner;
-        this.resizeStartX = x;
-        this.resizeStartY = y;
-        this.resizeStartW = img.w;
-        this.resizeStartH = img.h;
-        this.resizeStartImageX = img.x;
-        this.resizeStartImageY = img.y;
-        return;
-      }
-    }
-    
-    const imageId = this.getImageAtPoint(x, y);
-    if (imageId) {
-      const img = this.images.find(i => i.id === imageId);
-      if (img) {
-        this.draggingImageId = imageId;
-        this.imageDragStartX = x - img.x;
-        this.imageDragStartY = y - img.y;
-        return;
-      }
-    }
-    
     if (this.currentTool === 'select') {
+      const resizeHandle = this.getResizeHandleAtPoint(x, y);
+      if (resizeHandle) {
+        const img = this.images.find(i => i.id === resizeHandle.imageId);
+        if (img) {
+          this.resizingImageId = resizeHandle.imageId;
+          this.resizeCorner = resizeHandle.corner;
+          this.resizeStartX = x;
+          this.resizeStartY = y;
+          this.resizeStartW = img.w;
+          this.resizeStartH = img.h;
+          this.resizeStartImageX = img.x;
+          this.resizeStartImageY = img.y;
+          return;
+        }
+      }
+      
+      const imageId = this.getImageAtPoint(x, y);
+      if (imageId) {
+        const img = this.images.find(i => i.id === imageId);
+        if (img) {
+          this.draggingImageId = imageId;
+          this.imageDragStartX = x - img.x;
+          this.imageDragStartY = y - img.y;
+          return;
+        }
+      }
+      
       return;
     }
     
@@ -463,20 +471,74 @@ export class CanvasEditor {
       
       const imageId = Date.now() + Math.random();
       
-      this.images.push({
+      this.images = [{
         id: imageId,
         imageObject: img,
         x: x,
         y: y,
         w: w,
         h: h
-      });
+      }];
       
       this.paintCtx.clearRect(0, 0, canvasW, canvasH);
       this.drawAllImages();
       this.saveCanvasState();
     };
     img.src = imageData;
+  }
+  
+  startEditMode(layerName, frameIndex, frameData) {
+    this.editMode.active = true;
+    this.editMode.layerName = layerName;
+    this.editMode.frameIndex = frameIndex;
+    this.editMode.originalData = frameData;
+    
+    this.show();
+    this.setCurrentLayer(layerName);
+    this.clear();
+    this.loadImage(frameData);
+  }
+  
+  applyEdit() {
+    if (!this.editMode.active) return;
+    
+    const updatedFrameData = this.getCanvasData();
+    
+    if (this.onFrameUpdate) {
+      this.onFrameUpdate(
+        this.editMode.layerName,
+        this.editMode.frameIndex,
+        updatedFrameData
+      );
+    }
+    
+    this.exitEditMode();
+  }
+  
+  cancelEdit() {
+    if (!this.editMode.active) return;
+    
+    this.clear();
+    this.loadImage(this.editMode.originalData);
+    
+    this.exitEditMode();
+  }
+  
+  exitEditMode() {
+    this.editMode.active = false;
+    this.editMode.layerName = null;
+    this.editMode.frameIndex = null;
+    this.editMode.originalData = null;
+    
+    this.hide();
+  }
+  
+  isEditMode() {
+    return this.editMode.active;
+  }
+  
+  getEditModeInfo() {
+    return { ...this.editMode };
   }
 
   importImage(file) {
