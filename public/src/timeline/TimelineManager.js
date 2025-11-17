@@ -18,6 +18,9 @@ export class TimelineManager {
     
     this.draggedFrameIndex = null;
     this.draggedFrameElement = null;
+    
+    this.draggedSectionIndex = null;
+    this.draggedSectionElement = null;
   }
 
   setSelectedLayer(layerName) {
@@ -134,6 +137,57 @@ export class TimelineManager {
     this.endDrag();
   }
 
+  startSectionDrag(sectionIndex, sectionElement) {
+    this.draggedSectionIndex = sectionIndex;
+    this.draggedSectionElement = sectionElement;
+    sectionElement.style.opacity = '0.5';
+    sectionElement.classList.add('dragging');
+  }
+
+  endSectionDrag() {
+    if (this.draggedSectionElement) {
+      this.draggedSectionElement.style.opacity = '1';
+      this.draggedSectionElement.classList.remove('dragging');
+    }
+    this.draggedSectionIndex = null;
+    this.draggedSectionElement = null;
+  }
+
+  handleSectionDrop(targetSectionIndex) {
+    if (this.draggedSectionIndex !== null && this.draggedSectionIndex !== targetSectionIndex) {
+      this.moveSection(this.selectedLayer, this.draggedSectionIndex, targetSectionIndex);
+    }
+    this.endSectionDrag();
+  }
+
+  moveSection(layerName, fromSectionIndex, toSectionIndex) {
+    if (!this.layers[layerName]) return;
+    if (fromSectionIndex === toSectionIndex) return;
+    
+    const framesPerSection = 10;
+    const fromStartFrame = fromSectionIndex * framesPerSection;
+    const toStartFrame = toSectionIndex * framesPerSection;
+    
+    const layerFrames = this.layers[layerName];
+    const fromEndFrame = Math.min(fromStartFrame + framesPerSection, layerFrames.length);
+    
+    const sectionFrames = layerFrames.slice(fromStartFrame, fromEndFrame);
+    
+    layerFrames.splice(fromStartFrame, sectionFrames.length);
+    
+    const adjustedToStart = toSectionIndex > fromSectionIndex ? 
+      toStartFrame - sectionFrames.length : 
+      toStartFrame;
+    
+    layerFrames.splice(adjustedToStart, 0, ...sectionFrames);
+    
+    this.render();
+    
+    if (this.onLayerUpdate) {
+      this.onLayerUpdate(layerName, this.layers[layerName]);
+    }
+  }
+
   getLayerFrames(layerName) {
     return this.layers[layerName] || [];
   }
@@ -155,10 +209,123 @@ export class TimelineManager {
     );
   }
 
+  getSectionForFrame(frameIndex) {
+    return Math.floor(frameIndex / 10);
+  }
+
+  getSectionStartFrame(sectionIndex) {
+    return sectionIndex * 10;
+  }
+
+  getSectionEndFrame(sectionIndex) {
+    return (sectionIndex * 10) + 9;
+  }
+
+  getFramesInSection(layerName, sectionIndex) {
+    const layerFrames = this.layers[layerName] || [];
+    const startFrame = this.getSectionStartFrame(sectionIndex);
+    const endFrame = this.getSectionEndFrame(sectionIndex);
+    return layerFrames.filter((_, index) => index >= startFrame && index <= endFrame);
+  }
+
+  getTotalSections(layerName) {
+    const layerFrames = this.layers[layerName] || [];
+    return Math.ceil(Math.max(layerFrames.length, 1) / 10);
+  }
+
+  getSectionInfo(layerName, sectionIndex) {
+    const frames = this.getFramesInSection(layerName, sectionIndex);
+    return {
+      sectionIndex,
+      startFrame: this.getSectionStartFrame(sectionIndex),
+      endFrame: this.getSectionEndFrame(sectionIndex),
+      frameCount: frames.length,
+      frames: frames
+    };
+  }
+
+  getAllSections(layerName) {
+    const totalSections = this.getTotalSections(layerName);
+    const sections = [];
+    for (let i = 0; i < totalSections; i++) {
+      sections.push(this.getSectionInfo(layerName, i));
+    }
+    return sections;
+  }
+
   render() {
     this.timeline.innerHTML = '';
     
     const currentLayerFrames = this.layers[this.selectedLayer];
+    const totalSections = Math.ceil(Math.max(currentLayerFrames.length, 10) / 10);
+    
+    for (let sectionIndex = 0; sectionIndex < totalSections; sectionIndex++) {
+      const sectionDiv = document.createElement('div');
+      sectionDiv.classList.add('timeline-section');
+      sectionDiv.setAttribute('data-section', sectionIndex);
+      sectionDiv.draggable = true;
+      
+      sectionDiv.addEventListener('dragstart', (e) => {
+        if (e.target !== sectionDiv) return;
+        this.startSectionDrag(sectionIndex, sectionDiv);
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/html', 'section');
+      });
+      
+      sectionDiv.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        
+        if (this.draggedSectionIndex !== null && this.draggedSectionIndex !== sectionIndex) {
+          sectionDiv.style.borderLeft = '6px solid #3b82f6';
+          sectionDiv.style.borderRight = '6px solid #3b82f6';
+        }
+      });
+      
+      sectionDiv.addEventListener('dragleave', (e) => {
+        sectionDiv.style.borderLeft = '';
+        sectionDiv.style.borderRight = '';
+      });
+      
+      sectionDiv.addEventListener('drop', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        sectionDiv.style.borderLeft = '';
+        sectionDiv.style.borderRight = '';
+        this.handleSectionDrop(sectionIndex);
+      });
+      
+      sectionDiv.addEventListener('dragend', (e) => {
+        this.endSectionDrag();
+        document.querySelectorAll('.timeline-section').forEach(s => {
+          s.style.borderLeft = '';
+          s.style.borderRight = '';
+        });
+      });
+      
+      sectionDiv.addEventListener('click', (e) => {
+        if (e.target.closest('.frame') || e.target.closest('.frame-option-btn')) {
+          return;
+        }
+        
+        document.querySelectorAll('.timeline-section').forEach(s => s.classList.remove('selected'));
+        sectionDiv.classList.add('selected');
+        
+        const sectionInfo = this.getSectionInfo(this.selectedLayer, sectionIndex);
+        console.log('Section selected:', sectionInfo);
+      });
+      
+      const sectionLabel = document.createElement('div');
+      sectionLabel.classList.add('section-label');
+      sectionLabel.textContent = `Frames ${sectionIndex * 10 + 1}-${sectionIndex * 10 + 10}`;
+      sectionDiv.appendChild(sectionLabel);
+      
+      const framesContainer = document.createElement('div');
+      framesContainer.classList.add('section-frames');
+      sectionDiv.appendChild(framesContainer);
+      
+      this.timeline.appendChild(sectionDiv);
+    }
     
     currentLayerFrames.forEach((frame, index) => {
       const frameDiv = document.createElement('div');
@@ -273,7 +440,12 @@ export class TimelineManager {
         });
       });
       
-      this.timeline.appendChild(frameDiv);
+      const sectionIndex = this.getSectionForFrame(index);
+      const section = this.timeline.querySelector(`.timeline-section[data-section="${sectionIndex}"]`);
+      if (section) {
+        const framesContainer = section.querySelector('.section-frames');
+        framesContainer.appendChild(frameDiv);
+      }
     });
   }
 
@@ -281,6 +453,7 @@ export class TimelineManager {
     if (this.isPlaying) return;
     
     this.isPlaying = true;
+    this.currentSceneViewer = sceneViewer;
     this.currentPlaybackIndex = 0;
     const maxFrames = this.getMaxFrameCount();
     
@@ -313,6 +486,7 @@ export class TimelineManager {
     }
     this.isPlaying = false;
     this.currentPlaybackIndex = 0;
+    this.currentSceneViewer = null;
   }
 
   pause() {
@@ -324,11 +498,14 @@ export class TimelineManager {
   }
 
   setPlaybackSpeed(speed) {
+    const wasPlaying = this.isPlaying;
+    const currentSceneViewer = this.currentSceneViewer;
+    
     this.playbackSpeed = speed;
     
-    if (this.isPlaying) {
+    if (wasPlaying && currentSceneViewer) {
       this.pause();
-      this.play();
+      this.play(currentSceneViewer);
     }
   }
 
