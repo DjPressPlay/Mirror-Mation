@@ -763,6 +763,39 @@
       z-index: 1000;
     }
     
+    #chatBubble .notification-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: #ef4444;
+      color: #fff;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+      border: 2px solid #1e1e2e;
+      animation: notificationPulse 1.5s ease-in-out infinite;
+    }
+    
+    #chatBubble .notification-badge.active {
+      display: flex;
+    }
+    
+    @keyframes notificationPulse {
+      0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+      }
+      50% {
+        transform: scale(1.1);
+        box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+      }
+    }
+    
     #chatBubble:hover {
       transform: scale(1.1);
       box-shadow: 0 6px 16px rgba(37, 99, 235, 0.6);
@@ -878,6 +911,57 @@
       background: #3f3f5e;
       color: #e4e4e7;
       align-self: flex-start;
+    }
+    
+    .message.notification {
+      background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+      color: #fff;
+      align-self: stretch;
+      max-width: 100%;
+      border-left: 4px solid #fbbf24;
+      font-size: 0.85rem;
+      animation: slideIn 0.3s ease-out;
+    }
+    
+    .message.notification.success {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border-left-color: #34d399;
+    }
+    
+    .message.notification.info {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      border-left-color: #60a5fa;
+    }
+    
+    .message.notification.error {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      border-left-color: #f87171;
+    }
+    
+    .message.notification .notification-header {
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .message.notification .notification-time {
+      font-size: 0.7rem;
+      opacity: 0.8;
+      margin-top: 0.25rem;
+    }
+    
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
     }
     
     .chat-input-container {
@@ -1015,6 +1099,206 @@
     #canvasOverlay.drag-over {
       border-color: #7c3aed;
       box-shadow: 0 8px 32px rgba(124, 58, 237, 0.5), 0 0 0 2px #7c3aed;
+    }
+    
+    .notification-popup {
+      position: fixed;
+      top: 80px;
+      right: 90px;
+      background: #27273a;
+      border: 2px solid #3f3f5e;
+      border-radius: 8px;
+      padding: 1rem;
+      min-width: 280px;
+      max-width: 350px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+      z-index: 1100;
+      animation: popupSlideIn 0.3s ease-out;
+      display: none;
+    }
+    
+    .notification-popup.active {
+      display: block;
+    }
+    
+    .notification-popup.success {
+      border-color: #10b981;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);
+    }
+    
+    .notification-popup.info {
+      border-color: #3b82f6;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.1) 100%);
+    }
+    
+    .notification-popup.warning {
+      border-color: #f59e0b;
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(239, 68, 68, 0.1) 100%);
+    }
+    
+    .notification-popup.error {
+      border-color: #ef4444;
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%);
+    }
+    
+    .notification-popup-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+    
+    .notification-popup-title {
+      font-weight: 700;
+      color: #e4e4e7;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .notification-popup-close {
+      background: none;
+      border: none;
+      color: #9ca3af;
+      cursor: pointer;
+      padding: 0;
+      font-size: 1.2rem;
+      line-height: 1;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+    
+    .notification-popup-close:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #e4e4e7;
+    }
+    
+    .notification-popup-message {
+      color: #d1d5db;
+      font-size: 0.85rem;
+      line-height: 1.4;
+    }
+    
+    @keyframes popupSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .confirmation-dialog {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1200;
+      backdrop-filter: blur(4px);
+    }
+
+    .confirmation-dialog.active {
+      display: flex;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    .confirmation-content {
+      background: #27273a;
+      border: 2px solid #f59e0b;
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 400px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.8);
+      animation: scaleIn 0.3s ease-out;
+    }
+
+    .confirmation-icon {
+      font-size: 3rem;
+      text-align: center;
+      margin-bottom: 1rem;
+      color: #f59e0b;
+    }
+
+    .confirmation-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #e4e4e7;
+      text-align: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .confirmation-message {
+      color: #d1d5db;
+      text-align: center;
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+
+    .confirmation-buttons {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+    }
+
+    .confirmation-btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.95rem;
+    }
+
+    .confirmation-cancel {
+      background: #3f3f5e;
+      color: #e4e4e7;
+    }
+
+    .confirmation-cancel:hover {
+      background: #4f4f6e;
+    }
+
+    .confirmation-confirm {
+      background: #f59e0b;
+      color: #1a1a2e;
+    }
+
+    .confirmation-confirm:hover {
+      background: #fbbf24;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes scaleIn {
+      from {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
     }
   </style>
 </head>
@@ -1160,6 +1444,29 @@
       <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
       <path d="M7 9h10v2H7zm0-3h10v2H7z"/>
     </svg>
+    <div class="notification-badge">0</div>
+  </div>
+  
+  <!-- Notification Popup -->
+  <div id="notificationPopup" class="notification-popup">
+    <div class="notification-popup-header">
+      <div class="notification-popup-title"></div>
+      <button class="notification-popup-close">&times;</button>
+    </div>
+    <div class="notification-popup-message"></div>
+  </div>
+
+  <!-- Confirmation Dialog -->
+  <div id="confirmationDialog" class="confirmation-dialog">
+    <div class="confirmation-content">
+      <div class="confirmation-icon">⚠</div>
+      <div class="confirmation-title"></div>
+      <div class="confirmation-message"></div>
+      <div class="confirmation-buttons">
+        <button class="confirmation-btn confirmation-cancel">Cancel</button>
+        <button class="confirmation-btn confirmation-confirm">Confirm</button>
+      </div>
+    </div>
   </div>
 
   <!-- Chat Overlay -->

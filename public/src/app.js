@@ -8,6 +8,7 @@ class MirrorMationApp {
     this.canvasEditor = null;
     this.timelineManager = null;
     this.fileBin = [];
+    this.notificationSystem = null;
     
     this.init();
   }
@@ -25,6 +26,8 @@ class MirrorMationApp {
     const timelineElement = document.getElementById('timeline');
     this.timelineManager = new TimelineManager(timelineElement);
     
+    this.notificationSystem = new NotificationSystem();
+    
     this.setupEventListeners();
     this.connectModules();
     this.setupOverlayDragAndResize();
@@ -33,6 +36,7 @@ class MirrorMationApp {
   connectModules() {
     this.timelineManager.onLayerUpdate = (layerName, frames) => {
       this.sceneViewer.setLayerFrames(layerName, frames);
+      this.notificationSystem.notify('success', 'Layer Updated', `${layerName} layer has been updated with ${frames.length} frame(s)`);
     };
     
     this.timelineManager.onFrameSelect = (layerName, frameIndex, frameData) => {
@@ -59,11 +63,13 @@ class MirrorMationApp {
     
     this.canvasEditor.onFrameComplete = (layerName, frameData) => {
       this.timelineManager.addFrame(layerName, frameData);
+      this.notificationSystem.notify('success', 'Frame Added', `New frame added to ${layerName} layer`);
     };
     
     this.canvasEditor.onFrameUpdate = (layerName, frameIndex, frameData) => {
       this.timelineManager.updateFrame(layerName, frameIndex, frameData);
       this.sceneViewer.renderFrame(layerName, frameIndex);
+      this.notificationSystem.notify('info', 'Frame Updated', `Frame ${frameIndex + 1} in ${layerName} layer has been updated`);
     };
   }
 
@@ -94,13 +100,15 @@ class MirrorMationApp {
     document.getElementById('playPreview').addEventListener('click', () => {
       if (this.timelineManager.isPlaying) {
         this.timelineManager.stop();
+        this.notificationSystem.notify('info', 'Playback Stopped', 'Animation preview has been stopped');
       } else {
         this.timelineManager.play(this.sceneViewer);
+        this.notificationSystem.notify('info', 'Playing Preview', 'Animation preview is now playing');
       }
     });
     
     document.getElementById('generateGIF').addEventListener('click', () => {
-      alert('GIF generation not implemented yet.');
+      this.notificationSystem.notify('warning', 'Feature Unavailable', 'GIF generation not implemented yet.');
     });
     
     this.setupCanvasEditorControls();
@@ -143,15 +151,17 @@ class MirrorMationApp {
     
     document.getElementById('clearCanvas').addEventListener('click', () => {
       this.canvasEditor.clear();
+      this.notificationSystem.notify('info', 'Canvas Cleared', 'Canvas has been cleared for a new page');
     });
     
     document.getElementById('undoBtn').addEventListener('click', () => {
       this.canvasEditor.undo();
+      this.notificationSystem.notify('info', 'Undo', 'Last action has been undone');
     });
     
-    document.getElementById('closePaint').addEventListener('click', () => {
+    document.getElementById('closePaint').addEventListener('click', async () => {
       if (this.canvasEditor.isEditMode()) {
-        const confirmClose = confirm('You have unsaved changes. Do you want to discard them?');
+        const confirmClose = await this.notificationSystem.confirm('Unsaved Changes', 'You have unsaved changes. Do you want to discard them?');
         if (!confirmClose) return;
         this.canvasEditor.cancelEdit();
       } else {
@@ -217,6 +227,7 @@ class MirrorMationApp {
         const files = Array.from(e.target.files);
         if (files.length > 0) {
           files.forEach(file => this.addFileToFileBin(file));
+          this.notificationSystem.notify('success', 'Images Uploaded', `${files.length} image(s) added to File Bin`);
         }
       };
       input.click();
@@ -246,6 +257,13 @@ class MirrorMationApp {
         'interaction': 'interaction'
       };
       this.updateLayerVisuals(layerTypeMap[nextLayer]);
+      
+      const layerDisplayNames = {
+        'background': 'Background',
+        'character': 'Character',
+        'interaction': 'Interaction'
+      };
+      this.notificationSystem.notify('info', 'Layer Switched', `Now editing ${layerDisplayNames[nextLayer]} layer`);
     });
   }
   
@@ -267,7 +285,12 @@ class MirrorMationApp {
         'character': 'Character',
         'interaction': 'Interaction'
       };
-      badge.textContent = `✏️ EDITING ${layerDisplayNames[editInfo.layerName]} Frame ${editInfo.frameIndex + 1}`;
+      const timelineAbbreviations = {
+        'background': 'BG',
+        'character': 'CHAR',
+        'interaction': 'INTERACT'
+      };
+      badge.textContent = `✏️ EDITING ${layerDisplayNames[editInfo.layerName]} Frame ${editInfo.frameIndex + 1} [${timelineAbbreviations[editInfo.layerName]}]`;
     } else {
       editModeIndicator.style.display = 'none';
       editModeActions.style.display = 'none';
@@ -579,8 +602,155 @@ class MirrorMationApp {
   }
 }
 
+class NotificationSystem {
+  constructor() {
+    this.notifications = [];
+    this.unreadCount = 0;
+    this.badge = document.querySelector('#chatBubble .notification-badge');
+    this.popup = document.getElementById('notificationPopup');
+    this.popupTimeout = null;
+    this.confirmDialog = document.getElementById('confirmationDialog');
+    
+    this.setupUI();
+  }
+  
+  setupUI() {
+    const popupClose = this.popup.querySelector('.notification-popup-close');
+    popupClose.addEventListener('click', () => {
+      this.hidePopup();
+    });
+    
+    this.popup.addEventListener('click', () => {
+      const chatBubble = document.getElementById('chatBubble');
+      chatBubble.click();
+      this.hidePopup();
+    });
+  }
+  
+  notify(type = 'info', title = 'Notification', message = '') {
+    const notification = {
+      type,
+      title,
+      message,
+      timestamp: new Date()
+    };
+    
+    this.notifications.push(notification);
+    this.unreadCount++;
+    this.updateBadge();
+    this.showPopup(notification);
+    this.addToChatMessages(notification);
+  }
+
+  confirm(title = 'Confirm', message = 'Are you sure?') {
+    return new Promise((resolve) => {
+      const confirmTitle = this.confirmDialog.querySelector('.confirmation-title');
+      const confirmMessage = this.confirmDialog.querySelector('.confirmation-message');
+      const confirmBtn = this.confirmDialog.querySelector('.confirmation-confirm');
+      const cancelBtn = this.confirmDialog.querySelector('.confirmation-cancel');
+      
+      confirmTitle.textContent = title;
+      confirmMessage.textContent = message;
+      
+      this.confirmDialog.classList.add('active');
+      
+      const handleConfirm = () => {
+        this.confirmDialog.classList.remove('active');
+        this.notify('info', title, 'Changes discarded');
+        cleanup();
+        resolve(true);
+      };
+      
+      const handleCancel = () => {
+        this.confirmDialog.classList.remove('active');
+        cleanup();
+        resolve(false);
+      };
+      
+      const cleanup = () => {
+        confirmBtn.removeEventListener('click', handleConfirm);
+        cancelBtn.removeEventListener('click', handleCancel);
+      };
+      
+      confirmBtn.addEventListener('click', handleConfirm);
+      cancelBtn.addEventListener('click', handleCancel);
+    });
+  }
+  
+  updateBadge() {
+    this.badge.textContent = this.unreadCount;
+    if (this.unreadCount > 0) {
+      this.badge.classList.add('active');
+    } else {
+      this.badge.classList.remove('active');
+    }
+  }
+  
+  showPopup(notification) {
+    if (this.popupTimeout) {
+      clearTimeout(this.popupTimeout);
+    }
+    
+    const icons = {
+      success: '✓',
+      error: '✕',
+      warning: '⚠',
+      info: 'ℹ'
+    };
+    
+    this.popup.className = 'notification-popup active ' + notification.type;
+    this.popup.querySelector('.notification-popup-title').innerHTML = 
+      `<span>${icons[notification.type] || 'ℹ'}</span>${notification.title}`;
+    this.popup.querySelector('.notification-popup-message').textContent = notification.message;
+    
+    this.popupTimeout = setTimeout(() => {
+      this.hidePopup();
+    }, 4000);
+  }
+  
+  hidePopup() {
+    this.popup.classList.remove('active');
+    if (this.popupTimeout) {
+      clearTimeout(this.popupTimeout);
+      this.popupTimeout = null;
+    }
+  }
+  
+  addToChatMessages(notification) {
+    const chatMessages = document.querySelector('.chat-messages');
+    const message = document.createElement('div');
+    message.classList.add('message', 'notification', notification.type);
+    
+    const icons = {
+      success: '✓',
+      error: '✕',
+      warning: '⚠',
+      info: 'ℹ'
+    };
+    
+    const timeStr = notification.timestamp.toLocaleTimeString();
+    
+    message.innerHTML = `
+      <div class="notification-header">
+        <span>${icons[notification.type] || 'ℹ'}</span>
+        <strong>${notification.title}</strong>
+      </div>
+      <div>${notification.message}</div>
+      <div class="notification-time">${timeStr}</div>
+    `;
+    
+    chatMessages.appendChild(message);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+  
+  clearUnread() {
+    this.unreadCount = 0;
+    this.updateBadge();
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-  new MirrorMationApp();
+  const app = new MirrorMationApp();
   
   const chatBubble = document.getElementById('chatBubble');
   const chatOverlay = document.getElementById('chatOverlay');
@@ -592,6 +762,9 @@ document.addEventListener('DOMContentLoaded', () => {
   chatBubble.addEventListener('click', () => {
     chatOverlay.classList.add('active');
     chatBubble.style.display = 'none';
+    if (app.notificationSystem) {
+      app.notificationSystem.clearUnread();
+    }
   });
 
   chatClose.addEventListener('click', () => {
@@ -614,7 +787,11 @@ document.addEventListener('DOMContentLoaded', () => {
       chatInput.value = '';
       
       setTimeout(() => {
-        addMessage('Thanks for your message! This is a demo AI agent. In a real implementation, this would connect to an AI service.', 'agent');
+        const response = 'Thanks for your message! This is a demo AI agent. In a real implementation, this would connect to an AI service.';
+        addMessage(response, 'agent');
+        if (app.notificationSystem && !chatOverlay.classList.contains('active')) {
+          app.notificationSystem.notify('info', 'AI Response', 'New message from AI Agent');
+        }
       }, 800);
     }
   }
