@@ -494,9 +494,74 @@
       pointer-events: auto;
     }
     
+    .bottom-left-group,
+    .bottom-right-group {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    
     .paint-toolbar-bottom button {
       padding: 0.35rem 0.75rem;
       font-size: 0.75rem;
+    }
+    
+    .edit-mode-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex: 1;
+      justify-content: center;
+    }
+    
+    .edit-mode-badge {
+      background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+      color: #fff;
+      padding: 0.35rem 1rem;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      letter-spacing: 0.5px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.85;
+        transform: scale(1.02);
+      }
+    }
+    
+    .apply-btn {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+      color: #fff !important;
+      font-weight: 600;
+      padding: 0.5rem 1.2rem !important;
+      border: none;
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+    }
+    
+    .apply-btn:hover {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    }
+    
+    .cancel-btn {
+      background: rgba(239, 68, 68, 0.15) !important;
+      color: #ef4444 !important;
+      border: 1px solid rgba(239, 68, 68, 0.3) !important;
+      font-weight: 500;
+      padding: 0.5rem 1rem !important;
+    }
+    
+    .cancel-btn:hover {
+      background: rgba(239, 68, 68, 0.25) !important;
+      border-color: rgba(239, 68, 68, 0.5) !important;
     }
     
     .resize-handle {
@@ -1025,12 +1090,15 @@
                   <button id="undoBtn">↶ Undo</button>
                   <button id="clearCanvas">🗑️ New Page</button>
                 </div>
+                <div id="editModeIndicator" class="edit-mode-indicator" style="display: none;">
+                  <span class="edit-mode-badge">✏️ EDITING FRAME</span>
+                </div>
                 <button id="closePaint">✕ Close</button>
               </div>
               <div class="paint-toolbar">
                 <div class="tool-group">
-                  <button id="selectTool" class="active">👆</button>
-                  <button id="brushTool">🖌️</button>
+                  <button id="selectTool">👆</button>
+                  <button id="brushTool" class="active">🖌️</button>
                   <button id="eraserTool">🧹</button>
                   <button id="lineTool">📏</button>
                   <button id="rectTool">⬜</button>
@@ -1056,9 +1124,15 @@
                 </div>
               </div>
               <div class="paint-toolbar-bottom">
-                <button id="addFrameBtn">+ Add Frame</button>
-                <button id="uploadImageBtn">📤 Upload Image</button>
-                <button id="canvasLayerBtn">🗂️ Canvas Layer</button>
+                <div class="bottom-left-group">
+                  <button id="addFrameBtn">+ Add Frame</button>
+                  <button id="uploadImageBtn">📤 Upload Image</button>
+                  <button id="canvasLayerBtn">🗂️ Canvas Layer</button>
+                </div>
+                <div class="bottom-right-group" id="editModeActions" style="display: none;">
+                  <button id="cancelEditBtn" class="cancel-btn">✕ Cancel</button>
+                  <button id="applyEditBtn" class="apply-btn">✓ Apply Changes</button>
+                </div>
               </div>
             </div>
             

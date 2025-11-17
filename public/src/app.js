@@ -37,10 +37,33 @@ class MirrorMationApp {
     
     this.timelineManager.onFrameSelect = (layerName, frameIndex, frameData) => {
       this.sceneViewer.renderFrame(layerName, frameIndex);
+      
+      this.canvasEditor.startEditMode(layerName, frameIndex, frameData);
+      
+      const layerTypeMap = {
+        'background': 'background',
+        'character': 'characters',
+        'interaction': 'interaction'
+      };
+      
+      this.updateLayerVisuals(layerTypeMap[layerName]);
+      
+      const overlayLayer = document.querySelector('.layer[data-layer="overlay"]');
+      document.querySelectorAll('.layer').forEach(l => l.classList.remove('active'));
+      if (overlayLayer) {
+        overlayLayer.classList.add('active');
+      }
+      
+      this.updateEditModeUI();
     };
     
     this.canvasEditor.onFrameComplete = (layerName, frameData) => {
       this.timelineManager.addFrame(layerName, frameData);
+    };
+    
+    this.canvasEditor.onFrameUpdate = (layerName, frameIndex, frameData) => {
+      this.timelineManager.updateFrame(layerName, frameIndex, frameData);
+      this.sceneViewer.renderFrame(layerName, frameIndex);
     };
   }
 
@@ -127,7 +150,14 @@ class MirrorMationApp {
     });
     
     document.getElementById('closePaint').addEventListener('click', () => {
-      this.canvasEditor.hide();
+      if (this.canvasEditor.isEditMode()) {
+        const confirmClose = confirm('You have unsaved changes. Do you want to discard them?');
+        if (!confirmClose) return;
+        this.canvasEditor.cancelEdit();
+      } else {
+        this.canvasEditor.hide();
+      }
+      this.updateEditModeUI();
       const bgLayer = document.querySelector('.layer[data-layer="background"]');
       document.querySelectorAll('.layer').forEach(l => l.classList.remove('active'));
       bgLayer.classList.add('active');
@@ -165,6 +195,16 @@ class MirrorMationApp {
     
     document.getElementById('addFrameBtn').addEventListener('click', () => {
       this.canvasEditor.addFrameToTimeline();
+    });
+    
+    document.getElementById('applyEditBtn').addEventListener('click', () => {
+      this.canvasEditor.applyEdit();
+      this.updateEditModeUI();
+    });
+    
+    document.getElementById('cancelEditBtn').addEventListener('click', () => {
+      this.canvasEditor.cancelEdit();
+      this.updateEditModeUI();
     });
     
     const uploadImageBtn = document.getElementById('uploadImageBtn');
@@ -207,6 +247,32 @@ class MirrorMationApp {
       };
       this.updateLayerVisuals(layerTypeMap[nextLayer]);
     });
+  }
+  
+  updateEditModeUI() {
+    const isEditMode = this.canvasEditor.isEditMode();
+    const editModeIndicator = document.getElementById('editModeIndicator');
+    const editModeActions = document.getElementById('editModeActions');
+    const addFrameBtn = document.getElementById('addFrameBtn');
+    
+    if (isEditMode) {
+      const editInfo = this.canvasEditor.getEditModeInfo();
+      editModeIndicator.style.display = 'flex';
+      editModeActions.style.display = 'flex';
+      addFrameBtn.style.display = 'none';
+      
+      const badge = editModeIndicator.querySelector('.edit-mode-badge');
+      const layerDisplayNames = {
+        'background': 'Background',
+        'character': 'Character',
+        'interaction': 'Interaction'
+      };
+      badge.textContent = `✏️ EDITING ${layerDisplayNames[editInfo.layerName]} Frame ${editInfo.frameIndex + 1}`;
+    } else {
+      editModeIndicator.style.display = 'none';
+      editModeActions.style.display = 'none';
+      addFrameBtn.style.display = 'block';
+    }
   }
   
   updateLayerVisuals(layerType) {

@@ -80,6 +80,18 @@ export class TimelineManager {
       this.onLayerUpdate(layerName, this.layers[layerName]);
     }
   }
+  
+  updateFrame(layerName, frameIndex, frameData) {
+    if (!this.layers[layerName]) return;
+    if (frameIndex < 0 || frameIndex >= this.layers[layerName].length) return;
+    
+    this.layers[layerName][frameIndex] = frameData;
+    this.render();
+    
+    if (this.onLayerUpdate) {
+      this.onLayerUpdate(layerName, this.layers[layerName]);
+    }
+  }
 
   moveFrame(layerName, fromIndex, toIndex) {
     if (!this.layers[layerName]) return;
@@ -197,6 +209,20 @@ export class TimelineManager {
         this.duplicateFrame(this.selectedLayer, index);
       });
       
+      const editBtn = document.createElement('button');
+      editBtn.classList.add('frame-option-btn', 'edit');
+      editBtn.textContent = '✏️ Edit';
+      editBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.selectedFrameIndex = index;
+        this.render();
+        
+        if (this.onFrameSelect) {
+          this.onFrameSelect(this.selectedLayer, index, frame);
+        }
+      });
+      
+      optionsDiv.appendChild(editBtn);
       optionsDiv.appendChild(deleteBtn);
       optionsDiv.appendChild(moveBtn);
       optionsDiv.appendChild(duplicateBtn);
