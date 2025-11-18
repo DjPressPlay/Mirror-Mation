@@ -1,12 +1,14 @@
 import { SceneViewer } from './scene/SceneViewer.js';
 import { CanvasEditor } from './canvas/CanvasEditor.js';
 import { TimelineManager } from './timeline/TimelineManager.js';
+import { AIService } from './ai/AIService.js';
 
 class MirrorMationApp {
   constructor() {
     this.sceneViewer = null;
     this.canvasEditor = null;
     this.timelineManager = null;
+    this.aiService = null;
     this.fileBin = [];
     this.notificationSystem = null;
     
@@ -28,9 +30,28 @@ class MirrorMationApp {
     
     this.notificationSystem = new NotificationSystem();
     
+    this.aiService = new AIService();
+    this.setupAIService();
+    
     this.setupEventListeners();
     this.connectModules();
     this.setupOverlayDragAndResize();
+  }
+
+  setupAIService() {
+    this.aiService.setProgressCallback((progress) => {
+      this.notificationSystem.notify('info', 'AI Processing', progress.message);
+    });
+
+    this.aiService.setCompleteCallback((result) => {
+      this.notificationSystem.notify('success', 'AI Complete', 
+        `Frame generated successfully for ${result.layerType} layer`);
+    });
+
+    this.aiService.setErrorCallback((error) => {
+      this.notificationSystem.notify('error', 'AI Error', 
+        error.message || 'Failed to generate frame');
+    });
   }
 
   connectModules() {
@@ -799,19 +820,60 @@ document.addEventListener('DOMContentLoaded', () => {
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }
 
-  function sendMessage() {
+  async function sendMessage() {
     const text = chatInput.value.trim();
     if (text) {
       addMessage(text, 'user');
       chatInput.value = '';
       
-      setTimeout(() => {
-        const response = 'Thanks for your message! This is a demo AI agent. In a real implementation, this would connect to an AI service.';
-        addMessage(response, 'agent');
-        if (app.notificationSystem && !chatOverlay.classList.contains('active')) {
-          app.notificationSystem.notify('info', 'AI Response', 'New message from AI Agent');
+      const aiKeywords = ['make', 'create', 'generate', 'add', 'change', 'replace', 'background', 'character', 'interaction', 'guy', 'standing', 'walking', 'scene'];
+      const containsAIKeyword = aiKeywords.some(keyword => text.toLowerCase().includes(keyword));
+      
+      if (containsAIKeyword) {
+        const currentLayer = app.timelineManager.getSelectedLayer();
+        const selectedFrameIndex = app.timelineManager.selectedFrameIndex;
+        const frames = app.timelineManager.getLayerFrames(currentLayer);
+        
+        if (selectedFrameIndex !== null && frames[selectedFrameIndex]) {
+          addMessage('Processing your request with AI...', 'agent');
+          
+          try {
+            const result = await app.aiService.branchFrame({
+              prompt: text,
+              sourceFrameData: frames[selectedFrameIndex],
+              layerType: currentLayer,
+              frameIndex: selectedFrameIndex,
+              sectionIndex: app.timelineManager.getSectionForFrame(selectedFrameIndex)
+            });
+            
+            app.timelineManager.updateFrame(currentLayer, selectedFrameIndex, result.generatedFrame);
+            
+            addMessage(
+              `✓ Frame ${selectedFrameIndex + 1} on ${currentLayer} layer has been updated with your request: "${text}"`,
+              'agent'
+            );
+            
+          } catch (error) {
+            addMessage(
+              `✗ Failed to generate frame: ${error.message}. Please make sure BRIA_API_KEY is set in Netlify environment variables.`,
+              'agent'
+            );
+          }
+        } else {
+          addMessage(
+            'Please select a frame on the timeline first, then I can help you modify it with AI.',
+            'agent'
+          );
         }
-      }, 800);
+      } else {
+        setTimeout(() => {
+          const response = 'I can help you modify frames with AI! Try saying things like:\n\n• "Make a guy standing"\n• "Create a walking character"\n• "Change background to a forest"\n• "Add interaction effects"\n\nSelect a frame on the timeline, then give me instructions!';
+          addMessage(response, 'agent');
+          if (app.notificationSystem && !chatOverlay.classList.contains('active')) {
+            app.notificationSystem.notify('info', 'AI Response', 'New message from AI Agent');
+          }
+        }, 800);
+      }
     }
   }
 
