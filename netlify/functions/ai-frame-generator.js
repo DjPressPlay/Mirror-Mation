@@ -92,8 +92,8 @@ exports.handler = async (event) => {
 async function callBriaAPI({ apiKey, prompt, sourceImage, layerType }) {
   const https = require('https');
   
-  const briaEndpoint = 'api.bria.ai';
-  const apiPath = '/v1/text-to-image';
+  const briaEndpoint = 'engine.prod.bria-api.com';
+  const apiPath = '/v1/text-to-image/base/2.3';
   
   const requestBody = JSON.stringify({
     prompt: prompt,
