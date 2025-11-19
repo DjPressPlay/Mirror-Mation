@@ -11,7 +11,17 @@ exports.handler = async (event) => {
       prompt, 
       frameData, 
       layerType,
-      frameIndex 
+      frameIndex,
+      maskData,
+      maskInvert,
+      conditioningImage,
+      conditioningType,
+      conditioningStrength,
+      preserveRegions,
+      styleReference,
+      depthMap,
+      useLatentSpace,
+      latentBlend
     } = JSON.parse(event.body);
 
     if (!prompt || !frameData || !layerType) {
@@ -47,7 +57,17 @@ exports.handler = async (event) => {
       apiKey: briaApiKey,
       prompt: enhancedPrompt,
       sourceImage: frameData,
-      layerType: layerType
+      layerType: layerType,
+      maskData: maskData,
+      maskInvert: maskInvert,
+      conditioningImage: conditioningImage,
+      conditioningType: conditioningType,
+      conditioningStrength: conditioningStrength,
+      preserveRegions: preserveRegions,
+      styleReference: styleReference,
+      depthMap: depthMap,
+      useLatentSpace: useLatentSpace,
+      latentBlend: latentBlend
     });
 
     return {
@@ -65,7 +85,11 @@ exports.handler = async (event) => {
         metadata: {
           model: briaResponse.model || 'bria-ai',
           generationTime: briaResponse.generationTime || Date.now(),
-          originalPrompt: prompt
+          originalPrompt: prompt,
+          hasMask: !!maskData,
+          hasConditioning: !!(conditioningImage || depthMap || styleReference),
+          conditioningType: conditioningType,
+          usedLatentSpace: useLatentSpace
         }
       })
     };
@@ -89,17 +113,64 @@ exports.handler = async (event) => {
   }
 };
 
-async function callBriaAPI({ apiKey, prompt, sourceImage, layerType }) {
+async function callBriaAPI({ 
+  apiKey, 
+  prompt, 
+  sourceImage, 
+  layerType,
+  maskData,
+  maskInvert,
+  conditioningImage,
+  conditioningType,
+  conditioningStrength,
+  preserveRegions,
+  styleReference,
+  depthMap,
+  useLatentSpace,
+  latentBlend
+}) {
   const https = require('https');
   
   const briaEndpoint = 'engine.prod.bria-api.com';
   const apiPath = '/v1/text-to-image/base/2.3';
   
-  const requestBody = JSON.stringify({
+  const requestPayload = {
     prompt: prompt,
     num_results: 1,
     sync: true
-  });
+  };
+
+  if (maskData) {
+    requestPayload.mask = maskData;
+    requestPayload.mask_invert = maskInvert || false;
+  }
+
+  if (conditioningImage) {
+    requestPayload.control_image = conditioningImage;
+    requestPayload.control_type = conditioningType || 'canny';
+    requestPayload.control_strength = conditioningStrength || 1.0;
+  }
+
+  if (styleReference) {
+    requestPayload.style_reference = styleReference;
+  }
+
+  if (depthMap) {
+    requestPayload.depth_map = depthMap;
+  }
+
+  if (preserveRegions && Array.isArray(preserveRegions)) {
+    requestPayload.preserve_regions = preserveRegions;
+  }
+
+  if (useLatentSpace) {
+    requestPayload.use_latent_space = true;
+    if (latentBlend !== undefined) {
+      requestPayload.latent_blend = latentBlend;
+    }
+  }
+
+  const requestBody = JSON.stringify(requestPayload);
 
   return new Promise((resolve, reject) => {
     const options = {

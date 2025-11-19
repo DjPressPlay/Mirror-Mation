@@ -25,8 +25,17 @@ export class TimelineManager {
 
   setSelectedLayer(layerName) {
     if (this.layers.hasOwnProperty(layerName)) {
+      const previousLayer = this.selectedLayer;
       this.selectedLayer = layerName;
+      
+      const currentLayerFrames = this.layers[this.selectedLayer];
+      if (this.selectedFrameIndex !== null && this.selectedFrameIndex >= currentLayerFrames.length) {
+        this.selectedFrameIndex = currentLayerFrames.length > 0 ? currentLayerFrames.length - 1 : null;
+      }
+      
       this.render();
+      
+      console.log(`Timeline switched from ${previousLayer} to ${layerName}, showing ${currentLayerFrames.length} frames`);
     }
   }
 
@@ -254,10 +263,13 @@ export class TimelineManager {
   }
 
   render() {
-    this.timeline.innerHTML = '';
+    this.timeline.style.opacity = '0.5';
     
-    const currentLayerFrames = this.layers[this.selectedLayer];
-    const totalSections = Math.ceil(Math.max(currentLayerFrames.length, 10) / 10);
+    setTimeout(() => {
+      this.timeline.innerHTML = '';
+      
+      const currentLayerFrames = this.layers[this.selectedLayer];
+      const totalSections = Math.ceil(Math.max(currentLayerFrames.length, 10) / 10);
     
     for (let sectionIndex = 0; sectionIndex < totalSections; sectionIndex++) {
       const sectionDiv = document.createElement('div');
@@ -447,6 +459,9 @@ export class TimelineManager {
         framesContainer.appendChild(frameDiv);
       }
     });
+    
+    this.timeline.style.opacity = '1';
+    }, 50);
   }
 
   play(sceneViewer) {
