@@ -116,12 +116,22 @@ class MirrorMationApp {
         
         if (layerType === 'overlay') {
           this.canvasEditor.show();
+          // Keep the current layer - update visuals to match
+          const currentLayer = this.canvasEditor.getCurrentLayer();
+          const layerTypeMap = {
+            'background': 'background',
+            'character': 'characters',
+            'interaction': 'interaction'
+          };
+          this.updateLayerVisuals(layerTypeMap[currentLayer]);
+          this.updateCanvasLayerButton();
         } else {
           this.canvasEditor.hide();
           if (['background', 'characters', 'interaction'].includes(layerType)) {
             const normalizedLayerName = layerType === 'characters' ? 'character' : layerType;
-            this.timelineManager.setSelectedLayer(normalizedLayerName);
             this.canvasEditor.setCurrentLayer(normalizedLayerName);
+            this.updateCanvasLayerButton();
+            this.timelineManager.setSelectedLayer(normalizedLayerName);
           }
         }
       });
@@ -288,7 +298,6 @@ class MirrorMationApp {
       const nextLayer = layers[nextIndex];
       
       this.canvasEditor.setCurrentLayer(nextLayer);
-      this.timelineManager.setSelectedLayer(nextLayer);
       this.updateCanvasLayerButton();
       
       const layerTypeMap = {
@@ -297,6 +306,10 @@ class MirrorMationApp {
         'interaction': 'interaction'
       };
       this.updateLayerVisuals(layerTypeMap[nextLayer]);
+      
+      this.updateSidePanelLayerButtons(layerTypeMap[nextLayer]);
+      
+      this.timelineManager.setSelectedLayer(nextLayer);
       
       const layerDisplayNames = {
         'background': 'Background',
@@ -354,6 +367,16 @@ class MirrorMationApp {
     } else if (layerType === 'interaction') {
       timeline.classList.add('layer-interaction');
       canvasWrapper.classList.add('layer-interaction');
+    }
+  }
+  
+  updateSidePanelLayerButtons(layerType) {
+    const layers = document.querySelectorAll('.layer');
+    layers.forEach(l => l.classList.remove('active'));
+    
+    const targetLayer = document.querySelector(`.layer[data-layer="${layerType}"]`);
+    if (targetLayer) {
+      targetLayer.classList.add('active');
     }
   }
   
