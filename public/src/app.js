@@ -80,6 +80,8 @@ class MirrorMationApp {
       }
       
       this.updateEditModeUI();
+      
+      this.updateChatFramePreview(layerName, frameIndex, frameData);
     };
     
     this.canvasEditor.onFrameComplete = (layerName, frameData) => {
@@ -487,6 +489,46 @@ class MirrorMationApp {
     canvasLayerBtn.textContent = `🗂️ ${displayName}`;
   }
   
+  updateChatFramePreview(layerName, frameIndex, frameData) {
+    const chatFramePreview = document.getElementById('chatFramePreview');
+    const chatFramePreviewImage = document.getElementById('chatFramePreviewImage');
+    const chatFramePreviewLayer = document.getElementById('chatFramePreviewLayer');
+    const chatFramePreviewIndex = document.getElementById('chatFramePreviewIndex');
+    
+    if (!chatFramePreview || !chatFramePreviewImage) return;
+    
+    const layerDisplayNames = {
+      'background': 'Background',
+      'character': 'Character',
+      'interaction': 'Interaction'
+    };
+    
+    chatFramePreviewImage.src = frameData;
+    chatFramePreviewLayer.textContent = layerDisplayNames[layerName] || layerName;
+    chatFramePreviewIndex.textContent = `#${frameIndex + 1}`;
+    chatFramePreview.classList.add('active');
+    
+    window.currentFrameReference = {
+      layerName,
+      frameIndex,
+      frameData
+    };
+  }
+  
+  clearChatFramePreview() {
+    const chatFramePreview = document.getElementById('chatFramePreview');
+    const chatFramePreviewImage = document.getElementById('chatFramePreviewImage');
+    
+    if (chatFramePreview) {
+      chatFramePreview.classList.remove('active');
+    }
+    if (chatFramePreviewImage) {
+      chatFramePreviewImage.src = '';
+    }
+    
+    window.currentFrameReference = null;
+  }
+  
   setupOverlayDragAndResize() {
     const overlay = document.getElementById('canvasOverlay');
     const dragHandle = document.querySelector('.canvas-top-bar');
@@ -821,6 +863,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const chatInput = document.getElementById('chatInput');
   const chatSend = document.getElementById('chatSend');
   const chatMessages = document.querySelector('.chat-messages');
+  const functionSelector = document.getElementById('functionSelector');
+  const chatFramePreviewClear = document.getElementById('chatFramePreviewClear');
 
   chatBubble.addEventListener('click', () => {
     chatOverlay.classList.add('active');
@@ -834,68 +878,193 @@ document.addEventListener('DOMContentLoaded', () => {
     chatOverlay.classList.remove('active');
     chatBubble.style.display = 'flex';
   });
+  
+  chatFramePreviewClear.addEventListener('click', () => {
+    app.clearChatFramePreview();
+  });
 
-  function addMessage(text, sender) {
+  function addMessage(text, sender, options = {}) {
     const message = document.createElement('div');
     message.classList.add('message', sender);
-    message.textContent = text;
+    
+    if (options.frameReference) {
+      const frameInfo = document.createElement('div');
+      frameInfo.style.cssText = 'font-size: 0.75rem; color: #9ca3af; margin-bottom: 0.5rem; padding: 0.25rem 0.5rem; background: rgba(79, 70, 229, 0.1); border-radius: 4px; border-left: 2px solid #4f46e5;';
+      frameInfo.innerHTML = `📎 Working on <strong>${options.frameReference.layer}</strong> Frame <strong>#${options.frameReference.index}</strong>`;
+      message.appendChild(frameInfo);
+    }
+    
+    if (options.image) {
+      const img = document.createElement('img');
+      img.src = options.image;
+      img.style.cssText = 'max-width: 150px; max-height: 100px; object-fit: contain; margin: 0.5rem 0; border-radius: 4px; border: 1px solid #4f46e5; background: #1e1e2e;';
+      message.appendChild(img);
+    }
+    
+    const textNode = document.createElement('div');
+    textNode.textContent = text;
+    message.appendChild(textNode);
+    
     chatMessages.appendChild(message);
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }
 
   async function sendMessage() {
     const text = chatInput.value.trim();
+    const selectedFunction = functionSelector.value;
+    
     if (text) {
       addMessage(text, 'user');
       chatInput.value = '';
       
-      const aiKeywords = ['make', 'create', 'generate', 'add', 'change', 'replace', 'background', 'character', 'interaction', 'guy', 'standing', 'walking', 'scene'];
-      const containsAIKeyword = aiKeywords.some(keyword => text.toLowerCase().includes(keyword));
-      
-      if (containsAIKeyword) {
+      if (selectedFunction !== 'none') {
         const currentLayer = app.timelineManager.getSelectedLayer();
         const selectedFrameIndex = app.timelineManager.selectedFrameIndex;
         const frames = app.timelineManager.getLayerFrames(currentLayer);
         
         if (selectedFrameIndex !== null && frames[selectedFrameIndex]) {
-          addMessage('Processing your request with AI...', 'agent');
+          const functionName = app.aiService.getBriaFunctionDescription(selectedFunction);
+          const layerDisplayNames = {
+            'background': 'Background',
+            'character': 'Character',
+            'interaction': 'Interaction'
+          };
+          
+          const frameData = frames[selectedFrameIndex];
+          const hasImageData = frameData && frameData.startsWith('data:image');
+          
+          const messageOptions = {
+            frameReference: {
+              layer: layerDisplayNames[currentLayer] || currentLayer,
+              index: selectedFrameIndex + 1
+            }
+          };
+          
+          if (hasImageData) {
+            messageOptions.image = frameData;
+          }
+          
+          addMessage(`Processing with ${functionName}...`, 'agent', messageOptions);
           
           try {
-            const result = await app.aiService.branchFrame({
+            const branchOptions = {
               prompt: text,
-              sourceFrameData: frames[selectedFrameIndex],
               layerType: currentLayer,
               frameIndex: selectedFrameIndex,
-              sectionIndex: app.timelineManager.getSectionForFrame(selectedFrameIndex)
-            });
+              sectionIndex: app.timelineManager.getSectionForFrame(selectedFrameIndex),
+              briaFunction: selectedFunction
+            };
+            
+            if (hasImageData) {
+              branchOptions.sourceFrameData = frameData;
+            }
+            
+            const result = await app.aiService.branchFrame(branchOptions);
             
             app.timelineManager.updateFrame(currentLayer, selectedFrameIndex, result.generatedFrame);
             
             addMessage(
-              `✓ Frame ${selectedFrameIndex + 1} on ${currentLayer} layer has been updated with your request: "${text}"`,
-              'agent'
+              `✓ Frame ${selectedFrameIndex + 1} on ${currentLayer} layer has been updated using ${functionName}`,
+              'agent',
+              {
+                image: result.generatedFrame
+              }
             );
             
           } catch (error) {
             addMessage(
-              `✗ Failed to generate frame: ${error.message}. Please make sure BRIA_API_KEY is set in Netlify environment variables.`,
+              `✗ Failed to process: ${error.message}. Please make sure BRIA_API_KEY is configured.`,
               'agent'
             );
           }
         } else {
           addMessage(
-            'Please select a frame on the timeline first, then I can help you modify it with AI.',
+            'Please select a frame on the timeline first. FIBO needs a frame to apply the selected function.',
             'agent'
           );
         }
       } else {
-        setTimeout(() => {
-          const response = 'I can help you modify frames with AI! Try saying things like:\n\n• "Make a guy standing"\n• "Create a walking character"\n• "Change background to a forest"\n• "Add interaction effects"\n\nSelect a frame on the timeline, then give me instructions!';
-          addMessage(response, 'agent');
-          if (app.notificationSystem && !chatOverlay.classList.contains('active')) {
-            app.notificationSystem.notify('info', 'AI Response', 'New message from AI Agent');
+        const aiKeywords = ['make', 'create', 'generate', 'add', 'change', 'replace', 'background', 'character', 'interaction', 'guy', 'standing', 'walking', 'scene'];
+        const containsAIKeyword = aiKeywords.some(keyword => text.toLowerCase().includes(keyword));
+        
+        if (containsAIKeyword) {
+          const currentLayer = app.timelineManager.getSelectedLayer();
+          const selectedFrameIndex = app.timelineManager.selectedFrameIndex;
+          const frames = app.timelineManager.getLayerFrames(currentLayer);
+          
+          if (selectedFrameIndex !== null && frames[selectedFrameIndex]) {
+            const layerDisplayNames = {
+              'background': 'Background',
+              'character': 'Character',
+              'interaction': 'Interaction'
+            };
+            
+            const frameData = frames[selectedFrameIndex];
+            const hasImageData = frameData && frameData.startsWith('data:image');
+            
+            const messageOptions = {
+              frameReference: {
+                layer: layerDisplayNames[currentLayer] || currentLayer,
+                index: selectedFrameIndex + 1
+              }
+            };
+            
+            if (hasImageData) {
+              messageOptions.image = frameData;
+            }
+            
+            addMessage('Processing your request with AI...', 'agent', messageOptions);
+            
+            try {
+              const branchOptions = {
+                prompt: text,
+                layerType: currentLayer,
+                frameIndex: selectedFrameIndex,
+                sectionIndex: app.timelineManager.getSectionForFrame(selectedFrameIndex)
+              };
+              
+              if (hasImageData) {
+                branchOptions.sourceFrameData = frameData;
+              }
+              
+              const result = await app.aiService.branchFrame(branchOptions);
+              
+              app.timelineManager.updateFrame(currentLayer, selectedFrameIndex, result.generatedFrame);
+              
+              addMessage(
+                `✓ Frame ${selectedFrameIndex + 1} on ${currentLayer} layer has been updated with your request: "${text}"`,
+                'agent',
+                {
+                  image: result.generatedFrame
+                }
+              );
+              
+            } catch (error) {
+              addMessage(
+                `✗ Failed to generate frame: ${error.message}. Please make sure BRIA_API_KEY is set in Netlify environment variables.`,
+                'agent'
+              );
+            }
+          } else {
+            addMessage(
+              'Please select a frame on the timeline first, then I can help you modify it with AI.',
+              'agent'
+            );
           }
-        }, 800);
+        } else {
+          setTimeout(() => {
+            const availableFunctions = Object.keys(app.aiService.briaFunctions).map(key => {
+              const desc = app.aiService.getBriaFunctionDescription(key);
+              return `• ${desc}`;
+            }).join('\n');
+            
+            const response = `Hi! I'm FIBO, your AI assistant! 🎨\n\nI can help you with powerful image operations:\n\n${availableFunctions}\n\nTo use:\n1. Select a frame on the timeline\n2. Choose a function from the dropdown above\n3. Describe what you want\n\nOr just chat with me for general help!`;
+            addMessage(response, 'agent');
+            if (app.notificationSystem && !chatOverlay.classList.contains('active')) {
+              app.notificationSystem.notify('info', 'FIBO Response', 'New message from FIBO');
+            }
+          }, 800);
+        }
       }
     }
   }

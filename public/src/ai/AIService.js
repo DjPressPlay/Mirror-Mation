@@ -5,6 +5,23 @@ export class AIService {
     this.onProgress = null;
     this.onComplete = null;
     this.onError = null;
+    
+    this.briaFunctions = {
+      'generate': 'Image Generation - Generate new images from text prompts',
+      'enhance': 'Enhance Image - Generate richer details, sharper textures, and enhanced clarity',
+      'generative-fill': 'Generative Fill - Generate elements in a region using mask and prompt',
+      'erase-elements': 'Erase Elements - Remove unwanted elements using a mask',
+      'erase-foreground': 'Erase Foreground - Remove foreground and generate background',
+      'replace-background': 'Replace Background - Generate new background from prompt',
+      'remove-background': 'Remove Background - Isolate foreground by removing background',
+      'blur-background': 'Blur Background - Apply blur effect to background',
+      'expand': 'Expand Image - Extend image to fit different aspect ratios',
+      'upscale': 'Increase Resolution - Upscale image while preserving content',
+      'delayer': 'Delayer Image - Convert to layered Photoshop PSD file',
+      'crop-foreground': 'Crop Out Foreground - Crop tightly around foreground',
+      'modify-presenter': 'Modify Presenter - Change presenter look or expressions',
+      'generate-masks': 'Generate Masks - Auto-detect and generate object masks'
+    };
   }
 
   async generateFrame(options) {
@@ -13,6 +30,7 @@ export class AIService {
       frameData,
       layerType,
       frameIndex,
+      briaFunction,
       
       maskData,
       maskInvert,
@@ -32,7 +50,7 @@ export class AIService {
       throw new Error('AI generation already in progress');
     }
 
-    if (!prompt || !frameData || !layerType) {
+    if (!prompt || !layerType) {
       throw new Error('Missing required parameters for AI generation');
     }
 
@@ -46,27 +64,34 @@ export class AIService {
     }
 
     try {
+      const payload = {
+        prompt,
+        layerType,
+        frameIndex,
+        briaFunction: briaFunction || 'none'
+      };
+      
+      if (frameData) {
+        payload.frameData = frameData;
+      }
+      
+      if (maskData) payload.maskData = maskData;
+      if (maskInvert !== undefined) payload.maskInvert = maskInvert;
+      if (conditioningImage) payload.conditioningImage = conditioningImage;
+      if (conditioningType) payload.conditioningType = conditioningType;
+      if (conditioningStrength !== undefined) payload.conditioningStrength = conditioningStrength;
+      if (preserveRegions) payload.preserveRegions = preserveRegions;
+      if (styleReference) payload.styleReference = styleReference;
+      if (depthMap) payload.depthMap = depthMap;
+      if (useLatentSpace !== undefined) payload.useLatentSpace = useLatentSpace;
+      if (latentBlend !== undefined) payload.latentBlend = latentBlend;
+      
       const response = await fetch(this.apiEndpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          prompt,
-          frameData,
-          layerType,
-          frameIndex,
-          maskData,
-          maskInvert,
-          conditioningImage,
-          conditioningType,
-          conditioningStrength,
-          preserveRegions,
-          styleReference,
-          depthMap,
-          useLatentSpace,
-          latentBlend
-        })
+        body: JSON.stringify(payload)
       });
 
       if (!response.ok) {
@@ -125,6 +150,7 @@ export class AIService {
       layerType,
       frameIndex,
       sectionIndex,
+      briaFunction,
       maskData,
       maskInvert,
       preserveElements,
@@ -137,7 +163,8 @@ export class AIService {
         prompt: `${prompt}`,
         frameData: sourceFrameData,
         layerType: layerType,
-        frameIndex: frameIndex
+        frameIndex: frameIndex,
+        briaFunction: briaFunction || 'none'
       };
 
       if (maskData) {
@@ -167,6 +194,7 @@ export class AIService {
           originalFrameIndex: frameIndex,
           sectionIndex: sectionIndex,
           branchPrompt: prompt,
+          briaFunction: briaFunction || 'none',
           timestamp: Date.now(),
           hasMask: !!maskData,
           preservedElements: preserveElements,
@@ -393,5 +421,13 @@ export class AIService {
       img1.src = frame1;
       img2.src = frame2;
     });
+  }
+
+  getBriaFunctions() {
+    return this.briaFunctions;
+  }
+
+  getBriaFunctionDescription(functionKey) {
+    return this.briaFunctions[functionKey] || 'Unknown function';
   }
 }

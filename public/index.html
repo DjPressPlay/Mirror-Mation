@@ -941,6 +941,78 @@
       font-weight: 600;
     }
     
+    .chat-frame-preview {
+      background: #1e1e2e;
+      border-bottom: 1px solid #3f3f5e;
+      padding: 0.75rem;
+      display: none;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .chat-frame-preview.active {
+      display: flex;
+    }
+    
+    .chat-frame-preview-label {
+      font-size: 0.75rem;
+      color: #9ca3af;
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    
+    .chat-frame-preview-content {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: #27273a;
+      padding: 0.5rem;
+      border-radius: 6px;
+      border: 1px solid #3f3f5e;
+    }
+    
+    .chat-frame-preview-image {
+      width: 80px;
+      height: 60px;
+      object-fit: contain;
+      background: #1e1e2e;
+      border-radius: 4px;
+      border: 1px solid #4f46e5;
+    }
+    
+    .chat-frame-preview-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    
+    .chat-frame-preview-info-row {
+      font-size: 0.8rem;
+      color: #e4e4e7;
+    }
+    
+    .chat-frame-preview-info-row strong {
+      color: #a78bfa;
+    }
+    
+    .chat-frame-preview-clear {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #ef4444;
+      padding: 0.25rem 0.5rem;
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    
+    .chat-frame-preview-clear:hover {
+      background: rgba(239, 68, 68, 0.2);
+    }
+    
     .chat-close {
       background: none;
       border: none;
@@ -1062,6 +1134,41 @@
       padding: 1rem;
       border-top: 1px solid #3f3f5e;
       background: #1e1e2e;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .chat-function-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    
+    #functionSelector {
+      flex: 1;
+      padding: 0.6rem;
+      background: #27273a;
+      border: 1px solid #3f3f5e;
+      border-radius: 6px;
+      color: #e4e4e7;
+      font-size: 0.85rem;
+      outline: none;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    
+    #functionSelector:focus {
+      border-color: #7c3aed;
+    }
+    
+    #functionSelector option {
+      background: #27273a;
+      color: #e4e4e7;
+      padding: 0.5rem;
+    }
+    
+    .chat-input-row {
       display: flex;
       gap: 0.5rem;
     }
@@ -1575,15 +1682,51 @@
   <!-- Chat Overlay -->
   <div id="chatOverlay">
     <div class="chat-header">
-      <h3>AI Agent Chat</h3>
+      <h3>FIBO Chat</h3>
       <button class="chat-close">&times;</button>
     </div>
+    <div id="chatFramePreview" class="chat-frame-preview">
+      <div class="chat-frame-preview-label">Selected Frame Reference</div>
+      <div class="chat-frame-preview-content">
+        <img id="chatFramePreviewImage" class="chat-frame-preview-image" src="" alt="Frame">
+        <div class="chat-frame-preview-info">
+          <div class="chat-frame-preview-info-row">
+            <strong>Layer:</strong> <span id="chatFramePreviewLayer"></span>
+          </div>
+          <div class="chat-frame-preview-info-row">
+            <strong>Frame:</strong> <span id="chatFramePreviewIndex"></span>
+          </div>
+        </div>
+        <button id="chatFramePreviewClear" class="chat-frame-preview-clear">Clear</button>
+      </div>
+    </div>
     <div class="chat-messages">
-      <div class="message agent">Hello! I'm your AI assistant. How can I help you with your animation project today?</div>
+      <div class="message agent">Hello! I'm FIBO, your AI assistant. Select a function and describe what you'd like to create!</div>
     </div>
     <div class="chat-input-container">
-      <input type="text" id="chatInput" placeholder="Type your message...">
-      <button id="chatSend">Send</button>
+      <div class="chat-function-row">
+        <select id="functionSelector">
+          <option value="none">💬 General Chat</option>
+          <option value="generate">🎨 Image Generation</option>
+          <option value="enhance">✨ Enhance Image</option>
+          <option value="generative-fill">🎨 Generative Fill</option>
+          <option value="erase-elements">🧹 Erase Elements</option>
+          <option value="erase-foreground">👤 Erase Foreground</option>
+          <option value="replace-background">🌄 Replace Background</option>
+          <option value="remove-background">🔲 Remove Background</option>
+          <option value="blur-background">🌫️ Blur Background</option>
+          <option value="expand">↔️ Expand Image</option>
+          <option value="upscale">📐 Increase Resolution</option>
+          <option value="delayer">📂 Delayer Image (PSD)</option>
+          <option value="crop-foreground">✂️ Crop Out Foreground</option>
+          <option value="modify-presenter">👥 Modify Presenter</option>
+          <option value="generate-masks">🎭 Generate Masks</option>
+        </select>
+      </div>
+      <div class="chat-input-row">
+        <input type="text" id="chatInput" placeholder="Describe what you want to do...">
+        <button id="chatSend">Send</button>
+      </div>
     </div>
   </div>
 
