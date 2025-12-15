@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mirror-Mation aNIMATION Studio Pro</title>
+  <title>AI GIF Remixer - Transform Any GIF with AI</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { 
@@ -26,11 +26,11 @@
       z-index: 100;
     }
     
-    .logo { 
-      font-size: 1.5rem; 
-      font-weight: 700; 
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
       letter-spacing: -0.5px;
-      background: linear-gradient(45deg, #fff, #a78bfa);
+      background: linear-gradient(45deg, #00d9ff, #7c3aed, #00ff87);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -91,86 +91,13 @@
       letter-spacing: 0.5px;
     }
     
+    /* Hidden layers section - simplified away */
     #layers {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
+      display: none;
     }
-    
+
     .layer {
-      padding: 0.6rem 0.75rem;
-      background: #3f3f5e;
-      cursor: pointer;
-      border-radius: 6px;
-      transition: all 0.2s;
-      border: 2px solid transparent;
-      font-size: 0.9rem;
-    }
-    
-    .layer:hover {
-      background: #4f4f6e;
-    }
-    
-    .layer:active {
-      background: #5f5f7e;
-      transform: scale(0.98);
-    }
-    
-    .layer.active {
-      background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
-      border-color: #a78bfa;
-      font-weight: 600;
-    }
-    
-    .layer[data-layer="background"] {
-      background: #1e3a5f;
-    }
-    
-    .layer[data-layer="background"]:hover {
-      background: #2a4d7a;
-    }
-    
-    .layer[data-layer="background"]:active {
-      background: #365a8f;
-    }
-    
-    .layer[data-layer="background"].active {
-      background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
-      border-color: #60a5fa;
-    }
-    
-    .layer[data-layer="characters"] {
-      background: #7f1d1d;
-    }
-    
-    .layer[data-layer="characters"]:hover {
-      background: #991b1b;
-    }
-    
-    .layer[data-layer="characters"]:active {
-      background: #b91c1c;
-    }
-    
-    .layer[data-layer="characters"].active {
-      background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
-      border-color: #f87171;
-    }
-    
-    .layer[data-layer="interaction"] {
-      background: #14532d;
-    }
-    
-    .layer[data-layer="interaction"]:hover {
-      background: #166534;
-    }
-    
-    .layer[data-layer="interaction"]:active {
-      background: #15803d;
-    }
-    
-    .layer[data-layer="interaction"].active {
-      background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
-      border-color: #4ade80;
+      display: none;
     }
     
     #controls {
@@ -227,9 +154,8 @@
     #preview {
       flex: 1;
       display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 2rem;
+      flex-direction: column;
+      overflow: hidden;
       position: relative;
       background: radial-gradient(circle at center, #2d2d44 0%, #1e1e2e 100%);
     }
@@ -240,20 +166,8 @@
       border-radius: 8px;
       overflow: hidden;
       z-index: 1;
-      border: 3px solid transparent;
+      border: 3px solid #7c3aed;
       transition: border-color 0.3s ease;
-    }
-    
-    .canvas-wrapper.layer-background {
-      border-color: #1e3a5f;
-    }
-    
-    .canvas-wrapper.layer-characters {
-      border-color: #dc2626;
-    }
-    
-    .canvas-wrapper.layer-interaction {
-      border-color: #16a34a;
     }
     
     #previewCanvas {
@@ -594,8 +508,8 @@
     
     #timeline {
       height: 160px;
-      background: #1e3a5f;
-      border-top: 2px solid #1e3a5f;
+      background: #27273a;
+      border-top: 2px solid #7c3aed;
       padding: 1rem;
       overflow-x: auto;
       overflow-y: hidden;
@@ -604,8 +518,8 @@
       align-items: center;
       transition: background 0.3s ease, border-top-color 0.3s ease;
       position: relative;
-      border-left: 3px solid rgba(255, 255, 255, 0.3);
-      border-right: 3px solid rgba(255, 255, 255, 0.3);
+      border-left: 3px solid rgba(124, 58, 237, 0.3);
+      border-right: 3px solid rgba(124, 58, 237, 0.3);
       box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.3), inset 0 -4px 8px rgba(0, 0, 0, 0.2);
     }
     
@@ -698,22 +612,9 @@
       align-items: center;
       flex-wrap: nowrap;
     }
-    
-    #timeline.layer-background {
-      background: #1e3a5f;
-      border-top-color: #1e3a5f;
-    }
-    
-    #timeline.layer-characters {
-      background: #7f1d1d;
-      border-top-color: #7f1d1d;
-    }
-    
-    #timeline.layer-interaction {
-      background: #14532d;
-      border-top-color: #14532d;
-    }
-    
+
+    /* Layer-specific timeline styles removed - single timeline now */
+
     #timeline::-webkit-scrollbar {
       height: 8px;
     }
@@ -760,25 +661,12 @@
     }
     
     .frame.selected {
-      border-color: #f5f5f5;
-      box-shadow: 0 0 20px rgba(255, 255, 255, 0.6), 0 0 40px rgba(255, 255, 255, 0.3);
+      border-color: #a78bfa;
+      box-shadow: 0 0 20px rgba(167, 139, 250, 0.6), 0 0 40px rgba(167, 139, 250, 0.3);
     }
-    
-    .frame.selected.layer-background {
-      border-color: #f5f5f5;
-      box-shadow: 0 0 20px rgba(255, 255, 255, 0.6), 0 0 40px rgba(255, 255, 255, 0.3);
-    }
-    
-    .frame.selected.layer-characters {
-      border-color: #f5f5f5;
-      box-shadow: 0 0 20px rgba(255, 255, 255, 0.6), 0 0 40px rgba(255, 255, 255, 0.3);
-    }
-    
-    .frame.selected.layer-interaction {
-      border-color: #f5f5f5;
-      box-shadow: 0 0 20px rgba(255, 255, 255, 0.6), 0 0 40px rgba(255, 255, 255, 0.3);
-    }
-    
+
+    /* Layer-specific frame selection removed */
+
     .frame::after {
       content: attr(data-frame-num);
       position: absolute;
@@ -1394,16 +1282,1384 @@
         transform: scale(1);
       }
     }
+
+    /* ============================================
+       GIF Studio Styles
+       ============================================ */
+
+    .generate-gif-btn {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+      font-weight: 600;
+      font-size: 1rem !important;
+      padding: 0.75rem 1rem !important;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    .generate-gif-btn:hover {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(16, 185, 129, 0.4) !important;
+    }
+
+    /* GIF Library */
+    .gif-library {
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .gif-library-empty {
+      padding: 1rem;
+      text-align: center;
+      color: #9ca3af;
+      font-size: 0.85rem;
+    }
+
+    .gif-library-empty .small {
+      font-size: 0.75rem;
+      opacity: 0.7;
+      margin-top: 0.25rem;
+    }
+
+    .gif-library-stats {
+      font-size: 0.7rem;
+      color: #9ca3af;
+      padding: 0.25rem 0.5rem;
+      background: rgba(0,0,0,0.2);
+      border-radius: 4px;
+      margin-bottom: 0.5rem;
+    }
+
+    .gif-library-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .gif-library-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      background: #3f3f5e;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 2px solid transparent;
+    }
+
+    .gif-library-item:hover {
+      background: #4f4f6e;
+      border-color: #10b981;
+    }
+
+    .gif-library-item img {
+      width: 50px;
+      height: 50px;
+      border-radius: 4px;
+      object-fit: cover;
+      background: #27273a;
+    }
+
+    .gif-item-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .gif-name {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #e4e4e7;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .gif-meta {
+      font-size: 0.7rem;
+      color: #9ca3af;
+    }
+
+    .gif-item-actions {
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .gif-item-actions button {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.7rem;
+      min-width: auto;
+      background: rgba(0,0,0,0.3);
+    }
+
+    .gif-download-btn:hover {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+    }
+
+    .gif-delete-btn:hover {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+    }
+
+    /* GIF Progress Overlay */
+    #gifProgressOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      backdrop-filter: blur(8px);
+    }
+
+    #gifProgressOverlay.active {
+      display: flex;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .gif-progress-content {
+      background: #27273a;
+      border: 2px solid #10b981;
+      border-radius: 16px;
+      padding: 2.5rem;
+      text-align: center;
+      max-width: 400px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(16, 185, 129, 0.2);
+    }
+
+    .gif-progress-spinner {
+      width: 60px;
+      height: 60px;
+      margin: 0 auto 1.5rem;
+      border: 4px solid rgba(16, 185, 129, 0.2);
+      border-top-color: #10b981;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .gif-progress-content h3 {
+      color: #e4e4e7;
+      margin-bottom: 1rem;
+      font-size: 1.3rem;
+    }
+
+    .gif-progress-bar {
+      height: 8px;
+      background: rgba(16, 185, 129, 0.2);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+
+    .gif-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+
+    .gif-progress-text {
+      color: #9ca3af;
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .gif-cancel-btn {
+      background: rgba(239, 68, 68, 0.2) !important;
+      color: #ef4444 !important;
+      border: 1px solid rgba(239, 68, 68, 0.3) !important;
+      padding: 0.5rem 1.5rem !important;
+    }
+
+    .gif-cancel-btn:hover {
+      background: rgba(239, 68, 68, 0.4) !important;
+      border-color: #ef4444 !important;
+    }
+
+    /* ============================================
+       Giphy Search Styles
+       ============================================ */
+
+    .giphy-search-container {
+      padding: 0.75rem;
+      background: #1e1e2e;
+      border-top: 1px solid #3f3f5e;
+    }
+
+    .giphy-search-input-group {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .giphy-search-input {
+      flex: 1;
+      padding: 0.5rem 0.75rem;
+      background: #27273a;
+      border: 1px solid #3f3f5e;
+      border-radius: 6px;
+      color: #e4e4e7;
+      font-size: 0.85rem;
+      outline: none;
+    }
+
+    .giphy-search-input:focus {
+      border-color: #7c3aed;
+    }
+
+    .giphy-search-btn {
+      padding: 0.5rem 1rem !important;
+      font-size: 0.85rem !important;
+      background: linear-gradient(135deg, #00d9ff 0%, #00ff87 100%) !important;
+      color: #000 !important;
+      font-weight: 600 !important;
+    }
+
+    .giphy-search-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 217, 255, 0.4) !important;
+    }
+
+    .giphy-results-container {
+      max-height: 200px;
+      overflow-y: auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+      padding: 0.5rem 0;
+    }
+
+    .giphy-results-container::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .giphy-results-container::-webkit-scrollbar-track {
+      background: #1e1e2e;
+    }
+
+    .giphy-results-container::-webkit-scrollbar-thumb {
+      background: #4f46e5;
+      border-radius: 3px;
+    }
+
+    .giphy-result-item {
+      position: relative;
+      border-radius: 6px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.2s;
+      aspect-ratio: 1;
+      background: #27273a;
+    }
+
+    .giphy-result-item:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
+      z-index: 10;
+    }
+
+    .giphy-result-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .giphy-result-item .giphy-add-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(124, 58, 237, 0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .giphy-result-item:hover .giphy-add-overlay {
+      display: flex;
+    }
+
+    .giphy-toggle-btn {
+      background: linear-gradient(135deg, #00d9ff 0%, #00ff87 100%) !important;
+      color: #000 !important;
+      font-weight: 600 !important;
+      padding: 0.5rem 0.75rem !important;
+      font-size: 0.8rem !important;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .giphy-toggle-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0, 217, 255, 0.4) !important;
+    }
+
+    .giphy-loading {
+      text-align: center;
+      padding: 1rem;
+      color: #9ca3af;
+      font-size: 0.85rem;
+    }
+
+    .giphy-attribution {
+      text-align: center;
+      padding: 0.5rem;
+      font-size: 0.7rem;
+      color: #6b7280;
+    }
+
+    .giphy-attribution img {
+      height: 16px;
+      vertical-align: middle;
+      margin-left: 0.25rem;
+    }
+
+    /* ============================================
+       Onboarding Tutorial Styles
+       ============================================ */
+
+    #tutorialOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.9);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 3000;
+      backdrop-filter: blur(8px);
+    }
+
+    #tutorialOverlay.active {
+      display: flex;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .tutorial-content {
+      background: #27273a;
+      border: 2px solid #7c3aed;
+      border-radius: 16px;
+      padding: 2rem;
+      max-width: 600px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(124, 58, 237, 0.2);
+      animation: scaleIn 0.3s ease-out;
+    }
+
+    .tutorial-header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .tutorial-header h2 {
+      font-size: 1.5rem;
+      background: linear-gradient(45deg, #7c3aed, #00d9ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+
+    .tutorial-header p {
+      color: #9ca3af;
+      font-size: 0.9rem;
+    }
+
+    .tutorial-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .tutorial-step {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 1.25rem;
+      border-left: 4px solid #7c3aed;
+      transition: all 0.3s;
+    }
+
+    .tutorial-step:hover {
+      background: rgba(255, 255, 255, 0.08);
+      transform: translateX(5px);
+    }
+
+    .tutorial-step-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, #7c3aed 0%, #00d9ff 100%);
+      border-radius: 50%;
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.9rem;
+      margin-right: 0.75rem;
+    }
+
+    .tutorial-step-title {
+      font-weight: 600;
+      color: #e4e4e7;
+      font-size: 1rem;
+      display: inline;
+    }
+
+    .tutorial-step-desc {
+      color: #9ca3af;
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+      line-height: 1.5;
+      padding-left: 2.5rem;
+    }
+
+    .tutorial-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid #3f3f5e;
+    }
+
+    .tutorial-skip {
+      background: transparent !important;
+      color: #9ca3af !important;
+      border: 1px solid #3f3f5e !important;
+      padding: 0.5rem 1rem !important;
+      font-size: 0.85rem !important;
+    }
+
+    .tutorial-skip:hover {
+      background: rgba(255, 255, 255, 0.05) !important;
+      color: #e4e4e7 !important;
+    }
+
+    .tutorial-start {
+      background: linear-gradient(135deg, #7c3aed 0%, #00d9ff 100%) !important;
+      color: #fff !important;
+      font-weight: 600 !important;
+      padding: 0.75rem 2rem !important;
+      font-size: 1rem !important;
+    }
+
+    .tutorial-start:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4) !important;
+    }
+
+    .tutorial-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #9ca3af;
+      font-size: 0.8rem;
+    }
+
+    .tutorial-checkbox input {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    /* Highlight animation for tutorial */
+    .tutorial-highlight {
+      animation: tutorialPulse 2s ease-in-out infinite;
+      box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.4) !important;
+    }
+
+    @keyframes tutorialPulse {
+      0%, 100% {
+        box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.4);
+      }
+      50% {
+        box-shadow: 0 0 0 8px rgba(124, 58, 237, 0.2);
+      }
+    }
+
+    /* Chat tabs for switching between AI and Giphy */
+    .chat-tabs {
+      display: flex;
+      background: #1e1e2e;
+      border-bottom: 1px solid #3f3f5e;
+    }
+
+    .chat-tab {
+      flex: 1;
+      padding: 0.75rem;
+      background: transparent;
+      border: none;
+      color: #9ca3af;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+      border-bottom: 2px solid transparent;
+    }
+
+    .chat-tab:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #e4e4e7;
+    }
+
+    .chat-tab.active {
+      color: #7c3aed;
+      border-bottom-color: #7c3aed;
+      background: rgba(124, 58, 237, 0.1);
+    }
+
+    .chat-tab-content {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .chat-tab-content.active {
+      display: flex;
+    }
+
+    /* ============================================
+       GIF Gallery / Presentation Desktop Styles
+       ============================================ */
+
+    .gif-gallery-desktop {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+      padding: 1rem;
+      max-height: 100%;
+      overflow-y: auto;
+      align-content: start;
+    }
+
+    .gif-gallery-item {
+      position: relative;
+      background: #27273a;
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 3px solid transparent;
+      aspect-ratio: 4/3;
+    }
+
+    .gif-gallery-item:hover {
+      transform: translateY(-4px);
+      border-color: #7c3aed;
+      box-shadow: 0 8px 24px rgba(124, 58, 237, 0.3);
+    }
+
+    .gif-gallery-item.selected {
+      border-color: #10b981;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+    }
+
+    .gif-gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .gif-gallery-item-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
+      padding: 1rem 0.75rem 0.75rem;
+    }
+
+    .gif-gallery-item-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 0.25rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .gif-gallery-item-meta {
+      font-size: 0.7rem;
+      color: #9ca3af;
+    }
+
+    .gif-gallery-item-actions {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      display: flex;
+      gap: 0.25rem;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .gif-gallery-item:hover .gif-gallery-item-actions {
+      opacity: 1;
+    }
+
+    .gif-gallery-action-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.7);
+      border: none;
+      color: #fff;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .gif-gallery-action-btn:hover {
+      background: #7c3aed;
+      transform: scale(1.1);
+    }
+
+    .gif-gallery-action-btn.delete:hover {
+      background: #ef4444;
+    }
+
+    .gif-gallery-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: #6b7280;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .gif-gallery-empty-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    .gif-gallery-empty-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #9ca3af;
+      margin-bottom: 0.5rem;
+    }
+
+    .gif-gallery-empty-desc {
+      font-size: 0.9rem;
+      max-width: 300px;
+      line-height: 1.5;
+    }
+
+    .gif-gallery-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      background: #27273a;
+      border-bottom: 1px solid #3f3f5e;
+    }
+
+    .gif-gallery-toolbar-title {
+      font-weight: 600;
+      color: #e4e4e7;
+      font-size: 1rem;
+    }
+
+    .gif-gallery-toolbar-count {
+      font-size: 0.85rem;
+      color: #9ca3af;
+    }
+
+    .gif-gallery-toolbar-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    /* ============================================
+       Floating GIF Visualizer Panel
+       ============================================ */
+
+    #floatingGifVisualizer {
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 900px;
+      max-width: 95vw;
+      max-height: 80vh;
+      background: #1e1e2e;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(124, 58, 237, 0.3);
+      z-index: 2600;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      resize: both;
+      min-width: 600px;
+      min-height: 400px;
+    }
+
+    #floatingGifVisualizer.active {
+      display: flex;
+      animation: floatIn 0.3s ease-out;
+    }
+
+    @keyframes floatIn {
+      from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-20px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0) scale(1);
+      }
+    }
+
+    .floating-visualizer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      background: linear-gradient(90deg, #00d9ff 0%, #7c3aed 50%, #00ff87 100%);
+      cursor: move;
+      user-select: none;
+    }
+
+    .floating-visualizer-title {
+      font-weight: 700;
+      color: #fff;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .floating-visualizer-controls {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .floating-visualizer-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: #fff;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .floating-visualizer-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .floating-visualizer-btn.close:hover {
+      background: #ef4444;
+    }
+
+    .floating-visualizer-body {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    .floating-visualizer-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 1rem;
+      overflow: hidden;
+    }
+
+    .floating-visualizer-sidebar {
+      width: 280px;
+      background: #27273a;
+      border-left: 1px solid #3f3f5e;
+      overflow-y: auto;
+      padding: 1rem;
+    }
+
+    .floating-gif-search {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .floating-gif-search input {
+      flex: 1;
+      padding: 0.65rem 1rem;
+      background: #27273a;
+      border: 1px solid #3f3f5e;
+      border-radius: 8px;
+      color: #e4e4e7;
+      font-size: 0.9rem;
+    }
+
+    .floating-gif-search input:focus {
+      outline: none;
+      border-color: #7c3aed;
+    }
+
+    .floating-gif-search button {
+      padding: 0.65rem 1.25rem;
+      background: linear-gradient(135deg, #00d9ff 0%, #00ff87 100%);
+      color: #000;
+      font-weight: 600;
+    }
+
+    .floating-gif-results {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+      max-height: 180px;
+      overflow-y: auto;
+      margin-bottom: 1rem;
+      padding: 0.5rem;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+    }
+
+    .floating-gif-results::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .floating-gif-results::-webkit-scrollbar-track {
+      background: #1e1e2e;
+    }
+
+    .floating-gif-results::-webkit-scrollbar-thumb {
+      background: #4f46e5;
+      border-radius: 3px;
+    }
+
+    .floating-gif-item {
+      aspect-ratio: 1;
+      border-radius: 6px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      background: #18181b;
+    }
+
+    .floating-gif-item:hover {
+      transform: scale(1.05);
+      z-index: 10;
+      box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
+    }
+
+    .floating-gif-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .floating-gif-item .select-badge {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(124, 58, 237, 0.85);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.75rem;
+    }
+
+    .floating-gif-item:hover .select-badge {
+      display: flex;
+    }
+
+    /* ============================================
+       GIF Remix Mode Styles
+       ============================================ */
+
+    #remixModeOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(30, 30, 46, 0.98);
+      z-index: 2500;
+      display: none;
+      flex-direction: column;
+    }
+
+    #remixModeOverlay.active {
+      display: flex;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .remix-mode-header {
+      background: linear-gradient(90deg, #00d9ff 0%, #7c3aed 50%, #00ff87 100%);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .remix-mode-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .remix-mode-close {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .remix-mode-close:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .remix-mode-content {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    .remix-main-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 1rem;
+      overflow: hidden;
+    }
+
+    .remix-sidebar {
+      width: 320px;
+      background: #27273a;
+      border-left: 1px solid #3f3f5e;
+      overflow-y: auto;
+      padding: 1rem;
+    }
+
+    .remix-viewer {
+      display: flex;
+      gap: 1rem;
+      flex: 1;
+      padding: 1rem;
+      background: #1e1e2e;
+      border-radius: 12px;
+      min-height: 0;
+    }
+
+    .remix-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: #27273a;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 2px solid #3f3f5e;
+    }
+
+    .remix-panel.source-panel { border-color: #3b82f6; }
+    .remix-panel.generated-panel { border-color: #10b981; }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      background: rgba(0, 0, 0, 0.3);
+      border-bottom: 1px solid #3f3f5e;
+    }
+
+    .panel-title { font-weight: 600; color: #e4e4e7; }
+
+    .panel-badge {
+      font-size: 0.7rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .panel-badge.reference { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+    .panel-badge.output { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+
+    .panel-canvas-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      background: #18181b;
+      position: relative;
+      min-height: 200px;
+    }
+
+    .remix-canvas {
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .canvas-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #6b7280;
+      text-align: center;
+    }
+
+    .placeholder-icon { font-size: 3rem; margin-bottom: 0.5rem; }
+
+    .panel-info {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem 1rem;
+      background: rgba(0, 0, 0, 0.2);
+      font-size: 0.8rem;
+      color: #9ca3af;
+    }
+
+    .remix-sync-controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      padding: 0.5rem;
+    }
+
+    .sync-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      border: none;
+      color: #fff;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sync-btn:hover { transform: scale(1.1); box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4); }
+
+    .remix-controls-bar {
+      background: #27273a;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+    }
+
+    .frame-scrubber {
+      width: 100%;
+      height: 8px;
+      -webkit-appearance: none;
+      background: #3f3f5e;
+      border-radius: 4px;
+      outline: none;
+    }
+
+    .frame-scrubber::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #7c3aed 0%, #00d9ff 100%);
+      cursor: pointer;
+    }
+
+    .playback-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .control-btn {
+      padding: 0.5rem 0.75rem;
+      background: #3f3f5e;
+      border: none;
+      color: #e4e4e7;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+
+    .control-btn:hover { background: #4f4f6e; }
+
+    .speed-select {
+      padding: 0.5rem;
+      background: #3f3f5e;
+      border: 1px solid #4f4f6e;
+      border-radius: 6px;
+      color: #e4e4e7;
+      cursor: pointer;
+    }
+
+    .remix-controls-panel { display: flex; flex-direction: column; gap: 1rem; }
+
+    .controls-header {
+      text-align: center;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #3f3f5e;
+    }
+
+    .controls-title { font-size: 1.1rem; font-weight: 600; color: #e4e4e7; margin-bottom: 0.25rem; }
+    .controls-subtitle { font-size: 0.8rem; color: #9ca3af; }
+
+    .control-section {
+      padding: 0.75rem;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+    }
+
+    .control-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .control-label { font-size: 0.85rem; font-weight: 600; color: #e4e4e7; }
+    .control-value { font-size: 0.8rem; color: #7c3aed; font-weight: 600; }
+
+    .slider-container { display: flex; align-items: center; gap: 0.5rem; }
+    .slider-label-left, .slider-label-right { font-size: 0.7rem; color: #6b7280; white-space: nowrap; }
+
+    .remix-slider {
+      flex: 1;
+      height: 6px;
+      -webkit-appearance: none;
+      background: linear-gradient(90deg, #3f3f5e 0%, #7c3aed 100%);
+      border-radius: 3px;
+      outline: none;
+    }
+
+    .remix-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .control-hint { font-size: 0.7rem; color: #6b7280; margin-top: 0.5rem; }
+
+    .style-presets-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .style-preset-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0.5rem;
+      background: #3f3f5e;
+      border: 2px solid transparent;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: #e4e4e7;
+    }
+
+    .style-preset-btn:hover { background: #4f4f6e; }
+    .style-preset-btn.active { border-color: #7c3aed; background: rgba(124, 58, 237, 0.2); }
+
+    .preset-icon { font-size: 1.2rem; margin-bottom: 0.25rem; }
+    .preset-name { font-size: 0.7rem; }
+
+    .loop-type-options { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+
+    .loop-type-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0.5rem;
+      background: #3f3f5e;
+      border: 2px solid transparent;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      color: #e4e4e7;
+    }
+
+    .loop-type-btn:hover { background: #4f4f6e; }
+    .loop-type-btn.active { border-color: #10b981; background: rgba(16, 185, 129, 0.2); }
+    .loop-icon { font-size: 1rem; margin-bottom: 0.25rem; }
+
+    .control-actions { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem; }
+
+    .action-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .generate-btn { background: linear-gradient(135deg, #7c3aed 0%, #00d9ff 100%); color: #fff; }
+    .generate-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4); }
+    .generate-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .export-btn { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #fff; }
+    .export-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4); }
+    .export-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .remix-progress {
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .remix-progress .progress-bar {
+      height: 8px;
+      background: #3f3f5e;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 0.5rem;
+    }
+
+    .remix-progress .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #7c3aed 0%, #00d9ff 100%);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+
+    .remix-progress .progress-text { font-size: 0.85rem; color: #9ca3af; margin-bottom: 0.5rem; }
+
+    .remix-progress .cancel-btn {
+      padding: 0.35rem 1rem;
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      color: #ef4444;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+
+    .remix-mode-trigger {
+      background: linear-gradient(135deg, #00d9ff 0%, #7c3aed 50%, #00ff87 100%) !important;
+      color: #fff !important;
+      font-weight: 600 !important;
+    }
+
+    .remix-gif-search {
+      padding: 1rem;
+      background: #1e1e2e;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+
+    .remix-search-input {
+      width: 100%;
+      padding: 0.75rem;
+      background: #27273a;
+      border: 1px solid #3f3f5e;
+      border-radius: 6px;
+      color: #e4e4e7;
+      margin-bottom: 0.5rem;
+    }
+
+    .remix-search-input:focus { outline: none; border-color: #7c3aed; }
+
+    .remix-gif-results {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .remix-gif-item {
+      aspect-ratio: 1;
+      border-radius: 6px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .remix-gif-item:hover { transform: scale(1.05); z-index: 10; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4); }
+    .remix-gif-item img { width: 100%; height: 100%; object-fit: cover; }
+
+    .remix-gif-item .select-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(124, 58, 237, 0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .remix-gif-item:hover .select-overlay { display: flex; }
   </style>
 </head>
 <body>
   <!-- Header Section -->
   <header>
-    <div class="logo">Mirror-Mation ZETSU X FIBO AI Animation Studio</div>
+    <div class="logo">AI GIF Remixer</div>
     <div id="filesHeader">
-      <button>Import</button>
-      <button>Export</button>
-      <button>Layers</button>
+      <button id="importBtn">Import</button>
+      <button id="exportPackBtn">Export Pack</button>
       <button>Help</button>
     </div>
   </header>
@@ -1412,18 +2668,13 @@
   <div class="workspace-container">
     <!-- Sidebar -->
     <aside class="sidebar">
-      <!-- Layers Section -->
-      <div class="sidebar-section">
-        <h3>Layers</h3>
-        <div id="layers">
-          <div class="layer active" data-layer="background">Background</div>
-          <div class="layer" data-layer="characters">Characters</div>
-          <div class="layer" data-layer="interaction">Interaction</div>
-          <div class="layer" data-layer="overlay">Canvas Overlay</div>
-        </div>
+      <!-- Remix Feature - PRIMARY ACTION -->
+      <div class="sidebar-section" style="background: linear-gradient(135deg, rgba(0, 217, 255, 0.1) 0%, rgba(124, 58, 237, 0.1) 50%, rgba(0, 255, 135, 0.1) 100%); border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 8px; margin-bottom: 0.5rem;">
+        <h3 style="color: #a78bfa;">Start Remixing</h3>
+        <p style="font-size: 0.85rem; color: #9ca3af; margin-bottom: 0.75rem;">Transform any GIF into a new AI-generated looping GIF</p>
+        <button id="remixGifBtn" class="remix-mode-trigger" style="background: linear-gradient(90deg, #00d9ff 0%, #7c3aed 50%, #00ff87 100%); font-size: 1rem; padding: 0.75rem 1.25rem;">Start Remixing</button>
       </div>
-      
-      
+
       <!-- File Bin Section -->
       <div class="sidebar-section">
         <h3>File Bin</h3>
@@ -1431,20 +2682,50 @@
           <div class="file-bin-empty">Upload images to see them here</div>
         </div>
       </div>
-      
-      <!-- Timeline Controller Section -->
+
+      <!-- GIF Library Section -->
+      <div class="sidebar-section">
+        <h3>GIF Library</h3>
+        <div id="gifLibraryContainer" class="gif-library">
+          <div class="gif-library-empty">
+            <p>No GIFs yet!</p>
+            <p class="small">Remix your first GIF above!</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls Section -->
       <div class="sidebar-section" style="margin-top: auto;">
-        <h3>Timeline Controller</h3>
+        <h3>Studio Controls</h3>
         <div id="controls">
-          <button id="playPreview">▶ Play Preview</button>
-          <button id="generateGIF">✨ Generate GIF</button>
+          <button id="playPreview">Play Preview</button>
+          <button id="generateGIF" class="generate-gif-btn">Create GIF from Canvas</button>
+
+          <!-- Loop Type Selector -->
+          <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
+            <label style="font-size: 0.85rem; color: #9ca3af;">Loop Type</label>
+            <select id="loopTypeSelect" style="padding: 0.65rem 1rem; background: linear-gradient(135deg, #059669 0%, #10b981 100%); border: none; color: #fff; border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: 500; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); transition: all 0.2s;">
+              <option value="normal" style="background: #27273a; color: #e4e4e7;">Normal Loop</option>
+              <option value="bounce" style="background: #27273a; color: #e4e4e7;">Bounce (Forward + Reverse)</option>
+              <option value="pingpong" style="background: #27273a; color: #e4e4e7;">Ping Pong</option>
+            </select>
+          </div>
+
+          <!-- Seamless Option -->
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem; padding: 0.5rem; background: rgba(255,255,255,0.05); border-radius: 6px;">
+            <input type="checkbox" id="seamlessLoop" style="width: 18px; height: 18px; cursor: pointer;">
+            <label for="seamlessLoop" style="font-size: 0.85rem; color: #9ca3af; cursor: pointer;">Seamless Loop (cross-fade)</label>
+          </div>
+
+          <!-- Frame Rate -->
           <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
             <label style="font-size: 0.85rem; color: #9ca3af;">Frame Rate (FPS)</label>
             <select id="frameRateSelect" style="padding: 0.65rem 1rem; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); border: none; color: #fff; border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: 500; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); transition: all 0.2s;">
-              <option value="12" style="background: #27273a; color: #e4e4e7;">12 FPS (Slow)</option>
-              <option value="24" selected style="background: #27273a; color: #e4e4e7;">24 FPS (Film)</option>
-              <option value="30" style="background: #27273a; color: #e4e4e7;">30 FPS (Standard)</option>
-              <option value="60" style="background: #27273a; color: #e4e4e7;">60 FPS (Smooth)</option>
+              <option value="8" style="background: #27273a; color: #e4e4e7;">8 FPS (Slow GIF)</option>
+              <option value="12" selected style="background: #27273a; color: #e4e4e7;">12 FPS (Standard GIF)</option>
+              <option value="15" style="background: #27273a; color: #e4e4e7;">15 FPS (Smooth)</option>
+              <option value="24" style="background: #27273a; color: #e4e4e7;">24 FPS (Film)</option>
+              <option value="30" style="background: #27273a; color: #e4e4e7;">30 FPS (High Quality)</option>
             </select>
           </div>
         </div>
@@ -1462,9 +2743,34 @@
         <button>Guides</button>
       </div>
       
-      <!-- Preview Area -->
+      <!-- Preview Area - GIF Gallery Presentation Desktop -->
       <div id="preview">
-        <div class="canvas-wrapper">
+        <!-- GIF Gallery Toolbar -->
+        <div class="gif-gallery-toolbar">
+          <div>
+            <span class="gif-gallery-toolbar-title">GIF Gallery</span>
+            <span class="gif-gallery-toolbar-count" id="galleryCount">(0 GIFs)</span>
+          </div>
+          <div class="gif-gallery-toolbar-actions">
+            <button id="openVisualizerBtn" title="Open GIF Visualizer">🔍 Browse Giphy</button>
+            <button id="selectAllGifsBtn" title="Select All">Select All</button>
+            <button id="exportSelectedBtn" title="Export Selected">Export Selected</button>
+          </div>
+        </div>
+
+        <!-- GIF Gallery Grid -->
+        <div id="gifGalleryDesktop" class="gif-gallery-desktop">
+          <div class="gif-gallery-empty">
+            <div class="gif-gallery-empty-icon">🎬</div>
+            <div class="gif-gallery-empty-title">Your GIF Gallery</div>
+            <div class="gif-gallery-empty-desc">
+              Create GIFs using the Remix feature or browse Giphy to add GIFs to your collection for editing and export.
+            </div>
+          </div>
+        </div>
+
+        <!-- Hidden Canvas (for backward compatibility) -->
+        <div class="canvas-wrapper" style="display: none;">
           <canvas id="previewCanvas"></canvas>
           <!-- Paint/Canvas Overlay -->
           <div id="canvasOverlay">
@@ -1513,12 +2819,11 @@
               <div class="paint-toolbar-bottom">
                 <div class="bottom-left-group">
                   <button id="addFrameBtn">+ Add Frame</button>
-                  <button id="uploadImageBtn">📤 Upload Image</button>
-                  <button id="canvasLayerBtn">🗂️ Canvas Layer</button>
+                  <button id="uploadImageBtn">Upload Image</button>
                 </div>
                 <div class="bottom-right-group" id="editModeActions" style="display: none;">
-                  <button id="cancelEditBtn" class="cancel-btn">✕ Cancel</button>
-                  <button id="applyEditBtn" class="apply-btn">✓ Apply Changes</button>
+                  <button id="cancelEditBtn" class="cancel-btn">Cancel</button>
+                  <button id="applyEditBtn" class="apply-btn">Apply Changes</button>
                 </div>
               </div>
             </div>
@@ -1575,15 +2880,173 @@
   <!-- Chat Overlay -->
   <div id="chatOverlay">
     <div class="chat-header">
-      <h3>AI Agent Chat</h3>
+      <h3>AI GIF Studio</h3>
       <button class="chat-close">&times;</button>
     </div>
-    <div class="chat-messages">
-      <div class="message agent">Hello! I'm your AI assistant. How can I help you with your animation project today?</div>
+
+    <!-- Chat Tabs -->
+    <div class="chat-tabs">
+      <button class="chat-tab active" data-tab="ai">AI Chat</button>
+      <button class="chat-tab" data-tab="giphy">GIF Search</button>
     </div>
-    <div class="chat-input-container">
-      <input type="text" id="chatInput" placeholder="Type your message...">
-      <button id="chatSend">Send</button>
+
+    <!-- AI Chat Tab Content -->
+    <div id="aiTabContent" class="chat-tab-content active">
+      <div class="chat-messages">
+        <div class="message agent">Hello! I'm your AI assistant. How can I help you with your GIF creation today?</div>
+      </div>
+      <div class="chat-input-container">
+        <input type="text" id="chatInput" placeholder="Type your message...">
+        <button id="chatSend">Send</button>
+      </div>
+    </div>
+
+    <!-- Giphy Search Tab Content -->
+    <div id="giphyTabContent" class="chat-tab-content">
+      <div class="giphy-search-container">
+        <div class="giphy-search-input-group">
+          <input type="text" id="giphySearchInput" class="giphy-search-input" placeholder="Search for GIFs...">
+          <button id="giphySearchBtn" class="giphy-search-btn">Search</button>
+        </div>
+        <div id="giphyResults" class="giphy-results-container">
+          <div class="giphy-loading">Search for GIFs or see trending below</div>
+        </div>
+        <div class="giphy-attribution">
+          Powered by GIPHY
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Onboarding Tutorial Overlay -->
+  <div id="tutorialOverlay">
+    <div class="tutorial-content">
+      <div class="tutorial-header">
+        <h2>Welcome to AI GIF Remixer!</h2>
+        <p>Transform any existing GIF into a new AI-generated looping masterpiece</p>
+      </div>
+
+      <div class="tutorial-steps">
+        <div class="tutorial-step">
+          <span class="tutorial-step-number">1</span>
+          <span class="tutorial-step-title">Search for a GIF</span>
+          <p class="tutorial-step-desc">Click "Start Remixing" in the sidebar and search Giphy for a GIF you want to transform.</p>
+        </div>
+
+        <div class="tutorial-step">
+          <span class="tutorial-step-number">2</span>
+          <span class="tutorial-step-title">Select Your Source</span>
+          <p class="tutorial-step-desc">Pick a GIF to use as your reference. The app will extract frames and analyze the motion.</p>
+        </div>
+
+        <div class="tutorial-step">
+          <span class="tutorial-step-number">3</span>
+          <span class="tutorial-step-title">Adjust Settings</span>
+          <p class="tutorial-step-desc">Use the controls to adjust motion intensity, smoothness, speed, and choose a style preset.</p>
+        </div>
+
+        <div class="tutorial-step">
+          <span class="tutorial-step-number">4</span>
+          <span class="tutorial-step-title">Generate Remix</span>
+          <p class="tutorial-step-desc">Click Generate to create AI-powered remixed frames that match the vibe and loop logic of the original.</p>
+        </div>
+
+        <div class="tutorial-step">
+          <span class="tutorial-step-number">5</span>
+          <span class="tutorial-step-title">Compare & Refine</span>
+          <p class="tutorial-step-desc">View the original and remixed GIFs side-by-side. Adjust settings and regenerate if needed.</p>
+        </div>
+
+        <div class="tutorial-step">
+          <span class="tutorial-step-number">6</span>
+          <span class="tutorial-step-title">Export Your Creation</span>
+          <p class="tutorial-step-desc">Happy with the result? Click Export to download your new AI-generated looping GIF!</p>
+        </div>
+      </div>
+
+      <div class="tutorial-actions">
+        <label class="tutorial-checkbox">
+          <input type="checkbox" id="dontShowTutorial">
+          Don't show again
+        </label>
+        <div>
+          <button id="skipTutorial" class="tutorial-skip">Skip</button>
+          <button id="startTutorial" class="tutorial-start">Start Remixing!</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating GIF Visualizer Panel -->
+  <div id="floatingGifVisualizer">
+    <div class="floating-visualizer-header" id="visualizerDragHandle">
+      <div class="floating-visualizer-title">
+        <span>🎬</span>
+        <span>GIF Visualizer</span>
+      </div>
+      <div class="floating-visualizer-controls">
+        <button class="floating-visualizer-btn minimize" title="Minimize">−</button>
+        <button class="floating-visualizer-btn close" id="closeVisualizerBtn" title="Close">×</button>
+      </div>
+    </div>
+    <div class="floating-visualizer-body">
+      <div class="floating-visualizer-main">
+        <!-- Search Bar -->
+        <div class="floating-gif-search">
+          <input type="text" id="floatingGifSearchInput" placeholder="Search Giphy for GIFs...">
+          <button id="floatingGifSearchBtn">Search</button>
+          <button id="loadMoreGifsBtn" style="background: linear-gradient(135deg, #7c3aed 0%, #00d9ff 100%);">Load More</button>
+        </div>
+
+        <!-- Search Results Grid -->
+        <div class="floating-gif-results" id="floatingGifResults">
+          <div style="grid-column: 1 / -1; text-align: center; color: #6b7280; padding: 2rem;">
+            Search for GIFs or view trending
+          </div>
+        </div>
+
+        <!-- Dual Viewer Container -->
+        <div id="floatingViewerContainer" style="flex: 1; display: flex; flex-direction: column; overflow: hidden;"></div>
+      </div>
+
+      <!-- Sidebar Controls -->
+      <div class="floating-visualizer-sidebar" id="floatingControlsContainer">
+        <div class="controls-header">
+          <div class="controls-title">Remix Controls</div>
+          <div class="controls-subtitle">Adjust settings and generate</div>
+        </div>
+        <!-- Controls will be injected here by RemixControlsPanel -->
+      </div>
+    </div>
+  </div>
+
+  <!-- GIF Remix Mode Overlay -->
+  <div id="remixModeOverlay">
+    <div class="remix-mode-header">
+      <div class="remix-mode-title">
+        <span>🎨</span>
+        <span>AI GIF Remixer</span>
+      </div>
+      <button class="remix-mode-close" id="closeRemixMode">Close</button>
+    </div>
+    <div class="remix-mode-content">
+      <div class="remix-main-area">
+        <!-- GIF Search in Remix Mode -->
+        <div class="remix-gif-search">
+          <input type="text" class="remix-search-input" id="remixSearchInput" placeholder="Search for a GIF to remix...">
+          <div class="remix-gif-results" id="remixGifResults">
+            <div style="text-align: center; color: #6b7280; padding: 2rem;">
+              Search for a GIF or paste a Giphy link to get started
+            </div>
+          </div>
+        </div>
+
+        <!-- Side-by-Side Viewer Container -->
+        <div id="remixViewerContainer"></div>
+      </div>
+
+      <!-- Remix Controls Sidebar -->
+      <div class="remix-sidebar" id="remixControlsContainer"></div>
     </div>
   </div>
 
