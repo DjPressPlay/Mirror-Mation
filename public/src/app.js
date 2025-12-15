@@ -2,6 +2,11 @@ import { SceneViewer } from './scene/SceneViewer.js';
 import { CanvasEditor } from './canvas/CanvasEditor.js';
 import { TimelineManager } from './timeline/TimelineManager.js';
 import { AIService } from './ai/AIService.js';
+import { GifEncoder } from './gif/GifEncoder.js';
+import { GifLibrary } from './gif/GifLibrary.js';
+import { AIBRoll } from './gif/AIBRoll.js';
+import { GiphyService } from './giphy/GiphyService.js';
+import { GifRemixManager, GifFrameExtractor, RemixViewer, GifRemixAI, RemixControlsPanel } from './remix/index.js';
 
 class MirrorMationApp {
   constructor() {
@@ -9,9 +14,33 @@ class MirrorMationApp {
     this.canvasEditor = null;
     this.timelineManager = null;
     this.aiService = null;
+    this.gifEncoder = null;
+    this.gifLibrary = null;
+    this.aiBRoll = null;
+    this.giphyService = null;
     this.fileBin = [];
     this.notificationSystem = null;
-    
+    this.isGeneratingGif = false;
+
+    // Remix module components
+    this.remixManager = null;
+    this.remixViewer = null;
+    this.remixControls = null;
+    this.remixAI = null;
+    this.frameExtractor = null;
+    this.remixGiphyResults = [];
+
+    // Floating visualizer components
+    this.floatingViewer = null;
+    this.floatingControls = null;
+    this.floatingGiphyResults = [];
+    this.floatingGiphyOffset = 0;
+    this.floatingGiphyQuery = '';
+
+    // GIF Gallery state
+    this.galleryGifs = [];
+    this.selectedGalleryGifs = new Set();
+
     this.init();
   }
 
@@ -29,13 +58,961 @@ class MirrorMationApp {
     this.timelineManager = new TimelineManager(timelineElement);
     
     this.notificationSystem = new NotificationSystem();
-    
+
     this.aiService = new AIService();
     this.setupAIService();
-    
+
+    // Initialize GIF modules
+    this.gifEncoder = new GifEncoder();
+    this.gifLibrary = new GifLibrary();
+    this.aiBRoll = new AIBRoll(this.aiService);
+    this.setupGifModules();
+
+    // Initialize Giphy service
+    this.giphyService = new GiphyService();
+    this.setupGiphyService();
+
+    // Initialize Remix module
+    this.initializeRemixModule();
+
+    // Initialize Floating Visualizer
+    this.initializeFloatingVisualizer();
+
+    // Initialize GIF Gallery
+    this.initializeGifGallery();
+
     this.setupEventListeners();
     this.connectModules();
     this.setupOverlayDragAndResize();
+    this.setupGifLibraryUI();
+  }
+
+  initializeRemixModule() {
+    // Initialize core remix components
+    this.remixManager = new GifRemixManager();
+    this.frameExtractor = new GifFrameExtractor();
+    this.remixAI = new GifRemixAI(this.aiService);
+
+    // Initialize viewer if container exists
+    const viewerContainer = document.getElementById('remixViewerContainer');
+    if (viewerContainer) {
+      this.remixViewer = new RemixViewer(viewerContainer);
+    }
+
+    // Initialize controls if container exists
+    const controlsContainer = document.getElementById('remixControlsContainer');
+    if (controlsContainer) {
+      this.remixControls = new RemixControlsPanel(controlsContainer);
+      this.setupRemixControlsCallbacks();
+    }
+
+    // Setup remix manager callbacks
+    this.setupRemixManagerCallbacks();
+
+    // Setup remix mode button
+    this.setupRemixModeButton();
+  }
+
+  setupRemixManagerCallbacks() {
+    this.remixManager.setCallbacks({
+      onSourceLoaded: (data) => {
+        this.notificationSystem.notify('success', 'GIF Loaded', `${data.gif.title || 'GIF'} loaded for remixing`);
+      },
+      onFrameGenerated: (data) => {
+        if (this.remixViewer) {
+          this.remixViewer.addGeneratedFrame(data.frame, 100, data.index);
+        }
+        if (this.remixControls) {
+          this.remixControls.setExportEnabled(true);
+        }
+      },
+      onProgressUpdate: (data) => {
+        if (this.remixControls) {
+          this.remixControls.updateProgress(data.percent || 0, data.message);
+        }
+      },
+      onError: (error) => {
+        this.notificationSystem.notify('error', 'Remix Error', error.message);
+        if (this.remixControls) {
+          this.remixControls.hideProgress();
+        }
+      },
+      onComplete: (data) => {
+        this.notificationSystem.notify('success', 'Remix Complete', `Generated ${data.frameCount} frames`);
+        if (this.remixControls) {
+          this.remixControls.hideProgress();
+          this.remixControls.setExportEnabled(true);
+        }
+      }
+    });
+  }
+
+  setupRemixControlsCallbacks() {
+    if (!this.remixControls) return;
+
+    this.remixControls.setCallbacks({
+      onSettingsChange: (settings) => {
+        this.remixManager.updateSettings(settings);
+      },
+      onGenerate: async (settings) => {
+        await this.generateRemix(settings);
+      },
+      onExport: async (settings) => {
+        await this.exportRemixedGif(settings);
+      },
+      onCancel: () => {
+        if (this.remixAI) {
+          this.remixAI.abort();
+        }
+        this.remixControls.hideProgress();
+      }
+    });
+  }
+
+  setupRemixModeButton() {
+    const remixBtn = document.getElementById('remixGifBtn');
+    const remixOverlay = document.getElementById('remixModeOverlay');
+    const closeRemixBtn = document.getElementById('closeRemixMode');
+    const remixSearchInput = document.getElementById('remixSearchInput');
+
+    if (remixBtn) {
+      remixBtn.addEventListener('click', () => {
+        this.openRemixMode();
+      });
+    }
+
+    if (closeRemixBtn) {
+      closeRemixBtn.addEventListener('click', () => {
+        this.closeRemixMode();
+      });
+    }
+
+    if (remixSearchInput) {
+      remixSearchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          this.searchGifsForRemix(remixSearchInput.value);
+        }
+      });
+    }
+  }
+
+  openRemixMode() {
+    const remixOverlay = document.getElementById('remixModeOverlay');
+    if (remixOverlay) {
+      remixOverlay.classList.add('active');
+      // Load trending GIFs for remix
+      this.loadTrendingGifsForRemix();
+    }
+  }
+
+  closeRemixMode() {
+    const remixOverlay = document.getElementById('remixModeOverlay');
+    if (remixOverlay) {
+      remixOverlay.classList.remove('active');
+    }
+    // Reset remix state
+    if (this.remixViewer) {
+      this.remixViewer.clearAll();
+    }
+    if (this.remixControls) {
+      this.remixControls.reset();
+    }
+    this.remixManager.reset();
+  }
+
+  async loadTrendingGifsForRemix() {
+    try {
+      const results = await this.giphyService.getTrending({ limit: 12 });
+      this.remixGiphyResults = results;
+      this.renderRemixGifResults(results);
+    } catch (error) {
+      console.error('Failed to load trending GIFs:', error);
+    }
+  }
+
+  async searchGifsForRemix(query) {
+    if (!query.trim()) {
+      this.loadTrendingGifsForRemix();
+      return;
+    }
+
+    try {
+      const results = await this.giphyService.search(query, { limit: 12 });
+      this.remixGiphyResults = results;
+      this.renderRemixGifResults(results);
+    } catch (error) {
+      console.error('Failed to search GIFs:', error);
+      this.notificationSystem.notify('error', 'Search Failed', error.message);
+    }
+  }
+
+  renderRemixGifResults(results) {
+    const container = document.getElementById('remixGifResults');
+    if (!container) return;
+
+    if (results.length === 0) {
+      container.innerHTML = '<div style="text-align: center; color: #6b7280; padding: 2rem;">No GIFs found. Try a different search.</div>';
+      return;
+    }
+
+    container.innerHTML = results.map(gif => `
+      <div class="remix-gif-item" data-gif-id="${gif.id}">
+        <img src="${gif.urls.preview || gif.urls.fixed_width}" alt="${gif.title}" loading="lazy">
+        <div class="select-overlay">Select</div>
+      </div>
+    `).join('');
+
+    // Add click handlers
+    container.querySelectorAll('.remix-gif-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const gifId = item.dataset.gifId;
+        const gif = results.find(g => g.id === gifId);
+        if (gif) {
+          this.selectGifForRemix(gif);
+        }
+      });
+    });
+  }
+
+  async selectGifForRemix(gif) {
+    try {
+      this.notificationSystem.notify('info', 'Loading GIF', 'Extracting frames...');
+
+      // Load source GIF
+      await this.remixManager.loadSourceGif(gif);
+
+      // Extract frames from GIF
+      const gifUrl = gif.urls.fixed_width || gif.urls.original;
+      const extractResult = await this.frameExtractor.extractFromUrl(gifUrl);
+
+      // Set frames in remix manager
+      this.remixManager.setSourceFrames(extractResult.frames, {
+        delays: extractResult.delays
+      });
+
+      // Update viewer with source frames
+      if (this.remixViewer) {
+        this.remixViewer.setSourceFrames(extractResult.frames, extractResult.delays, {
+          width: extractResult.width,
+          height: extractResult.height
+        });
+      }
+
+      this.notificationSystem.notify('success', 'GIF Ready', `${extractResult.frameCount} frames extracted. Adjust settings and generate!`);
+
+    } catch (error) {
+      console.error('Failed to select GIF for remix:', error);
+      this.notificationSystem.notify('error', 'Failed to Load GIF', error.message);
+    }
+  }
+
+  async generateRemix(settings) {
+    const sourceFrames = this.remixManager.getSourceFrames();
+    if (sourceFrames.length === 0) {
+      this.notificationSystem.notify('warning', 'No Source GIF', 'Please select a GIF to remix first.');
+      return;
+    }
+
+    if (this.remixControls) {
+      this.remixControls.showProgress(0, 'Starting remix generation...');
+    }
+
+    try {
+      // Clear previous generated frames
+      if (this.remixViewer) {
+        this.remixViewer.clearGenerated();
+      }
+      this.remixManager.clearGeneratedFrames();
+
+      // Setup AI callbacks for progress
+      this.remixAI.setCallbacks({
+        onProgress: (data) => {
+          if (this.remixControls) {
+            this.remixControls.updateProgress(data.percent, data.message);
+          }
+        },
+        onFrameComplete: (data) => {
+          // Add to manager and viewer
+          this.remixManager.addGeneratedFrame(data.frame, data.index);
+        },
+        onError: (error) => {
+          this.notificationSystem.notify('error', 'Generation Error', error.message);
+        },
+        onComplete: (data) => {
+          if (this.remixControls) {
+            this.remixControls.hideProgress();
+            this.remixControls.setExportEnabled(true);
+          }
+          this.notificationSystem.notify('success', 'Remix Complete!', `Generated ${data.frameCount} frames`);
+
+          // Update viewer with all generated frames
+          if (this.remixViewer && data.frames) {
+            this.remixViewer.setGeneratedFrames(data.frames, this.remixManager.calculateOutputTiming(), {
+              width: 480,
+              height: 270
+            });
+          }
+        }
+      });
+
+      // Generate remix
+      const result = await this.remixAI.generateRemix({
+        sourceFrames,
+        keyFrames: this.remixManager.getKeyFrames(3).map(kf => kf.index),
+        settings,
+        basePrompt: settings.stylePrompt || '',
+        frameCount: sourceFrames.length
+      });
+
+      return result;
+
+    } catch (error) {
+      console.error('Remix generation error:', error);
+      if (this.remixControls) {
+        this.remixControls.hideProgress();
+      }
+      this.notificationSystem.notify('error', 'Remix Failed', error.message);
+    }
+  }
+
+  async exportRemixedGif(settings) {
+    const generatedFrames = this.remixManager.getGeneratedFrames();
+    if (generatedFrames.length === 0) {
+      this.notificationSystem.notify('warning', 'No Frames', 'Generate a remix first before exporting.');
+      return;
+    }
+
+    this.notificationSystem.notify('info', 'Exporting', 'Creating your remixed GIF...');
+
+    try {
+      // Apply loop enhancement
+      const loopType = settings.loopType || 'seamless';
+      const enhancedFrames = this.aiBRoll.applyLoopEnhancement(generatedFrames, loopType);
+
+      // Calculate FPS from speed setting
+      const fps = Math.round(12 * (settings.speed || 1.0));
+
+      // Show progress
+      this.showGifProgress();
+
+      // Encode GIF
+      await this.gifEncoder.encode(enhancedFrames, {
+        fps: fps,
+        quality: 10,
+        loop: true,
+        width: 480,
+        height: 270,
+        seamless: loopType === 'seamless',
+        dither: 'FloydSteinberg'
+      });
+
+      // The gifEncoder complete callback will handle saving and downloading
+
+    } catch (error) {
+      console.error('Export error:', error);
+      this.hideGifProgress();
+      this.notificationSystem.notify('error', 'Export Failed', error.message);
+    }
+  }
+
+  setupGifModules() {
+    // Setup GIF encoder callbacks
+    this.gifEncoder.setProgressCallback((progress) => {
+      const message = progress.phase === 'adding'
+        ? `Adding frames: ${progress.current}/${progress.total}`
+        : `Encoding GIF: ${progress.percent}%`;
+      this.updateGifProgress(progress.percent, message);
+    });
+
+    this.gifEncoder.setCompleteCallback((result) => {
+      this.isGeneratingGif = false;
+      this.hideGifProgress();
+
+      // Add to library
+      const gif = this.gifLibrary.addGif({
+        blob: result.blob,
+        url: result.url,
+        name: `GIF_${new Date().toLocaleTimeString().replace(/:/g, '-')}`,
+        category: 'Custom',
+        tags: ['created'],
+        metadata: {
+          frameCount: result.frameCount,
+          fps: result.fps,
+          duration: result.duration,
+          width: 800,
+          height: 500
+        }
+      });
+
+      this.notificationSystem.notify('success', 'GIF Created!',
+        `${result.frameCount} frames, ${result.duration}s duration, ${(result.size / 1024).toFixed(1)}KB`);
+
+      // Auto-download
+      GifEncoder.download(result.blob, `${gif.name}.gif`);
+
+      this.renderGifLibrary();
+    });
+
+    this.gifEncoder.setErrorCallback((error) => {
+      this.isGeneratingGif = false;
+      this.hideGifProgress();
+      this.notificationSystem.notify('error', 'GIF Error', error.message);
+    });
+  }
+
+  setupGiphyService() {
+    // Set up callbacks
+    this.giphyService.setLoadingCallback((loading) => {
+      const resultsContainer = document.getElementById('giphyResults');
+      if (loading && resultsContainer) {
+        resultsContainer.innerHTML = '<div class="giphy-loading">Loading GIFs...</div>';
+      }
+    });
+
+    this.giphyService.setResultsCallback((results, meta) => {
+      this.renderGiphyResults(results, meta);
+    });
+
+    this.giphyService.setErrorCallback((error) => {
+      const resultsContainer = document.getElementById('giphyResults');
+      if (resultsContainer) {
+        resultsContainer.innerHTML = `<div class="giphy-loading">Error: ${error.message}</div>`;
+      }
+      this.notificationSystem.notify('error', 'Giphy Error', error.message);
+    });
+  }
+
+  renderGiphyResults(results, meta) {
+    const resultsContainer = document.getElementById('giphyResults');
+    if (!resultsContainer) return;
+
+    if (results.length === 0) {
+      resultsContainer.innerHTML = '<div class="giphy-loading">No GIFs found. Try a different search!</div>';
+      return;
+    }
+
+    resultsContainer.innerHTML = results.map(gif => `
+      <div class="giphy-result-item" data-gif-id="${gif.id}">
+        <img src="${gif.urls.preview || gif.urls.fixed_width}" alt="${gif.title}" loading="lazy">
+        <div class="giphy-add-overlay">+</div>
+      </div>
+    `).join('');
+
+    // Add click handlers for each GIF
+    resultsContainer.querySelectorAll('.giphy-result-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const gifId = item.dataset.gifId;
+        const gif = results.find(g => g.id === gifId);
+        if (gif) {
+          this.addGiphyGifToCanvas(gif);
+        }
+      });
+    });
+  }
+
+  async addGiphyGifToCanvas(gif) {
+    try {
+      // Load the GIF as an image
+      const result = await this.giphyService.loadGifAsImage(gif, 'fixed_width');
+
+      // Check if canvas overlay is open
+      const canvasOverlay = document.getElementById('canvasOverlay');
+      if (!canvasOverlay.classList.contains('active')) {
+        // Open the canvas overlay
+        this.canvasEditor.show();
+      }
+
+      // Add the image to the canvas editor
+      this.canvasEditor.loadImage(result.dataUrl);
+
+      // Also add to file bin for reuse
+      const fileItem = {
+        id: Date.now() + Math.random(),
+        name: `giphy_${gif.slug || gif.id}.png`,
+        data: result.dataUrl,
+        source: 'giphy',
+        originalGif: gif
+      };
+      this.fileBin.push(fileItem);
+      this.renderFileBin();
+
+      this.notificationSystem.notify('success', 'GIF Added!', `"${gif.title}" has been added to the canvas`);
+
+    } catch (error) {
+      this.notificationSystem.notify('error', 'Failed to Load GIF', error.message);
+    }
+  }
+
+  // ============================================
+  // Floating GIF Visualizer Methods
+  // ============================================
+
+  initializeFloatingVisualizer() {
+    const visualizer = document.getElementById('floatingGifVisualizer');
+    const openBtn = document.getElementById('openVisualizerBtn');
+    const closeBtn = document.getElementById('closeVisualizerBtn');
+    const searchInput = document.getElementById('floatingGifSearchInput');
+    const searchBtn = document.getElementById('floatingGifSearchBtn');
+    const loadMoreBtn = document.getElementById('loadMoreGifsBtn');
+    const dragHandle = document.getElementById('visualizerDragHandle');
+
+    // Initialize viewer in floating container
+    const viewerContainer = document.getElementById('floatingViewerContainer');
+    if (viewerContainer) {
+      this.floatingViewer = new RemixViewer(viewerContainer);
+    }
+
+    // Open/Close handlers
+    if (openBtn) {
+      openBtn.addEventListener('click', () => this.openFloatingVisualizer());
+    }
+
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => this.closeFloatingVisualizer());
+    }
+
+    // Search handlers
+    if (searchBtn) {
+      searchBtn.addEventListener('click', () => {
+        const query = searchInput?.value || '';
+        this.searchFloatingGifs(query);
+      });
+    }
+
+    if (searchInput) {
+      searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          this.searchFloatingGifs(searchInput.value);
+        }
+      });
+    }
+
+    // Load more handler
+    if (loadMoreBtn) {
+      loadMoreBtn.addEventListener('click', () => this.loadMoreFloatingGifs());
+    }
+
+    // Make the visualizer draggable
+    if (dragHandle && visualizer) {
+      this.setupVisualizerDrag(dragHandle, visualizer);
+    }
+  }
+
+  openFloatingVisualizer() {
+    const visualizer = document.getElementById('floatingGifVisualizer');
+    if (visualizer) {
+      visualizer.classList.add('active');
+      // Load trending GIFs when opening
+      this.loadFloatingTrendingGifs();
+    }
+  }
+
+  closeFloatingVisualizer() {
+    const visualizer = document.getElementById('floatingGifVisualizer');
+    if (visualizer) {
+      visualizer.classList.remove('active');
+    }
+  }
+
+  async loadFloatingTrendingGifs() {
+    this.floatingGiphyQuery = '';
+    this.floatingGiphyOffset = 0;
+
+    try {
+      const results = await this.giphyService.getTrending({ limit: 30, offset: 0 });
+      this.floatingGiphyResults = results;
+      this.renderFloatingGifResults(results, false);
+    } catch (error) {
+      console.error('Failed to load trending GIFs:', error);
+      this.notificationSystem.notify('error', 'Load Failed', 'Could not load trending GIFs');
+    }
+  }
+
+  async searchFloatingGifs(query) {
+    this.floatingGiphyQuery = query;
+    this.floatingGiphyOffset = 0;
+
+    if (!query.trim()) {
+      this.loadFloatingTrendingGifs();
+      return;
+    }
+
+    try {
+      const results = await this.giphyService.search(query, { limit: 30, offset: 0 });
+      this.floatingGiphyResults = results;
+      this.renderFloatingGifResults(results, false);
+    } catch (error) {
+      console.error('Failed to search GIFs:', error);
+      this.notificationSystem.notify('error', 'Search Failed', error.message);
+    }
+  }
+
+  async loadMoreFloatingGifs() {
+    this.floatingGiphyOffset += 30;
+
+    try {
+      let results;
+      if (this.floatingGiphyQuery) {
+        results = await this.giphyService.search(this.floatingGiphyQuery, {
+          limit: 30,
+          offset: this.floatingGiphyOffset
+        });
+      } else {
+        results = await this.giphyService.getTrending({
+          limit: 30,
+          offset: this.floatingGiphyOffset
+        });
+      }
+
+      this.floatingGiphyResults = [...this.floatingGiphyResults, ...results];
+      this.renderFloatingGifResults(results, true);
+
+      this.notificationSystem.notify('info', 'More GIFs Loaded', `Loaded ${results.length} more GIFs`);
+    } catch (error) {
+      console.error('Failed to load more GIFs:', error);
+      this.notificationSystem.notify('error', 'Load Failed', error.message);
+    }
+  }
+
+  renderFloatingGifResults(results, append = false) {
+    const container = document.getElementById('floatingGifResults');
+    if (!container) return;
+
+    if (!append) {
+      container.innerHTML = '';
+    }
+
+    if (results.length === 0 && !append) {
+      container.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: #6b7280; padding: 2rem;">No GIFs found. Try a different search.</div>';
+      return;
+    }
+
+    const fragment = document.createDocumentFragment();
+
+    results.forEach(gif => {
+      const item = document.createElement('div');
+      item.className = 'floating-gif-item';
+      item.dataset.gifId = gif.id;
+      item.innerHTML = `
+        <img src="${gif.urls.preview || gif.urls.fixed_width}" alt="${gif.title}" loading="lazy">
+        <div class="select-badge">Select</div>
+      `;
+
+      item.addEventListener('click', () => {
+        this.selectFloatingGif(gif);
+      });
+
+      fragment.appendChild(item);
+    });
+
+    container.appendChild(fragment);
+  }
+
+  async selectFloatingGif(gif) {
+    try {
+      this.notificationSystem.notify('info', 'Loading GIF', 'Extracting frames...');
+
+      // Extract frames from GIF
+      const gifUrl = gif.urls.fixed_width || gif.urls.original;
+      const extractResult = await this.frameExtractor.extractFromUrl(gifUrl);
+
+      // Update floating viewer with source frames
+      if (this.floatingViewer) {
+        this.floatingViewer.setSourceFrames(extractResult.frames, extractResult.delays, {
+          width: extractResult.width,
+          height: extractResult.height
+        });
+      }
+
+      // Also set in remix manager for potential generation
+      this.remixManager.loadSourceGif(gif);
+      this.remixManager.setSourceFrames(extractResult.frames, {
+        delays: extractResult.delays
+      });
+
+      this.notificationSystem.notify('success', 'GIF Ready', `${extractResult.frameCount} frames extracted`);
+
+      // Add to gallery
+      this.addGifToGallery({
+        id: gif.id,
+        title: gif.title,
+        url: gif.urls.fixed_width || gif.urls.original,
+        thumbnail: gif.urls.preview || gif.urls.thumbnail,
+        source: 'giphy',
+        frameCount: extractResult.frameCount,
+        width: extractResult.width,
+        height: extractResult.height
+      });
+
+    } catch (error) {
+      console.error('Failed to select GIF:', error);
+      this.notificationSystem.notify('error', 'Failed to Load GIF', error.message);
+    }
+  }
+
+  setupVisualizerDrag(handle, element) {
+    let isDragging = false;
+    let startX, startY, startLeft, startTop;
+
+    handle.addEventListener('mousedown', (e) => {
+      if (e.target.closest('button')) return;
+
+      isDragging = true;
+      const rect = element.getBoundingClientRect();
+      startX = e.clientX;
+      startY = e.clientY;
+      startLeft = rect.left;
+      startTop = rect.top;
+
+      element.style.transition = 'none';
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+
+      const deltaX = e.clientX - startX;
+      const deltaY = e.clientY - startY;
+
+      element.style.left = `${startLeft + deltaX}px`;
+      element.style.top = `${startTop + deltaY}px`;
+      element.style.transform = 'none';
+    });
+
+    document.addEventListener('mouseup', () => {
+      isDragging = false;
+    });
+  }
+
+  // ============================================
+  // GIF Gallery Methods
+  // ============================================
+
+  initializeGifGallery() {
+    const selectAllBtn = document.getElementById('selectAllGifsBtn');
+    const exportSelectedBtn = document.getElementById('exportSelectedBtn');
+
+    if (selectAllBtn) {
+      selectAllBtn.addEventListener('click', () => this.selectAllGalleryGifs());
+    }
+
+    if (exportSelectedBtn) {
+      exportSelectedBtn.addEventListener('click', () => this.exportSelectedGalleryGifs());
+    }
+
+    // Load any existing GIFs from library
+    this.syncGalleryWithLibrary();
+  }
+
+  syncGalleryWithLibrary() {
+    const libraryGifs = this.gifLibrary.getGifsByCategory('All');
+    libraryGifs.forEach(gif => {
+      if (!this.galleryGifs.find(g => g.id === gif.id)) {
+        this.galleryGifs.push({
+          id: gif.id,
+          title: gif.name,
+          url: gif.url,
+          thumbnail: gif.url,
+          source: 'created',
+          frameCount: gif.frameCount || gif.metadata?.frameCount,
+          duration: gif.duration || gif.metadata?.duration
+        });
+      }
+    });
+    this.renderGifGallery();
+  }
+
+  addGifToGallery(gifData) {
+    // Avoid duplicates
+    if (this.galleryGifs.find(g => g.id === gifData.id)) {
+      return;
+    }
+
+    this.galleryGifs.push({
+      ...gifData,
+      addedAt: Date.now()
+    });
+
+    this.renderGifGallery();
+    this.notificationSystem.notify('success', 'Added to Gallery', `"${gifData.title}" added to your collection`);
+  }
+
+  removeGifFromGallery(gifId) {
+    this.galleryGifs = this.galleryGifs.filter(g => g.id !== gifId);
+    this.selectedGalleryGifs.delete(gifId);
+    this.renderGifGallery();
+  }
+
+  toggleGalleryGifSelection(gifId) {
+    if (this.selectedGalleryGifs.has(gifId)) {
+      this.selectedGalleryGifs.delete(gifId);
+    } else {
+      this.selectedGalleryGifs.add(gifId);
+    }
+    this.renderGifGallery();
+  }
+
+  selectAllGalleryGifs() {
+    if (this.selectedGalleryGifs.size === this.galleryGifs.length) {
+      // Deselect all
+      this.selectedGalleryGifs.clear();
+    } else {
+      // Select all
+      this.galleryGifs.forEach(g => this.selectedGalleryGifs.add(g.id));
+    }
+    this.renderGifGallery();
+  }
+
+  async exportSelectedGalleryGifs() {
+    if (this.selectedGalleryGifs.size === 0) {
+      this.notificationSystem.notify('warning', 'No Selection', 'Select some GIFs to export first');
+      return;
+    }
+
+    const selectedGifs = this.galleryGifs.filter(g => this.selectedGalleryGifs.has(g.id));
+
+    this.notificationSystem.notify('info', 'Exporting', `Preparing ${selectedGifs.length} GIF(s) for download...`);
+
+    // For now, just download them individually
+    for (const gif of selectedGifs) {
+      if (gif.url) {
+        try {
+          const response = await fetch(gif.url);
+          const blob = await response.blob();
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `${gif.title || 'gif'}.gif`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        } catch (error) {
+          console.error('Failed to download GIF:', error);
+        }
+      }
+    }
+
+    this.notificationSystem.notify('success', 'Export Complete', `Downloaded ${selectedGifs.length} GIF(s)`);
+  }
+
+  renderGifGallery() {
+    const container = document.getElementById('gifGalleryDesktop');
+    const countSpan = document.getElementById('galleryCount');
+
+    if (!container) return;
+
+    // Update count
+    if (countSpan) {
+      countSpan.textContent = `(${this.galleryGifs.length} GIF${this.galleryGifs.length !== 1 ? 's' : ''})`;
+    }
+
+    if (this.galleryGifs.length === 0) {
+      container.innerHTML = `
+        <div class="gif-gallery-empty">
+          <div class="gif-gallery-empty-icon">🎬</div>
+          <div class="gif-gallery-empty-title">Your GIF Gallery</div>
+          <div class="gif-gallery-empty-desc">
+            Create GIFs using the Remix feature or browse Giphy to add GIFs to your collection for editing and export.
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = this.galleryGifs.map(gif => {
+      const isSelected = this.selectedGalleryGifs.has(gif.id);
+      return `
+        <div class="gif-gallery-item ${isSelected ? 'selected' : ''}" data-gif-id="${gif.id}">
+          <img src="${gif.thumbnail || gif.url}" alt="${gif.title}" loading="lazy">
+          <div class="gif-gallery-item-overlay">
+            <div class="gif-gallery-item-title">${gif.title || 'Untitled GIF'}</div>
+            <div class="gif-gallery-item-meta">
+              ${gif.frameCount ? gif.frameCount + ' frames' : ''}
+              ${gif.source === 'giphy' ? ' • Giphy' : ' • Created'}
+            </div>
+          </div>
+          <div class="gif-gallery-item-actions">
+            <button class="gif-gallery-action-btn edit" title="Edit">✏️</button>
+            <button class="gif-gallery-action-btn download" title="Download">⬇️</button>
+            <button class="gif-gallery-action-btn delete" title="Remove">🗑️</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Add event handlers
+    container.querySelectorAll('.gif-gallery-item').forEach(item => {
+      const gifId = item.dataset.gifId;
+
+      // Click to select
+      item.addEventListener('click', (e) => {
+        if (!e.target.closest('.gif-gallery-action-btn')) {
+          this.toggleGalleryGifSelection(gifId);
+        }
+      });
+
+      // Action buttons
+      item.querySelector('.edit')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.editGalleryGif(gifId);
+      });
+
+      item.querySelector('.download')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.downloadGalleryGif(gifId);
+      });
+
+      item.querySelector('.delete')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.removeGifFromGallery(gifId);
+      });
+    });
+  }
+
+  async editGalleryGif(gifId) {
+    const gif = this.galleryGifs.find(g => g.id === gifId);
+    if (!gif) return;
+
+    // Open the floating visualizer with this GIF
+    this.openFloatingVisualizer();
+
+    try {
+      const extractResult = await this.frameExtractor.extractFromUrl(gif.url);
+
+      if (this.floatingViewer) {
+        this.floatingViewer.setSourceFrames(extractResult.frames, extractResult.delays, {
+          width: extractResult.width,
+          height: extractResult.height
+        });
+      }
+
+      this.notificationSystem.notify('info', 'Editing GIF', `"${gif.title}" loaded for editing`);
+    } catch (error) {
+      this.notificationSystem.notify('error', 'Load Failed', error.message);
+    }
+  }
+
+  async downloadGalleryGif(gifId) {
+    const gif = this.galleryGifs.find(g => g.id === gifId);
+    if (!gif || !gif.url) return;
+
+    try {
+      const response = await fetch(gif.url);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${gif.title || 'gif'}.gif`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      this.notificationSystem.notify('success', 'Downloaded', `"${gif.title}" has been downloaded`);
+    } catch (error) {
+      this.notificationSystem.notify('error', 'Download Failed', error.message);
+    }
   }
 
   setupAIService() {
@@ -44,8 +1021,7 @@ class MirrorMationApp {
     });
 
     this.aiService.setCompleteCallback((result) => {
-      this.notificationSystem.notify('success', 'AI Complete', 
-        `Frame generated successfully for ${result.layerType} layer`);
+      this.notificationSystem.notify('success', 'AI Complete', 'Frame generated successfully');
     });
 
     this.aiService.setErrorCallback((error) => {
@@ -55,88 +1031,42 @@ class MirrorMationApp {
   }
 
   connectModules() {
+    // Simplified: Now using single timeline layer
     this.timelineManager.onLayerUpdate = (layerName, frames) => {
       this.sceneViewer.setLayerFrames(layerName, frames);
-      this.notificationSystem.notify('success', 'Layer Updated', `${layerName} layer has been updated with ${frames.length} frame(s)`);
+      this.notificationSystem.notify('success', 'Timeline Updated', `Timeline updated with ${frames.length} frame(s)`);
     };
-    
+
     this.timelineManager.onFrameSelect = (layerName, frameIndex, frameData) => {
       this.sceneViewer.renderFrame(layerName, frameIndex);
-      
       this.canvasEditor.startEditMode(layerName, frameIndex, frameData);
-      
-      const layerTypeMap = {
-        'background': 'background',
-        'character': 'characters',
-        'interaction': 'interaction'
-      };
-      
-      this.updateLayerVisuals(layerTypeMap[layerName]);
-      
-      const overlayLayer = document.querySelector('.layer[data-layer="overlay"]');
-      document.querySelectorAll('.layer').forEach(l => l.classList.remove('active'));
-      if (overlayLayer) {
-        overlayLayer.classList.add('active');
-      }
-      
       this.updateEditModeUI();
     };
-    
+
     this.canvasEditor.onFrameComplete = (layerName, frameData) => {
       this.timelineManager.addFrame(layerName, frameData);
-      this.notificationSystem.notify('success', 'Frame Added', `New frame added to ${layerName} layer`);
+      this.notificationSystem.notify('success', 'Frame Added', 'New frame added to timeline');
     };
-    
+
     this.canvasEditor.onFrameUpdate = (layerName, frameIndex, frameData) => {
       this.timelineManager.updateFrame(layerName, frameIndex, frameData);
       this.sceneViewer.renderFrame(layerName, frameIndex);
-      this.notificationSystem.notify('info', 'Frame Updated', `Frame ${frameIndex + 1} in ${layerName} layer has been updated`);
+      this.notificationSystem.notify('info', 'Frame Updated', `Frame ${frameIndex + 1} has been updated`);
     };
-    
+
     // Expose section info getter for AI agent
     window.getTimelineSections = (layerName) => {
       return this.timelineManager.getAllSections(layerName || this.timelineManager.selectedLayer);
     };
-    
+
     window.getTimelineFramesInSection = (layerName, sectionIndex) => {
       return this.timelineManager.getSectionInfo(layerName, sectionIndex);
     };
   }
 
   setupEventListeners() {
-    const layers = document.querySelectorAll('.layer');
-    layers.forEach(layer => {
-      layer.addEventListener('click', () => {
-        layers.forEach(l => l.classList.remove('active'));
-        layer.classList.add('active');
-        
-        const layerType = layer.getAttribute('data-layer');
-        
-        this.updateLayerVisuals(layerType);
-        
-        if (layerType === 'overlay') {
-          this.canvasEditor.show();
-          // Keep the current layer - update visuals to match
-          const currentLayer = this.canvasEditor.getCurrentLayer();
-          const layerTypeMap = {
-            'background': 'background',
-            'character': 'characters',
-            'interaction': 'interaction'
-          };
-          this.updateLayerVisuals(layerTypeMap[currentLayer]);
-          this.updateCanvasLayerButton();
-        } else {
-          this.canvasEditor.hide();
-          if (['background', 'characters', 'interaction'].includes(layerType)) {
-            const normalizedLayerName = layerType === 'characters' ? 'character' : layerType;
-            this.canvasEditor.setCurrentLayer(normalizedLayerName);
-            this.updateCanvasLayerButton();
-            this.timelineManager.setSelectedLayer(normalizedLayerName);
-          }
-        }
-      });
-    });
-    
+    // Layer system removed - simplified single timeline
+
     document.getElementById('playPreview').addEventListener('click', () => {
       if (this.timelineManager.isPlaying) {
         this.timelineManager.stop();
@@ -148,7 +1078,7 @@ class MirrorMationApp {
     });
     
     document.getElementById('generateGIF').addEventListener('click', () => {
-      this.notificationSystem.notify('warning', 'Feature Unavailable', 'GIF generation not implemented yet.');
+      this.generateGIF();
     });
     
     document.getElementById('frameRateSelect').addEventListener('change', (e) => {
@@ -158,7 +1088,7 @@ class MirrorMationApp {
       this.notificationSystem.notify('info', 'Frame Rate Updated', `Animation playback set to ${fps} FPS`);
     });
     
-    const defaultFps = 24;
+    const defaultFps = 12;
     this.timelineManager.setPlaybackSpeed(1000 / defaultFps);
     
     this.setupCanvasEditorControls();
@@ -218,9 +1148,6 @@ class MirrorMationApp {
         this.canvasEditor.hide();
       }
       this.updateEditModeUI();
-      const bgLayer = document.querySelector('.layer[data-layer="background"]');
-      document.querySelectorAll('.layer').forEach(l => l.classList.remove('active'));
-      bgLayer.classList.add('active');
     });
     
     const zoomWrapper = document.querySelector('.canvas-zoom-wrapper');
@@ -282,42 +1209,12 @@ class MirrorMationApp {
       };
       input.click();
     });
-    
+
     this.setupFileBinDragAndDrop();
-    
+
     this.setupCanvasMouseEvents();
-    
-    const canvasLayerBtn = document.getElementById('canvasLayerBtn');
-    this.updateCanvasLayerButton();
-    
-    canvasLayerBtn.addEventListener('click', () => {
-      const layers = ['background', 'character', 'interaction'];
-      const currentLayer = this.canvasEditor.getCurrentLayer();
-      const currentIndex = layers.indexOf(currentLayer);
-      const nextIndex = (currentIndex + 1) % layers.length;
-      const nextLayer = layers[nextIndex];
-      
-      this.canvasEditor.setCurrentLayer(nextLayer);
-      this.updateCanvasLayerButton();
-      
-      const layerTypeMap = {
-        'background': 'background',
-        'character': 'characters',
-        'interaction': 'interaction'
-      };
-      this.updateLayerVisuals(layerTypeMap[nextLayer]);
-      
-      this.updateSidePanelLayerButtons(layerTypeMap[nextLayer]);
-      
-      this.timelineManager.setSelectedLayer(nextLayer);
-      
-      const layerDisplayNames = {
-        'background': 'Background',
-        'character': 'Character',
-        'interaction': 'Interaction'
-      };
-      this.notificationSystem.notify('info', 'Layer Switched', `Now editing ${layerDisplayNames[nextLayer]} layer`);
-    });
+
+    // Layer button removed - simplified single timeline
   }
   
   updateEditModeUI() {
@@ -325,59 +1222,30 @@ class MirrorMationApp {
     const editModeIndicator = document.getElementById('editModeIndicator');
     const editModeActions = document.getElementById('editModeActions');
     const addFrameBtn = document.getElementById('addFrameBtn');
-    
+
     if (isEditMode) {
       const editInfo = this.canvasEditor.getEditModeInfo();
       editModeIndicator.style.display = 'flex';
       editModeActions.style.display = 'flex';
       addFrameBtn.style.display = 'none';
-      
+
       const badge = editModeIndicator.querySelector('.edit-mode-badge');
-      const layerDisplayNames = {
-        'background': 'Background',
-        'character': 'Character',
-        'interaction': 'Interaction'
-      };
-      const timelineAbbreviations = {
-        'background': 'BG',
-        'character': 'CHAR',
-        'interaction': 'INTERACT'
-      };
-      badge.textContent = `✏️ EDITING ${layerDisplayNames[editInfo.layerName]} Frame ${editInfo.frameIndex + 1} [${timelineAbbreviations[editInfo.layerName]}]`;
+      badge.textContent = `EDITING Frame ${editInfo.frameIndex + 1}`;
     } else {
       editModeIndicator.style.display = 'none';
       editModeActions.style.display = 'none';
       addFrameBtn.style.display = 'block';
     }
   }
-  
+
+  // Layer visuals no longer needed - single timeline
   updateLayerVisuals(layerType) {
-    const timeline = document.getElementById('timeline');
-    const canvasWrapper = document.querySelector('.canvas-wrapper');
-    
-    timeline.className = '';
-    canvasWrapper.className = 'canvas-wrapper';
-    
-    if (layerType === 'background') {
-      timeline.classList.add('layer-background');
-      canvasWrapper.classList.add('layer-background');
-    } else if (layerType === 'characters') {
-      timeline.classList.add('layer-characters');
-      canvasWrapper.classList.add('layer-characters');
-    } else if (layerType === 'interaction') {
-      timeline.classList.add('layer-interaction');
-      canvasWrapper.classList.add('layer-interaction');
-    }
+    // No-op - layer system removed
   }
-  
+
+  // Layer buttons no longer needed - single timeline
   updateSidePanelLayerButtons(layerType) {
-    const layers = document.querySelectorAll('.layer');
-    layers.forEach(l => l.classList.remove('active'));
-    
-    const targetLayer = document.querySelector(`.layer[data-layer="${layerType}"]`);
-    if (targetLayer) {
-      targetLayer.classList.add('active');
-    }
+    // No-op - layer system removed
   }
   
   setupCanvasMouseEvents() {
@@ -470,23 +1338,12 @@ class MirrorMationApp {
       }
     });
   }
-  
+
+  // Layer button removed - no-op
   updateCanvasLayerButton() {
-    const canvasLayerBtn = document.getElementById('canvasLayerBtn');
-    const currentLayer = this.canvasEditor.getCurrentLayer();
-    
-    let displayName = currentLayer;
-    if (currentLayer === 'background') {
-      displayName = 'BG';
-    } else if (currentLayer === 'character') {
-      displayName = 'Character Layer';
-    } else if (currentLayer === 'interaction') {
-      displayName = 'Interaction Layer';
-    }
-    
-    canvasLayerBtn.textContent = `🗂️ ${displayName}`;
+    // No-op - layer system removed
   }
-  
+
   setupOverlayDragAndResize() {
     const overlay = document.getElementById('canvasOverlay');
     const dragHandle = document.querySelector('.canvas-top-bar');
@@ -653,7 +1510,7 @@ class MirrorMationApp {
       if (!canvasOverlay.classList.contains('active')) return;
       e.preventDefault();
       canvasOverlay.classList.remove('drag-over');
-      
+
       const fileId = e.dataTransfer.getData('text/plain');
       if (fileId) {
         const fileItem = this.fileBin.find(f => f.id == fileId);
@@ -662,6 +1519,214 @@ class MirrorMationApp {
         }
       }
     });
+  }
+
+  // ============================================
+  // GIF Generation Methods
+  // ============================================
+
+  async generateGIF() {
+    if (this.isGeneratingGif) {
+      this.notificationSystem.notify('warning', 'Already Processing', 'A GIF is currently being generated.');
+      return;
+    }
+
+    const maxFrames = this.timelineManager.getMaxFrameCount();
+    if (maxFrames === 0) {
+      this.notificationSystem.notify('warning', 'No Frames', 'Add some frames to the timeline first!');
+      return;
+    }
+
+    this.isGeneratingGif = true;
+    this.showGifProgress();
+
+    try {
+      // Collect composited frames from all layers
+      const frames = await this.collectAllFrames();
+
+      // Get loop settings
+      const loopType = this.getSelectedLoopType();
+      const enhancedFrames = this.aiBRoll.applyLoopEnhancement(frames, loopType);
+
+      // Get FPS from selector
+      const fps = parseInt(document.getElementById('frameRateSelect').value);
+
+      // Check seamless option
+      const seamless = document.getElementById('seamlessLoop')?.checked || false;
+
+      // Generate GIF
+      await this.gifEncoder.encode(enhancedFrames, {
+        fps: fps,
+        quality: 10,
+        loop: true,
+        width: 800,
+        height: 500,
+        seamless: seamless,
+        dither: 'FloydSteinberg'
+      });
+
+    } catch (error) {
+      this.isGeneratingGif = false;
+      this.hideGifProgress();
+      this.notificationSystem.notify('error', 'GIF Generation Failed', error.message);
+    }
+  }
+
+  async collectAllFrames() {
+    const frames = [];
+    const maxFrames = this.timelineManager.getMaxFrameCount();
+
+    for (let i = 0; i < maxFrames; i++) {
+      // Render each layer at this frame index
+      ['background', 'character', 'interaction'].forEach(layerName => {
+        const layerFrames = this.timelineManager.getLayerFrames(layerName);
+        if (layerFrames.length > 0) {
+          const frameIndex = i % layerFrames.length;
+          this.sceneViewer.renderFrame(layerName, frameIndex);
+        }
+      });
+
+      // Small delay to ensure rendering completes
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      // Get composite frame
+      const compositeCanvas = this.sceneViewer.getCompositeFrame();
+      frames.push(compositeCanvas);
+    }
+
+    return frames;
+  }
+
+  getSelectedLoopType() {
+    const loopSelect = document.getElementById('loopTypeSelect');
+    return loopSelect ? loopSelect.value : 'normal';
+  }
+
+  showGifProgress() {
+    let progressOverlay = document.getElementById('gifProgressOverlay');
+    if (!progressOverlay) {
+      progressOverlay = document.createElement('div');
+      progressOverlay.id = 'gifProgressOverlay';
+      progressOverlay.innerHTML = `
+        <div class="gif-progress-content">
+          <div class="gif-progress-spinner"></div>
+          <h3>Creating Your GIF</h3>
+          <div class="gif-progress-bar">
+            <div class="gif-progress-fill" style="width: 0%"></div>
+          </div>
+          <p class="gif-progress-text">Preparing frames...</p>
+          <button class="gif-cancel-btn" onclick="window.cancelGifGeneration()">Cancel</button>
+        </div>
+      `;
+      document.body.appendChild(progressOverlay);
+
+      // Add cancel function to window
+      window.cancelGifGeneration = () => {
+        this.gifEncoder.abort();
+        this.isGeneratingGif = false;
+        this.hideGifProgress();
+        this.notificationSystem.notify('info', 'Cancelled', 'GIF generation was cancelled.');
+      };
+    }
+    progressOverlay.classList.add('active');
+  }
+
+  updateGifProgress(percent, message) {
+    const progressFill = document.querySelector('.gif-progress-fill');
+    const progressText = document.querySelector('.gif-progress-text');
+    if (progressFill) progressFill.style.width = `${percent}%`;
+    if (progressText) progressText.textContent = message;
+  }
+
+  hideGifProgress() {
+    const progressOverlay = document.getElementById('gifProgressOverlay');
+    if (progressOverlay) {
+      progressOverlay.classList.remove('active');
+    }
+  }
+
+  // ============================================
+  // GIF Library UI Methods
+  // ============================================
+
+  setupGifLibraryUI() {
+    // Library will be rendered in the sidebar
+    this.renderGifLibrary();
+  }
+
+  renderGifLibrary() {
+    const libraryContainer = document.getElementById('gifLibraryContainer');
+    if (!libraryContainer) return;
+
+    const gifs = this.gifLibrary.getGifsByCategory('All');
+    const storageInfo = this.gifLibrary.getStorageInfo();
+
+    if (gifs.length === 0) {
+      libraryContainer.innerHTML = `
+        <div class="gif-library-empty">
+          <p>No GIFs yet!</p>
+          <p class="small">Create your first looping GIF</p>
+        </div>
+      `;
+      return;
+    }
+
+    libraryContainer.innerHTML = `
+      <div class="gif-library-stats">
+        ${gifs.length} GIFs | ${(storageInfo.used / 1024 / 1024).toFixed(1)}MB used
+      </div>
+      <div class="gif-library-grid">
+        ${gifs.map(gif => `
+          <div class="gif-library-item" data-gif-id="${gif.id}">
+            <img src="${gif.url || gif.thumbnail}" alt="${gif.name}" />
+            <div class="gif-item-info">
+              <span class="gif-name">${gif.name}</span>
+              <span class="gif-meta">${gif.frameCount}f | ${gif.duration}s</span>
+            </div>
+            <div class="gif-item-actions">
+              <button class="gif-download-btn" title="Download">⬇️</button>
+              <button class="gif-delete-btn" title="Delete">🗑️</button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+
+    // Add event listeners
+    libraryContainer.querySelectorAll('.gif-library-item').forEach(item => {
+      const gifId = item.dataset.gifId;
+
+      item.querySelector('.gif-download-btn')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const gif = this.gifLibrary.gifs.find(g => g.id === gifId);
+        if (gif && gif.blob) {
+          GifEncoder.download(gif.blob, `${gif.name}.gif`);
+        }
+      });
+
+      item.querySelector('.gif-delete-btn')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.gifLibrary.removeGif(gifId);
+        this.renderGifLibrary();
+        this.notificationSystem.notify('info', 'Deleted', 'GIF removed from library');
+      });
+    });
+  }
+
+  async exportGifPack() {
+    const gifs = this.gifLibrary.gifs;
+    if (gifs.length === 0) {
+      this.notificationSystem.notify('warning', 'No GIFs', 'Create some GIFs first to export a pack.');
+      return;
+    }
+
+    try {
+      const gifIds = gifs.map(g => g.id);
+      const result = await this.gifLibrary.exportPack(gifIds, 'ai-gif-pack');
+      this.notificationSystem.notify('success', 'Pack Exported', `${result.count} GIFs exported successfully!`);
+    } catch (error) {
+      this.notificationSystem.notify('error', 'Export Failed', error.message);
+    }
   }
 }
 
@@ -814,7 +1879,61 @@ class NotificationSystem {
 
 document.addEventListener('DOMContentLoaded', () => {
   const app = new MirrorMationApp();
-  
+
+  // ============================================
+  // Tutorial System
+  // ============================================
+  const tutorialOverlay = document.getElementById('tutorialOverlay');
+  const skipTutorial = document.getElementById('skipTutorial');
+  const startTutorial = document.getElementById('startTutorial');
+  const dontShowTutorial = document.getElementById('dontShowTutorial');
+
+  // Check if user has seen tutorial
+  const hasSeenTutorial = localStorage.getItem('ai-gif-studio-tutorial-seen');
+
+  if (!hasSeenTutorial && tutorialOverlay) {
+    // Show tutorial on first visit
+    setTimeout(() => {
+      tutorialOverlay.classList.add('active');
+    }, 500);
+  }
+
+  function closeTutorial() {
+    if (dontShowTutorial && dontShowTutorial.checked) {
+      localStorage.setItem('ai-gif-studio-tutorial-seen', 'true');
+    }
+    tutorialOverlay.classList.remove('active');
+  }
+
+  if (skipTutorial) {
+    skipTutorial.addEventListener('click', closeTutorial);
+  }
+
+  if (startTutorial) {
+    startTutorial.addEventListener('click', () => {
+      closeTutorial();
+      // Optionally highlight the first element
+      const chatBubble = document.getElementById('chatBubble');
+      if (chatBubble) {
+        chatBubble.classList.add('tutorial-highlight');
+        setTimeout(() => {
+          chatBubble.classList.remove('tutorial-highlight');
+        }, 5000);
+      }
+    });
+  }
+
+  // Export Pack button handler
+  const exportPackBtn = document.getElementById('exportPackBtn');
+  if (exportPackBtn) {
+    exportPackBtn.addEventListener('click', () => {
+      app.exportGifPack();
+    });
+  }
+
+  // ============================================
+  // Chat System with Tabs
+  // ============================================
   const chatBubble = document.getElementById('chatBubble');
   const chatOverlay = document.getElementById('chatOverlay');
   const chatClose = document.querySelector('.chat-close');
@@ -822,6 +1941,63 @@ document.addEventListener('DOMContentLoaded', () => {
   const chatSend = document.getElementById('chatSend');
   const chatMessages = document.querySelector('.chat-messages');
 
+  // Chat tabs
+  const chatTabs = document.querySelectorAll('.chat-tab');
+  const aiTabContent = document.getElementById('aiTabContent');
+  const giphyTabContent = document.getElementById('giphyTabContent');
+
+  chatTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      chatTabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+
+      const tabName = tab.dataset.tab;
+      if (tabName === 'ai') {
+        aiTabContent.classList.add('active');
+        giphyTabContent.classList.remove('active');
+      } else if (tabName === 'giphy') {
+        aiTabContent.classList.remove('active');
+        giphyTabContent.classList.add('active');
+        // Load trending GIFs when switching to Giphy tab
+        if (app.giphyService && !app.giphyService.getTrendingResults().length) {
+          app.giphyService.getTrending();
+        }
+      }
+    });
+  });
+
+  // ============================================
+  // Giphy Search
+  // ============================================
+  const giphySearchInput = document.getElementById('giphySearchInput');
+  const giphySearchBtn = document.getElementById('giphySearchBtn');
+
+  async function performGiphySearch() {
+    const query = giphySearchInput.value.trim();
+    if (app.giphyService) {
+      if (query) {
+        await app.giphyService.search(query);
+      } else {
+        await app.giphyService.getTrending();
+      }
+    }
+  }
+
+  if (giphySearchBtn) {
+    giphySearchBtn.addEventListener('click', performGiphySearch);
+  }
+
+  if (giphySearchInput) {
+    giphySearchInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        performGiphySearch();
+      }
+    });
+  }
+
+  // ============================================
+  // Chat Bubble & Overlay
+  // ============================================
   chatBubble.addEventListener('click', () => {
     chatOverlay.classList.add('active');
     chatBubble.style.display = 'none';
@@ -848,18 +2024,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (text) {
       addMessage(text, 'user');
       chatInput.value = '';
-      
+
       const aiKeywords = ['make', 'create', 'generate', 'add', 'change', 'replace', 'background', 'character', 'interaction', 'guy', 'standing', 'walking', 'scene'];
       const containsAIKeyword = aiKeywords.some(keyword => text.toLowerCase().includes(keyword));
-      
+
       if (containsAIKeyword) {
         const currentLayer = app.timelineManager.getSelectedLayer();
         const selectedFrameIndex = app.timelineManager.selectedFrameIndex;
         const frames = app.timelineManager.getLayerFrames(currentLayer);
-        
+
         if (selectedFrameIndex !== null && frames[selectedFrameIndex]) {
           addMessage('Processing your request with AI...', 'agent');
-          
+
           try {
             const result = await app.aiService.branchFrame({
               prompt: text,
@@ -868,17 +2044,17 @@ document.addEventListener('DOMContentLoaded', () => {
               frameIndex: selectedFrameIndex,
               sectionIndex: app.timelineManager.getSectionForFrame(selectedFrameIndex)
             });
-            
+
             app.timelineManager.updateFrame(currentLayer, selectedFrameIndex, result.generatedFrame);
-            
+
             addMessage(
-              `✓ Frame ${selectedFrameIndex + 1} on ${currentLayer} layer has been updated with your request: "${text}"`,
+              `Frame ${selectedFrameIndex + 1} on ${currentLayer} layer has been updated with your request: "${text}"`,
               'agent'
             );
-            
+
           } catch (error) {
             addMessage(
-              `✗ Failed to generate frame: ${error.message}. Please make sure BRIA_API_KEY is set in Netlify environment variables.`,
+              `Failed to generate frame: ${error.message}. Please make sure BRIA_API_KEY is set in Netlify environment variables.`,
               'agent'
             );
           }
@@ -890,7 +2066,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       } else {
         setTimeout(() => {
-          const response = 'I can help you modify frames with AI! Try saying things like:\n\n• "Make a guy standing"\n• "Create a walking character"\n• "Change background to a forest"\n• "Add interaction effects"\n\nSelect a frame on the timeline, then give me instructions!';
+          const response = 'I can help you modify frames with AI! Try saying things like:\n\n- "Make a guy standing"\n- "Create a walking character"\n- "Change background to a forest"\n- "Add interaction effects"\n\nSelect a frame on the timeline, then give me instructions!\n\nTip: Switch to the GIF Search tab to find and add GIFs from Giphy!';
           addMessage(response, 'agent');
           if (app.notificationSystem && !chatOverlay.classList.contains('active')) {
             app.notificationSystem.notify('info', 'AI Response', 'New message from AI Agent');
@@ -901,10 +2077,20 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   chatSend.addEventListener('click', sendMessage);
-  
+
   chatInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
       sendMessage();
     }
   });
+
+  // Add Help button handler to show tutorial
+  const helpBtn = document.querySelector('#filesHeader button:last-child');
+  if (helpBtn && helpBtn.textContent === 'Help') {
+    helpBtn.addEventListener('click', () => {
+      if (tutorialOverlay) {
+        tutorialOverlay.classList.add('active');
+      }
+    });
+  }
 });
